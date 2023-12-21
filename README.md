@@ -1,4 +1,4 @@
-This is a Library Management System built using Next.js, designed to efficiently manage and automate the various processes and tasks associated with library operations.
+NextPage is a Library Management System built using Next.js, designed to efficiently manage and automate the various processes and tasks associated with library operations.
 
 Data is stored in a Postgres Database (through [Prisma](https://www.prisma.io/)) running in a Docker container. Note that the [.env](/.env) file holds the database URL.
 

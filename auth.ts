@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { NextAuthConfig } from "next-auth";
-import * as z from 'zod';
 
 import { prisma } from "./server/db";
 import { LoginFormSchema } from "./lib/schema";
