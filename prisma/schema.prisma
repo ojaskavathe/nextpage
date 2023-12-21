@@ -1,0 +1,99 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL") 
+}
+
+model Support {
+  id            String            @unique
+  password      String
+}
+
+model Patron {
+  id            Int               @id @default(autoincrement())
+  name          String
+  email         String?
+  phone         String
+  altPhone      String?
+  address       String?
+  pincode       String?
+  joiningDate   DateTime          @db.Date @default(now())
+  whatsapp      Boolean           @default(false)
+  deposit       Int               @default(0)
+  deposit_sr    Boolean           @default(true)
+  remarks       String?
+
+  subscription  Subscription?
+  transactions  Transaction[]
+
+  @@index(fields: [id])
+}
+
+model Subscription {
+  id            String            @id @default(uuid())
+  patron        Patron            @relation(fields: [patronId], references: [id])
+  patronId      Int               @unique
+
+  plan          Int
+  expiryDate    DateTime          @db.Date
+  freeDD        Int
+  freeHoliday   Int
+  lastIssued    DateTime?         @db.Date
+  lastReturned  DateTime?         @db.Date
+  booksInHand   Int               @default(0)
+  closed        Boolean           @default(false)
+
+  offer         String?
+}
+
+model Transaction {
+  id            Int               @id @default(autoincrement())
+  patron        Patron            @relation(fields: [patronId], references: [id])
+  patronId      Int
+
+  type          TransactionType   @default(SIGNUP)
+  mode          TransactionMode
+
+  registration  Int?
+  deposit       Int?
+  readingFees   Int?
+  DDFees        Int?              @default(0)
+  discount      Int?
+  pastDues      Int?              @default(0)
+  adjust        Int?              @default(0)
+  reason        String?
+  offer         String?
+  remarks       String?
+
+  netPayable    Int
+
+  oldPlan       Int
+  newPlan       Int
+  oldExpiry     DateTime          @db.Date
+  newExpiry     DateTime          @db.Date
+  attendedBy    String?
+
+  createdAt     DateTime          @default(now())
+}
+
+enum TransactionType {
+  SIGNUP
+  RENEWAL
+  DD
+  CLOSURE
+  ADDON
+  REFUND
+}
+
+enum TransactionMode {
+  CASH
+  CARD
+  UPI
+  RAZORPAY
+  OTHER
+}
