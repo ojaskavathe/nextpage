@@ -1,9 +1,8 @@
 "use client";
 
-import { trpc } from "../app/_trpc/client";
+import { trpc } from "@/app/_trpc/client";
 
 export default function PatronCreateForm() {
-
 
   const createPatronMutation = trpc.createPatron.useMutation();
 

@@ -41,6 +41,19 @@ const patronSchema = z.object({
 });
 
 export const appRouter = router({
+  getPatrons: PublicProcedure
+    .input(z.object({ searchString: z.string() }))
+    .query(({ input }) => {
+      return prisma.patron.findMany({
+        where: {
+          name: {
+            contains: input.searchString,
+          }
+        },
+        take: 5
+      })
+    }),
+
   createPatron: PublicProcedure
     .input(patronSchema)
     .mutation(async ({ input }) => {
