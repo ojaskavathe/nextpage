@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator"
-import GetPatronForm from "./get-patron"
+import GetPatron from "./get-patron"
 
 export default function PatronCreateForm() {
 
@@ -12,7 +12,7 @@ export default function PatronCreateForm() {
         </p>
       </div>
       <Separator />
-      <GetPatronForm />
+      <GetPatron />
     </div>
   )
 }

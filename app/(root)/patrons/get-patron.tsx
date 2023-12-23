@@ -6,9 +6,9 @@ import { z } from "zod";
 import { fetchPatron } from '@/lib/actions';
 import { Patron } from '@prisma/client';
 import { sr_id } from '@/lib/utils';
-import { Fingerprint } from 'lucide-react';
+import { Fingerprint, Mail } from 'lucide-react';
 
-export default function GetPatronForm() {
+export default function GetPatron() {
 
   const delay = 500;
   const [searchString, setSearchString] = useState('');
@@ -44,6 +44,10 @@ export default function GetPatronForm() {
           <div className='text-sm font-normal flex items-center'>
             <Fingerprint className='w-4'/>
             <span className='pl-2'>{sr_id(p.id)}</span>
+          </div>
+          <div className='text-sm font-normal flex items-center'>
+            <Mail className='w-4'/>
+            <span className='pl-2'>{p.email}</span>
           </div>
         </div>
       ))}

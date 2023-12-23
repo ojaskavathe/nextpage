@@ -14,7 +14,7 @@ CREATE TABLE "Support" (
 CREATE TABLE "Patron" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "email" TEXT,
+    "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "altPhone" TEXT,
     "address" TEXT,

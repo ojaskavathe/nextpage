@@ -1,4 +1,6 @@
+import { Nav } from "@/components/nav"
 import { Navbar } from "@/components/navbar"
+import { Users } from "lucide-react"
 
 export default function RootLayout({
   children,
@@ -6,9 +8,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <>
-      <Navbar />
+    <div className="flex">
+      {/* <Navbar /> */}
+      <Nav
+        isCollapsed={false}
+      />
       {children}
-    </>        
+    </div>        
   )
 }
