@@ -73,9 +73,6 @@ export default function PatronCreateForm() {
   const freeHoliday = hol[index];
   const discount = readingFee * dis[index];
 
-  const total = readingFee + registrationFees + refundableDeposit - discount;
-
-
   const form = useForm<z.infer<typeof patronSchema>>({
     resolver: zodResolver(patronSchema),
     defaultValues: {
@@ -289,11 +286,24 @@ export default function PatronCreateForm() {
         <Card className="mt-8">
           <CardHeader>
             <CardTitle>Payment Details</CardTitle>
+            {(!plan || !duration) &&  
+            <CardDescription>Enter Plan and Duration first!</CardDescription>}
           </CardHeader>
           {!!plan && !!duration &&
             <>
               <CardContent>
                 <div>
+                  {!!freeDD &&
+                  <div className="mb-8">
+                    <div className="flex items-center justify-between">
+                      <span>Free DD:</span>
+                      <span>{freeDD}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Free Subsciption Holidays:</span>
+                      <span>{freeHoliday}</span>
+                    </div>
+                  </div>}
                   <div className="flex items-center justify-between">
                     <span>Security Deposit:</span>
                     <span>₹{refundableDeposit}</span>

@@ -1,19 +1,20 @@
 import { Nav } from "@/components/nav"
-import { Navbar } from "@/components/navbar"
-import { Users } from "lucide-react"
+import { auth } from "@/auth";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await auth();
+
   return (
     <div className="flex">
-      {/* <Navbar /> */}
       <Nav
+        userId={session?.user?.id || ''}
         isCollapsed={false}
       />
-      {children}
+      <div className="flex-grow">{children}</div>
     </div>        
   )
 }

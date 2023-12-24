@@ -11,19 +11,19 @@ export const metadata: Metadata = {
 const sidebarNavItems = [
   {
     title: "Patrons",
-    href: "/patron",
+    href: "/patrons",
   },
   {
     title: "Sign-up",
-    href: "/patron/create",
+    href: "/patrons/create",
   },
   {
     title: "Renew",
-    href: "/patron/renew",
+    href: "/patrons/renew",
   },
   {
     title: "Footfall",
-    href: "/patron/footfall",
+    href: "/patrons/footfall",
   }
 ]
 
@@ -40,12 +40,12 @@ export default function PatronsLayout({ children }: PatronsLayoutProps) {
           Sign-ups, Renewals, viewing and editing Patrons.
         </p>
       </div>
-      <Separator className="my-6" />
-      <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-        <aside className="-mx-4 lg:w-1/5">
+      <div className="flex flex-col">
+        <aside className="-mx-4 mb-4">
           <SidebarNav items={sidebarNavItems} />
         </aside>
-        <div className="flex-1 lg:max-w-2xl">{children}</div>
+        <Separator className="my-0" />
+        <div className="mt-8 flex-1 lg:max-w-2xl">{children}</div>
       </div>
     </div>
   )
