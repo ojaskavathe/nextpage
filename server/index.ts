@@ -17,16 +17,13 @@ const refundableDeposit = 499;
 
 
 export const appRouter = router({
-  getPatrons: PublicProcedure
-    .input(z.object({ searchString: z.string() }))
+  getPatron: PublicProcedure
+    .input(z.object({ id: z.number() }))
     .query(({ input }) => {
-      return prisma.patron.findMany({
+      return prisma.patron.findUnique({
         where: {
-          name: {
-            contains: input.searchString,
-          }
-        },
-        take: 5
+          id: input.id
+        }
       })
     }),
 

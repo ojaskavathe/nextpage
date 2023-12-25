@@ -25,7 +25,7 @@ export const Logout = async () => {
   await signOut()
 }
 
-export const fetchPatron = async (searchString: string) => {
+export const searchPatrons = async (searchString: string) => {
   const isId = await z.string().regex(/^M\d+$/).safeParseAsync(searchString);
   if (isId.success) {
     return await prisma.patron.findMany({
@@ -62,4 +62,21 @@ export const fetchPatron = async (searchString: string) => {
     });
   }
   return [];
+}
+
+export const fetchPatron = async (patronId: number) => {
+  const isId = await z.number().safeParseAsync(patronId);
+  if (isId.success) {
+    return await prisma.patron.findUnique({
+      where: {
+        id: patronId
+      },
+      include: {
+        subscription: true,
+        transactions: true
+      }
+    });
+  }
+
+  return null;
 }

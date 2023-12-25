@@ -13,13 +13,13 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   }[]
 }
 
-export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
+export function PatronNav({ className, items, ...props }: SidebarNavProps) {
   const pathname = usePathname()
 
   return (
     <nav
       className={cn(
-        "flex space-x-2",
+        "flex justify-evenly md:justify-start md:space-x-2",
         className
       )}
       {...props}

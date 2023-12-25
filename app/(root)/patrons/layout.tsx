@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 
 import { Separator } from "@/components/ui/separator"
-import { SidebarNav } from "@/components/patron-sidebar"
+import { PatronNav } from "@/components/nav-patron"
 
 export const metadata: Metadata = {
   title: "Forms",
@@ -33,7 +33,7 @@ interface PatronsLayoutProps {
 
 export default function PatronsLayout({ children }: PatronsLayoutProps) {
   return (
-    <div className="space-y-6 p-10 pb-16">
+    <div className="space-y-6 p-6 pb-16">
       <div className="space-y-0.5">
         <h2 className="text-2xl font-bold tracking-tight">Patrons</h2>
         <p className="text-muted-foreground">
@@ -42,10 +42,10 @@ export default function PatronsLayout({ children }: PatronsLayoutProps) {
       </div>
       <div className="flex flex-col">
         <aside className="-mx-4 mb-4">
-          <SidebarNav items={sidebarNavItems} />
+          <PatronNav items={sidebarNavItems} />
         </aside>
         <Separator className="my-0" />
-        <div className="mt-8 flex-1 lg:max-w-2xl">{children}</div>
+        <div className="mt-4 flex-1 lg:max-w-2xl">{children}</div>
       </div>
     </div>
   )

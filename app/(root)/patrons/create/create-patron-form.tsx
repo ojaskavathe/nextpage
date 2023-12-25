@@ -286,24 +286,24 @@ export default function PatronCreateForm() {
         <Card className="mt-8">
           <CardHeader>
             <CardTitle>Payment Details</CardTitle>
-            {(!plan || !duration) &&  
-            <CardDescription>Enter Plan and Duration first!</CardDescription>}
+            {(!plan || !duration) &&
+              <CardDescription>Enter Plan and Duration first!</CardDescription>}
           </CardHeader>
           {!!plan && !!duration &&
             <>
               <CardContent>
                 <div>
                   {!!freeDD &&
-                  <div className="mb-8">
-                    <div className="flex items-center justify-between">
-                      <span>Free DD:</span>
-                      <span>{freeDD}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Free Subsciption Holidays:</span>
-                      <span>{freeHoliday}</span>
-                    </div>
-                  </div>}
+                    <div className="mb-8">
+                      <div className="flex items-center justify-between">
+                        <span>Free DD:</span>
+                        <span>{freeDD}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Free Subsciption Holidays:</span>
+                        <span>{freeHoliday}</span>
+                      </div>
+                    </div>}
                   <div className="flex items-center justify-between">
                     <span>Security Deposit:</span>
                     <span>₹{refundableDeposit}</span>
@@ -401,11 +401,17 @@ export default function PatronCreateForm() {
             control={form.control}
             name="whatsapp"
             render={({ field }) => (
-              <FormItem className="mt-12 flex flex-col space-y-0">
+              <FormItem className="mt-12 flex flex-col items-center justify-center">
                 <FormControl>
-                  <Toggle variant="outline" aria-label="Toggle whatsapp" defaultPressed={field.value} onPressedChange={field.onChange}>
-                    <Image src="/whatsapp.svg" height={20} width={20} alt="Whatsapp" className="mr-2" />
-                    Whatsapp
+                  <Toggle
+                    variant="outline"
+                    aria-label="Toggle whatsapp"
+                    defaultPressed={field.value}
+                    onPressedChange={field.onChange}
+                    className="flex items-center justify-center"
+                  >
+                    <Image src="/whatsapp.svg" height={20} width={20} alt="Whatsapp" className="mr-0 md:mr-2" />
+                    <span className="hidden md:inline">Whatsapp</span>
                   </Toggle>
                 </FormControl>
                 <FormMessage />
@@ -414,29 +420,29 @@ export default function PatronCreateForm() {
           />
         </div>
         <FormField
-            control={form.control}
-            name="altPhone"
-            render={({ field: { onChange, ...fieldProps } }) => (
-              <FormItem className="mt-4">
-                <FormLabel>Alternate Phone</FormLabel>
-                <FormControl>
-                  <Input
-                    onChange={(e) => {
-                      // only allow integers
-                      if (e.target.value === '' || /^\d*$/.test(e.target.value)) {
-                        onChange(e.target.value)
-                      }
-                    }}
-                    {...fieldProps}
-                    className="mt-0"
-                    placeholder="1231231234"
-                    inputMode="numeric"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          control={form.control}
+          name="altPhone"
+          render={({ field: { onChange, ...fieldProps } }) => (
+            <FormItem className="mt-4">
+              <FormLabel>Alternate Phone</FormLabel>
+              <FormControl>
+                <Input
+                  onChange={(e) => {
+                    // only allow integers
+                    if (e.target.value === '' || /^\d*$/.test(e.target.value)) {
+                      onChange(e.target.value)
+                    }
+                  }}
+                  {...fieldProps}
+                  className="mt-0"
+                  placeholder="1231231234"
+                  inputMode="numeric"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="address"
@@ -461,7 +467,7 @@ export default function PatronCreateForm() {
             <FormItem className="mt-4">
               <FormLabel>Pincode</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="411048" inputMode="numeric"/>
+                <Input {...field} placeholder="411048" inputMode="numeric" />
               </FormControl>
               <FormMessage />
             </FormItem>
