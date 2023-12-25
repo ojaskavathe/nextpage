@@ -9,12 +9,11 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <div className="flex">
+    <div className="flex flex-col-reverse md:flex-row">
       <Nav
         userId={session?.user?.id || ''}
-        isCollapsed={false}
       />
-      <div className="flex-grow">{children}</div>
+      <div className="flex-grow pb-8 md:pb-0">{children}</div>
     </div>        
   )
 }

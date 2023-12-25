@@ -33,7 +33,7 @@ export default function GetPatron() {
   return (
     <div>
       <Input
-        placeholder="ID / Name / Phone" 
+        placeholder="ID / Name / Email" 
         spellCheck="false"
         onChange={(e) => { setSearchString(e.target.value) }}
       />
