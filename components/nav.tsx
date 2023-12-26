@@ -1,9 +1,11 @@
 "use client"
 
+import { useState } from "react";
 import Link from "next/link"
-import { ArrowLeftRight, ChevronDown, FileSpreadsheet, Library, LucideIcon, Menu, Users } from "lucide-react"
+import { usePathname } from "next/navigation"
 import { motion } from "framer-motion";
 
+import { ArrowLeftRight, ChevronDown, FileSpreadsheet, Library, LucideIcon, Menu, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { Button } from "@/components/ui/button"
@@ -17,21 +19,9 @@ import {
   Avatar,
   AvatarFallback,
 } from "@/components/ui/avatar"
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-  DrawerFooter,
-} from "@/components/ui/drawer"
+import { Separator } from "@/components/ui/separator"
 
-import { usePathname } from "next/navigation"
 import { Logout } from "@/lib/actions"
-import { Separator } from "./ui/separator"
-import { useRef, useState } from "react";
 
 interface NavProps {
   userId: string
@@ -79,7 +69,7 @@ export function Nav({ userId }: NavProps) {
     <>
       {/* Mobile */}
       {!collaped &&
-      <div className="fixed bottom-0 left-0 w-screen h-screen backdrop-blur-sm">
+      <div className="fixed bottom-0 left-0 w-screen h-screen backdrop-brightness-50">
       </div>}
       <motion.div
         className="fixed bottom-0 left-0 w-full"
@@ -89,7 +79,7 @@ export function Nav({ userId }: NavProps) {
         }}
         transition={{ ease: "circIn"}} 
       >
-        <aside className="flex flex-col md:hidden fixed bottom-0 left-0 w-full items-center justify-center py-4 px-3 border-t-4 border-red-500 bg-secondary backdrop-blur-sm">
+        <aside className="flex flex-col md:hidden fixed bottom-0 left-0 w-full items-center justify-center py-4 px-3 border-t-4 border-primary rounded-t-2xl bg-secondary">
           <div className="w-full flex space-x-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild className={cn(

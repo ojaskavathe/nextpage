@@ -6,31 +6,39 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
-  items: {
-    href: string
-    title: string
-  }[]
-}
+const patronNavItems = [
+  {
+    title: "Patrons",
+    href: "/patrons",
+  },
+  {
+    title: "Sign-up",
+    href: "/patrons/create",
+  },
+  {
+    title: "Renew",
+    href: "/patrons/renew",
+  },
+  {
+    title: "Footfall",
+    href: "/patrons/footfall",
+  }
+]
 
-export function PatronNav({ className, items, ...props }: SidebarNavProps) {
+export function PatronNav() {
   const pathname = usePathname()
 
   return (
     <nav
-      className={cn(
-        "flex justify-evenly md:justify-start md:space-x-2",
-        className
-      )}
-      {...props}
+      className={"flex justify-evenly md:justify-start md:space-x-2"}
     >
-      {items.map((item) => (
+      {patronNavItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
           className={cn(
             buttonVariants({ variant: "ghost" }),
-            pathname === item.href
+            (pathname.startsWith(item.href))
               ? "bg-muted hover:bg-muted"
               : "hover:bg-transparent hover:underline",
             "justify-start"

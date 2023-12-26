@@ -1,11 +1,12 @@
-import { auth } from "@/auth"
+import { DummyComponent } from "@/components/dummy";
+import { getSheetData } from "@/server/sheets";
 
 export default async function PatronDetails() {
-  const session = await auth();
+  const data = await getSheetData();
 
   return (
     <>
-      name: {JSON.stringify(session?.user)}
+      <DummyComponent data={data} />
     </>
   )
 }

@@ -1,9 +1,7 @@
 "use client";
 
-import { trpc } from "@/app/_trpc/client";
-
 import { zodResolver } from "@hookform/resolvers/zod"
-import { FieldError, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod"
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -18,15 +16,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   Card,
   CardContent,
   CardDescription,
@@ -36,17 +25,14 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
-import { patronSchema } from "@/lib/schema";
-import { Banknote, CreditCard, IndianRupee, QrCode } from "lucide-react";
+import { patronSchema, patronUpdateSchema } from "@/lib/schema";
 import { useState } from "react";
 import Image from "next/image";
 import { Toggle } from "@/components/ui/toggle";
 import { sr_id } from "@/lib/utils";
-import { Patron, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 const months = [1, 3, 6, 12];
 const dd = [0, 0, 2, 4];
@@ -54,15 +40,12 @@ const hol = [0, 0, 1, 2];
 const dis = [0, 0.05, 0.1, 0.2];
 
 const fee = [300, 400, 500, 600, 700, 800];
-const registrationFees = 199;
-const refundableDeposit = 499;
 
 type PatronFull = Prisma.PatronGetPayload<{include: { subscription: true, transactions: true }}>;
 
 export default function PatronUpdateForm({ patron }: { patron: PatronFull }) {
-  const today = new Date();
-
-  const form = useForm<z.infer<typeof patronSchema>>({
+  
+  const form = useForm<z.infer<typeof patronUpdateSchema>>({
     resolver: zodResolver(patronSchema),
     defaultValues: {
       name: patron.name,
@@ -76,22 +59,7 @@ export default function PatronUpdateForm({ patron }: { patron: PatronFull }) {
     }
   });
 
-  const [plan, setPlan] = useState(0);
-  const [duration, setDuration] = useState(0);
-
-  const exp = new Date(today.setMonth(today.getMonth() + duration));
-
-  const readingFee = fee[plan - 1] * duration;
-
-  const index = months.indexOf(duration);
-  const freeDD = dd[index];
-  const freeHoliday = hol[index];
-  const discount = readingFee * dis[index];
-
-
-  const adjustWatch = form.watch('adjust', 0);
-
-  const onSubmit = (data: z.infer<typeof patronSchema>) => {
+  const onSubmit = (data: z.infer<typeof patronUpdateSchema>) => {
     console.log(data);
   }
 
@@ -107,16 +75,30 @@ export default function PatronUpdateForm({ patron }: { patron: PatronFull }) {
           </CardHeader>
           <CardContent>
             <div className="flex space-x-4">
-              <div className="mt-4 flex-grow">
+              <div className="flex-grow">
                 <Label>Plan:</Label>
-                <div className="mt-2 py-2 px-3 border rounded-md text-sm">
+                <div className="py-2 px-3 border rounded-md text-sm">
                   {patron.subscription?.plan} Book
                 </div>
               </div>
-              <div className="mt-4 flex-grow">
+              <div className="flex-grow">
                 <Label>Expires on:</Label>
-                <div className="mt-2 py-2 px-3 border rounded-md text-sm">
+                <div className="py-2 px-3 border rounded-md text-sm">
                   {patron.subscription?.expiryDate.toLocaleDateString("en-IN", { year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+              </div>
+            </div>
+            <div className="flex space-x-4 mt-2">
+              <div className="mt-4 flex-grow">
+                <Label>Free DD:</Label>
+                <div className="mt-2 py-2 px-3 border rounded-md text-sm">
+                  {patron.subscription?.freeDD}
+                </div>
+              </div>
+              <div className="mt-4 flex-grow">
+                <Label>Free Holidays:</Label>
+                <div className="mt-2 py-2 px-3 border rounded-md text-sm">
+                  {patron.subscription?.freeHoliday}
                 </div>
               </div>
             </div>

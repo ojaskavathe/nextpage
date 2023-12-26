@@ -1,12 +1,9 @@
 "use client";
 
-import { trpc } from "@/app/_trpc/client";
-
 import { zodResolver } from "@hookform/resolvers/zod"
-import { FieldError, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod"
 import { useFormState, useFormStatus } from "react-dom";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,9 +17,7 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
@@ -37,7 +32,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { patronSchema } from "@/lib/schema";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Banknote, CreditCard, IndianRupee, QrCode } from "lucide-react";
@@ -55,8 +49,6 @@ const registrationFees = 199;
 const refundableDeposit = 499;
 
 export default function PatronCreateForm() {
-
-  const createPatronMutation = trpc.createPatron.useMutation();
 
   const { pending } = useFormStatus();
 

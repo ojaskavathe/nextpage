@@ -43,3 +43,14 @@ export const patronSchema = z.object({
     })
   }
 })
+
+export const patronUpdateSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  phone: z.string().regex(/^\d{8,10}$/),
+  altPhone: z.string().regex(/^\d{10}$/).optional(),
+  address: z.string().optional(),
+  pincode: z.string().optional(),
+  whatsapp: z.boolean().default(true),
+  remarks: z.string().optional(),
+})

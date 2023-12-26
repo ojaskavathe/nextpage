@@ -1,9 +1,7 @@
 import { z } from "zod";
 import PatronUpdateForm from "./patron-form";
 import { sr_id } from "@/lib/utils";
-import { trpc } from "@/app/_trpc/client";
-import { Patron } from "@prisma/client";
-import { fetchPatron } from "@/lib/actions";
+import { fetchPatron } from "@/server";
 
 export default async function PatronPage({ params }: { params: { patronId: string } }) {
 

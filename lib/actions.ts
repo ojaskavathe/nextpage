@@ -64,19 +64,3 @@ export const searchPatrons = async (searchString: string) => {
   return [];
 }
 
-export const fetchPatron = async (patronId: number) => {
-  const isId = await z.number().safeParseAsync(patronId);
-  if (isId.success) {
-    return await prisma.patron.findUnique({
-      where: {
-        id: patronId
-      },
-      include: {
-        subscription: true,
-        transactions: true
-      }
-    });
-  }
-
-  return null;
-}
