@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "TransactionType" AS ENUM ('SIGNUP', 'RENEWAL', 'DD', 'CLOSURE', 'ADDON', 'REFUND');
+CREATE TYPE "TransactionType" AS ENUM ('SIGNUP', 'RENEWAL', 'DD', 'CLOSURE', 'ADDON', 'REFUND', 'BOOKLOST', 'OTHER');
 
 -- CreateEnum
 CREATE TYPE "TransactionMode" AS ENUM ('CASH', 'CARD', 'UPI', 'RAZORPAY', 'OTHER');
@@ -35,6 +35,7 @@ CREATE TABLE "Subscription" (
     "plan" INTEGER NOT NULL,
     "expiryDate" DATE NOT NULL,
     "freeDD" INTEGER NOT NULL,
+    "paidDD" INTEGER NOT NULL DEFAULT 0,
     "freeHoliday" INTEGER NOT NULL,
     "lastIssued" DATE,
     "lastReturned" DATE,
@@ -49,23 +50,23 @@ CREATE TABLE "Subscription" (
 CREATE TABLE "Transaction" (
     "id" SERIAL NOT NULL,
     "patronId" INTEGER NOT NULL,
-    "type" "TransactionType" NOT NULL DEFAULT 'SIGNUP',
+    "type" "TransactionType" NOT NULL,
     "mode" "TransactionMode" NOT NULL,
-    "registration" INTEGER,
-    "deposit" INTEGER,
-    "readingFees" INTEGER,
-    "DDFees" INTEGER DEFAULT 0,
-    "discount" INTEGER,
-    "pastDues" INTEGER DEFAULT 0,
-    "adjust" INTEGER DEFAULT 0,
+    "registration" INTEGER NOT NULL DEFAULT 0,
+    "deposit" INTEGER NOT NULL DEFAULT 0,
+    "readingFees" INTEGER NOT NULL DEFAULT 0,
+    "DDFees" INTEGER NOT NULL DEFAULT 0,
+    "discount" INTEGER NOT NULL DEFAULT 0,
+    "pastDues" INTEGER NOT NULL DEFAULT 0,
+    "adjust" INTEGER NOT NULL DEFAULT 0,
     "reason" TEXT,
     "offer" TEXT,
     "remarks" TEXT,
     "netPayable" INTEGER NOT NULL,
-    "oldPlan" INTEGER NOT NULL,
-    "newPlan" INTEGER NOT NULL,
-    "oldExpiry" DATE NOT NULL,
-    "newExpiry" DATE NOT NULL,
+    "oldPlan" INTEGER,
+    "newPlan" INTEGER,
+    "oldExpiry" DATE,
+    "newExpiry" DATE,
     "attendedBy" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -80,6 +81,9 @@ CREATE INDEX "Patron_id_idx" ON "Patron"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Subscription_patronId_key" ON "Subscription"("patronId");
+
+-- CreateIndex
+CREATE INDEX "Transaction_patronId_idx" ON "Transaction"("patronId");
 
 -- AddForeignKey
 ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_patronId_fkey" FOREIGN KEY ("patronId") REFERENCES "Patron"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

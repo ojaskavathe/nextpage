@@ -1,12 +1,12 @@
 import { DummyComponent } from "@/components/dummy";
-import { getSheetData } from "@/server/sheets";
+import { getCheckoutData } from "@/server/sheets";
 
 export default async function PatronDetails() {
-  const data = await getSheetData();
+  // const data = await getCheckoutData();
 
   return (
     <>
-      <DummyComponent data={data} />
+      {/* <DummyComponent data={data} /> */}
     </>
   )
 }

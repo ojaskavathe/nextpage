@@ -42,6 +42,7 @@ model Subscription {
   plan          Int
   expiryDate    DateTime          @db.Date
   freeDD        Int
+  paidDD        Int               @default(0)
   freeHoliday   Int
   lastIssued    DateTime?         @db.Date
   lastReturned  DateTime?         @db.Date
@@ -56,29 +57,31 @@ model Transaction {
   patron        Patron            @relation(fields: [patronId], references: [id])
   patronId      Int
 
-  type          TransactionType   @default(SIGNUP)
+  type          TransactionType
   mode          TransactionMode
 
-  registration  Int?
-  deposit       Int?
-  readingFees   Int?
-  DDFees        Int?              @default(0)
-  discount      Int?
-  pastDues      Int?              @default(0)
-  adjust        Int?              @default(0)
+  registration  Int               @default(0) 
+  deposit       Int               @default(0)
+  readingFees   Int               @default(0)
+  DDFees        Int               @default(0)
+  discount      Int               @default(0)
+  pastDues      Int               @default(0)
+  adjust        Int               @default(0)
   reason        String?
   offer         String?
   remarks       String?
 
   netPayable    Int
 
-  oldPlan       Int
-  newPlan       Int
-  oldExpiry     DateTime          @db.Date
-  newExpiry     DateTime          @db.Date
+  oldPlan       Int?
+  newPlan       Int?
+  oldExpiry     DateTime?         @db.Date
+  newExpiry     DateTime?         @db.Date
   attendedBy    String?
 
   createdAt     DateTime          @default(now())
+
+  @@index([patronId])
 }
 
 enum TransactionType {
@@ -88,6 +91,8 @@ enum TransactionType {
   CLOSURE
   ADDON
   REFUND
+  BOOKLOST
+  OTHER
 }
 
 enum TransactionMode {

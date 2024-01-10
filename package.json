@@ -27,6 +27,7 @@
     "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-toggle": "^1.0.3",
     "@tanstack/react-query": "^4.36.1",
+    "@tanstack/react-table": "^8.11.3",
     "@trpc/client": "^10.44.1",
     "@trpc/react-query": "^10.44.1",
     "@trpc/server": "^10.44.1",

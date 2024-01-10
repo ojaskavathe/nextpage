@@ -24,7 +24,7 @@ export default function PatronsLayout({ children }: { children: React.ReactNode 
           <PatronNav />
         </aside>
         <Separator className="my-0" />
-        <div className="mt-4 flex-1 lg:max-w-2xl">{children}</div>
+        <div className="mt-4 flex-1">{children}</div>
       </div>
     </div>
   )

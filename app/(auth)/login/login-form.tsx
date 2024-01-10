@@ -25,8 +25,6 @@ export function LoginForm() {
   const [ errorMessage, dispatch ] = useFormState(authenticate, undefined);
   const { pending } = useFormStatus(); 
 
-  const router = useRouter();
-
   const form = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
@@ -41,8 +39,6 @@ export function LoginForm() {
     formData.append('id', data.id);
     formData.append('password', data.password);
     dispatch(formData);
-    router.push('/');
-    router.refresh();
   }
 
   return (

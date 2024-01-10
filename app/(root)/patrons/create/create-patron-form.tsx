@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form";
 import * as z from "zod"
-import { useFormState, useFormStatus } from "react-dom";
 
 import { Button } from "@/components/ui/button"
 import {
@@ -34,10 +33,11 @@ import { patronSchema } from "@/lib/schema";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Banknote, CreditCard, IndianRupee, QrCode } from "lucide-react";
+import { AlertCircle, Banknote, CreditCard, IndianRupee, QrCode } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import { Toggle } from "@/components/ui/toggle";
+import { createPatron } from "@/server/patron";
 
 const months = [1, 3, 6, 12];
 const dd = [0, 0, 2, 4];
@@ -50,13 +50,8 @@ const refundableDeposit = 499;
 
 export default function PatronCreateForm() {
 
-  const { pending } = useFormStatus();
-
   const [plan, setPlan] = useState(0);
   const [duration, setDuration] = useState(0);
-  const today = new Date();
-
-  const exp = new Date(today.setMonth(today.getMonth() + duration));
 
   const readingFee = fee[plan - 1] * duration;
 
@@ -83,14 +78,20 @@ export default function PatronCreateForm() {
   });
   const adjustWatch = form.watch('adjust', 0);
 
-  const onSubmit = (data: z.infer<typeof patronSchema>) => {
-    console.log(data);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const onSubmit = async (data: z.infer<typeof patronSchema>) => {
+    const res = await createPatron(data);
+  
+    if (res.error)
+      setErrorMessage(res.message);
   }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
+        className="xl:w-2/3"
       >
         <div className="flex items-center space-x-4">
           <FormField
@@ -493,6 +494,13 @@ export default function PatronCreateForm() {
         />
         <Button type="submit" className="mt-6 w-full" >Sign-up</Button>
       </form>
+      { errorMessage && 
+          <div className="flex text-red-500 mt-4">
+            <AlertCircle className="mr-1 w-5"/>
+            <p className="font-semibold">
+              {errorMessage}
+            </p>
+          </div>}
     </Form>
   )
 }

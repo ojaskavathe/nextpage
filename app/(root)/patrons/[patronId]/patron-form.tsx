@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod"
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -46,8 +46,9 @@ type PatronFull = Prisma.PatronGetPayload<{include: { subscription: true, transa
 export default function PatronUpdateForm({ patron }: { patron: PatronFull }) {
   
   const form = useForm<z.infer<typeof patronUpdateSchema>>({
-    resolver: zodResolver(patronSchema),
+    resolver: zodResolver(patronUpdateSchema),
     defaultValues: {
+      id: patron.id,
       name: patron.name,
       email: patron.email,
       phone: patron.phone,
@@ -68,20 +69,20 @@ export default function PatronUpdateForm({ patron }: { patron: PatronFull }) {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <Card>
+        <Card className="xl:w-2/3">
           <CardHeader>
             <CardTitle>Patron Details - {sr_id(patron.id)}</CardTitle>
             <CardDescription>View and Edit Patron Details</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex space-x-4">
-              <div className="flex-grow">
+              <div className="basis-1/2">
                 <Label>Plan:</Label>
                 <div className="py-2 px-3 border rounded-md text-sm">
                   {patron.subscription?.plan} Book
                 </div>
               </div>
-              <div className="flex-grow">
+              <div className="basis-1/2">
                 <Label>Expires on:</Label>
                 <div className="py-2 px-3 border rounded-md text-sm">
                   {patron.subscription?.expiryDate.toLocaleDateString("en-IN", { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -89,13 +90,13 @@ export default function PatronUpdateForm({ patron }: { patron: PatronFull }) {
               </div>
             </div>
             <div className="flex space-x-4 mt-2">
-              <div className="mt-4 flex-grow">
+              <div className="mt-4 basis-1/2">
                 <Label>Free DD:</Label>
                 <div className="mt-2 py-2 px-3 border rounded-md text-sm">
                   {patron.subscription?.freeDD}
                 </div>
               </div>
-              <div className="mt-4 flex-grow">
+              <div className="mt-4 basis-1/2">
                 <Label>Free Holidays:</Label>
                 <div className="mt-2 py-2 px-3 border rounded-md text-sm">
                   {patron.subscription?.freeHoliday}
