@@ -69,17 +69,17 @@ export function Nav({ userId }: NavProps) {
     <>
       {/* Mobile */}
       {!collaped &&
-      <div className="fixed bottom-0 left-0 w-screen h-screen backdrop-brightness-50">
+      <div className="fixed bottom-0 left-0 w-screen h-screen z-10">
       </div>}
       <motion.div
-        className="fixed bottom-0 left-0 w-full"
+        className="fixed bottom-0 left-0 w-full z-20"
         initial={{ y: 220 }}
         animate={{
           y: collaped ? 220 : 0
         }}
         transition={{ ease: "easeOut" }} 
       >
-        <aside className="flex flex-col md:hidden fixed bottom-0 left-0 w-full items-center justify-center py-4 px-3 border-t-2 border-primary rounded-t-2xl bg-secondary">
+        <aside className="flex flex-col md:hidden fixed bottom-0 left-0 w-full items-center justify-center py-4 px-3 border-t-2 border-primary rounded-t-2xl bg-secondary overflow-hidden">
           <div className="w-full flex space-x-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild className={cn(
