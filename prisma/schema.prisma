@@ -30,6 +30,8 @@ model Patron {
 
   subscription  Subscription?
   transactions  Transaction[]
+  deliveries    Delivery[]
+  footfall      Footfall[]
 
   @@index(fields: [id])
 }
@@ -41,15 +43,17 @@ model Subscription {
 
   plan          Int
   expiryDate    DateTime          @db.Date
-  freeDD        Int
-  paidDD        Int               @default(0)
   freeHoliday   Int
   lastIssued    DateTime?         @db.Date
   lastReturned  DateTime?         @db.Date
   booksInHand   Int               @default(0)
   closed        Boolean           @default(false)
-
   offer         String?
+
+  paidDD        Int               @default(0)
+  paidDDused    Int               @default(0)
+  freeDD        Int               @default(0)
+  freeDDused    Int               @default(0)
 }
 
 model Transaction {
@@ -84,6 +88,36 @@ model Transaction {
   @@index([patronId])
 }
 
+model Delivery {
+  id            String            @id @default(uuid())
+  patron        Patron            @relation(fields: [patronId], references: [id])
+  patronId      Int
+
+  scheduledFor  DateTime          @db.Date
+  type          DDType
+  numBooks      Int
+  message       String?
+
+  footfall      Footfall          @relation(fields: [footfallId], references: [id], onDelete: Cascade)
+  footfallId    String            @unique
+
+  createdAt     DateTime          @default(now())
+}
+
+model Footfall {
+  id            String            @id @default(uuid())
+  patron        Patron            @relation(fields: [patronId], references: [id])
+  patronId      Int
+
+  type          FootfallType
+  isDD          Boolean           @default(false)
+  offer         String?
+  remarks       String?
+  delivery      Delivery?
+
+  createdAt     DateTime          @default(now())
+}
+
 enum TransactionType {
   SIGNUP
   RENEWAL
@@ -101,4 +135,15 @@ enum TransactionMode {
   UPI
   RAZORPAY
   OTHER
+}
+
+enum DDType {
+  FREE
+  PAID
+}
+
+enum FootfallType {
+  ISSUE
+  RETURN
+  BOTH
 }

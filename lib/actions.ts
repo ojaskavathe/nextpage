@@ -20,8 +20,8 @@ export const authenticate = async (prevState: string | undefined, formData: Form
     throw error;
   }
 
-  revalidatePath('/');
-  redirect('/')
+  revalidatePath('/patrons');
+  redirect('/patrons')
 }
 
 export const Logout = async () => {

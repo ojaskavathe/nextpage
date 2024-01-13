@@ -19,16 +19,25 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: "reason",
-    header: "Reason for Adjustment",
+    header: "Reason",
   },
   {
     accessorKey: "createdAt",
     header: "Date",
     cell: ({ row }) => {
       const date: Date = row.getValue("createdAt");
-      return (<div>
-        {date.toLocaleDateString("en-IN", { year: 'numeric', month: 'numeric', day: 'numeric' })}
-      </div>)
+      return (
+        <div>
+          {date.toLocaleDateString("en-IN", {
+            year: '2-digit',
+            month: '2-digit',
+            day: '2-digit',
+            hour: "numeric",
+            minute: "numeric",
+            timeZone: "UTC"
+          })}
+        </div>
+      )
     }
   }
 ]

@@ -1,12 +1,10 @@
+import { auth } from "@/auth";
 import { DummyComponent } from "@/components/dummy";
-import { getCheckoutData } from "@/server/sheets";
+import { redirect } from "next/navigation";
 
 export default async function PatronDetails() {
-  // const data = await getCheckoutData();
-
-  return (
-    <>
-      {/* <DummyComponent data={data} /> */}
-    </>
-  )
+  const session = await auth();
+  if (session) {
+    redirect('/patrons')
+  }
 }

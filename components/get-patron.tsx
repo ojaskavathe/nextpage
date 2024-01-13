@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { z } from "zod";
-import { BookOpen, Fingerprint, HardDriveDownload, HardDriveUpload, Library, Mail, TimerReset } from 'lucide-react';
+import { Bike, BookOpen, Fingerprint, Gauge, HardDriveDownload, HardDriveUpload, Library, Mail, TimerReset, Truck } from 'lucide-react';
 import { Prisma } from '@prisma/client';
 
 import { Input } from "@/components/ui/input";
@@ -11,17 +11,17 @@ import { sr_id } from '@/lib/utils';
 import { searchPatrons } from '@/server/patron';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { FootfallDialog } from '@/components/footfall-form';
 
-type PatronFull = Prisma.PatronGetPayload<{ include: { subscription: true } }>;
-
+type PatronWithSub = Prisma.PatronGetPayload<{ include: { subscription: true } }>;
 
 export default function GetPatron() {
 
   const delay = 500;
   const [searchString, setSearchString] = useState('');
 
-  const [patrons, setPatrons] = useState<PatronFull[]>([]);
-  const [patron, setPatron] = useState<PatronFull>();
+  const [patrons, setPatrons] = useState<PatronWithSub[]>([]);
+  const [patron, setPatron] = useState<PatronWithSub>();
 
   // debouncing the search query
   useEffect(() => {
@@ -42,6 +42,7 @@ export default function GetPatron() {
     <div className='flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0'>
       <div className='basis-1/2'>
         <Input
+          name="patron"
           placeholder="ID / Name / Email"
           spellCheck="false"
           onChange={(e) => { setSearchString(e.target.value) }}
@@ -77,8 +78,16 @@ export default function GetPatron() {
               <CardTitle>{patron.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className='flex justify-between flex-wrap space-y-1'>
+              <div className='flex justify-between flex-wrap gap-1'>
                 <div className='flex flex-col space-y-1'>
+                  <div className='text-sm font-normal flex items-center'>
+                    <Gauge className='w-4' />
+                    <span className='pl-2 font-semibold'>
+                      {patron.subscription?.expiryDate! >= new Date()
+                        ? <span className=''>ACTIVE</span>
+                        : <span className='text-red-500'>EXPIRED</span>}
+                    </span>
+                  </div>
                   <div className='text-sm font-normal flex items-center'>
                     <Fingerprint className='w-4' />
                     <span className='pl-2'>{sr_id(patron.id)}</span>
@@ -90,7 +99,7 @@ export default function GetPatron() {
                   <div className='text-sm font-normal flex items-center'>
                     <Library className='w-4' />
                     <span className='pl-2'>
-                      <span className='font-semibold'>Plan: </span> 
+                      <span className='font-semibold'>Plan: </span>
                       {`${patron.subscription?.plan} Books`}
                     </span>
                   </div>
@@ -125,6 +134,20 @@ export default function GetPatron() {
                         : 'Not Found'}
                     </span>
                   </div>
+                  <div className='text-sm font-normal flex items-center'>
+                    <Bike className='w-4' />
+                    <span className='pl-2'>
+                      <span className='font-semibold'>Free Delivery: </span>
+                      {`${patron.subscription?.freeDD || 0}`}
+                    </span>
+                  </div>
+                  <div className='text-sm font-normal flex items-center'>
+                    <Truck className='w-4' />
+                    <span className='pl-2'>
+                      <span className='font-semibold'>Paid Delivery: </span>
+                      {`${patron.subscription?.paidDD || 0}`}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className='flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-8'>
@@ -132,20 +155,15 @@ export default function GetPatron() {
                   href={`/patrons/${patron.id}`}
                   className='basis-1/3'
                 >
-                  <Button className='w-full'>Edit</Button>
+                  <Button variant="outline" className='w-full'>Edit</Button>
                 </Link>
                 <Link
                   href={`/patrons/${patron.id}/renew`}
                   className='basis-1/3'
                 >
-                  <Button className='w-full'>Renew</Button>
+                  <Button variant="outline" className='w-full'>Renew</Button>
                 </Link>
-                <Link
-                  href={`/patrons/${patron.id}/renew`}
-                  className='basis-1/3'
-                >
-                  <Button className='w-full'>Footfall</Button>
-                </Link>
+                <FootfallDialog className='basis-1/3' patron={patron}/>
               </div>
             </CardContent>
           </Card>

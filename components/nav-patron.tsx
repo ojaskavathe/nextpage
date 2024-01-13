@@ -15,14 +15,6 @@ const patronNavItems = [
     title: "Sign-up",
     href: "/patrons/create",
   },
-  {
-    title: "Renew",
-    href: "/patrons/renew",
-  },
-  {
-    title: "Footfall",
-    href: "/patrons/footfall",
-  }
 ]
 
 export function PatronNav() {
@@ -30,7 +22,7 @@ export function PatronNav() {
 
   return (
     <nav
-      className={"flex justify-evenly md:justify-start md:space-x-2"}
+      className={"flex md:justify-start md:space-x-2"}
     >
       {patronNavItems.map((item) => (
         <Link

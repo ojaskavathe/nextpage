@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 export default async function LogIn() {
   const session = await auth();
   if (session) {
-    redirect('/')
+    redirect('/patrons')
   }
 
   return  (

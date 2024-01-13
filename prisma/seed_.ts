@@ -13,7 +13,7 @@ const serviceAccountAuth = new JWT({
 });
 
 const doc = new GoogleSpreadsheet('19JIUXnHiYs2ExSQcyhthBTykHZquDmEG6oRt3DAeHMw', serviceAccountAuth);
-const getSheetData = async () => {
+const getPatronData = async () => {
 
   await doc.loadInfo(); // loads document properties and worksheets
 
@@ -58,7 +58,7 @@ async function main() {
   const dd = [0, 0, 2, 4];
   const hol = [0, 0, 1, 2];
   const dis = [0, 0.05, 0.1, 0.2];
-  const patronData = await getSheetData();
+  const patronData = await getPatronData();
 
   patronData.forEach(async (row) => {
     // based on duration
@@ -69,30 +69,34 @@ async function main() {
 
     const deposit_sr = (row["SD with"] == 'SR') ? true : false;
 
-    await prisma.patron.create({
-      data: {
-        id: parseInt(row["Membership Number"]),
-        name: row["Name"],
-        email: row["Email"],
-        phone: row["Mobile"],
-        altPhone: row["Alternate Number"] || undefined,
-        address: row["Address"] || undefined,
-        joiningDate: new Date(row["Joining Date"] + "T00:00:00.000Z"),
-        whatsapp,
-        deposit: parseInt(row["Security Deposit"]),
-        deposit_sr,
-        pincode: row["Pincode"] || undefined,
-        remarks: row["Additional Remarks"] || undefined,
-        subscription: {
-          create: {
-            plan: parseInt(row["Plan"]),
-            expiryDate: new Date(row["Expiry Date"] + "T00:00:00.000Z"),
-            freeDD: freeDD,
-            freeHoliday: freeHoliday,
-          }
-        },
-      }
-    })
+    try {
+      await prisma.patron.create({
+        data: {
+          id: parseInt(row["Membership Number"]),
+          name: row["Name"],
+          email: row["Email"],
+          phone: row["Mobile"],
+          altPhone: row["Alternate Number"] || undefined,
+          address: row["Address"] || undefined,
+          joiningDate: new Date(row["Joining Date"] + "T00:00:00.000Z"),
+          whatsapp,
+          deposit: parseInt(row["Security Deposit"]),
+          deposit_sr,
+          pincode: row["Pincode"] || undefined,
+          remarks: row["Additional Remarks"] || undefined,
+          subscription: {
+            create: {
+              plan: parseInt(row["Plan"]),
+              expiryDate: new Date(row["Expiry Date"] + "T00:00:00.000Z"),
+              freeDD: freeDD,
+              freeHoliday: freeHoliday,
+            }
+          },
+        }
+      })
+    } catch (e) {
+      console.log('Error inserting Patron: ' + row["Membership Number"]);
+    }
   });
 
   const transactionData = await getTransactionData();

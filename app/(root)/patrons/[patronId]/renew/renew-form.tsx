@@ -36,6 +36,7 @@ import { AlertCircle, Banknote, CreditCard, IndianRupee, QrCode } from "lucide-r
 import { patronRenewSchema } from "@/lib/schema";
 import { Button } from "@/components/ui/button";
 import { PatronFull } from "@/lib/utils";
+import PatronFormDetails from "@/components/patron-form-details";
 
 const months = [1, 3, 6, 12];
 const dd = [0, 0, 2, 4];
@@ -43,11 +44,13 @@ const hol = [0, 0, 1, 2];
 const dis = [0, 0.05, 0.1, 0.2];
 
 const fee = [300, 400, 500, 600, 700, 800];
+const DDFees = 25;
 
 export default function RenewForm({ patronId }: { patronId: number }) {
 
   const [plan, setPlan] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [paidDD, setPaidDD] = useState(0);
 
   const readingFee = fee[plan - 1] * duration;
 
@@ -60,10 +63,11 @@ export default function RenewForm({ patronId }: { patronId: number }) {
     resolver: zodResolver(patronRenewSchema),
     defaultValues: {
       id: patronId,
-      adjust: 0,
+      paidDD: '',
+      adjust: '',
       reason: '',
       offer: '',
-      pastDues: 0
+      pastDues: ''
     }
   })
 
@@ -84,151 +88,11 @@ export default function RenewForm({ patronId }: { patronId: number }) {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
           >
-            <div className="flex items-center space-x-4">
-              <FormField
-                control={form.control}
-                name="plan"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Plan</FormLabel>
-                    <Select
-                      onValueChange={(value: string) => {
-                        setPlan(parseInt(value));
-                        field.onChange(parseInt(value));
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger >
-                          <SelectValue placeholder="Select a plan" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {[1, 2, 3, 4, 5, 6].map(i => (
-                          <SelectItem value={`${i}`} key={i}>{i} Book</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Duration</FormLabel>
-                    <Select
-                      onValueChange={(value: string) => {
-                        setDuration(parseInt(value));
-                        field.onChange(parseInt(value))
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger >
-                          <SelectValue placeholder="Select a duration" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {[1, 3, 6, 12].map(i => (
-                          <SelectItem value={`${i}`} key={i}>{i} Months</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="mode"
-              render={({ field }) => (
-                <FormItem className="mt-4">
-                  <FormLabel>Payment Mode</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      className="grid grid-cols-4 gap-4"
-                    >
-                      <FormItem>
-                        <FormControl>
-                          <RadioGroupItem
-                            value="CASH"
-                            id="cash"
-                            className="peer sr-only" />
-                        </FormControl>
-                        <Label
-                          htmlFor="cash"
-                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                        >
-                          <Banknote className="mb-3 h-6 w-6" />
-                          Cash
-                        </Label>
-                      </FormItem>
-                      <FormItem>
-                        <FormControl>
-                          <RadioGroupItem
-                            value="CARD"
-                            id="card"
-                            className="peer sr-only" />
-                        </FormControl>
-                        <Label
-                          htmlFor="card"
-                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                        >
-                          <CreditCard className="mb-3 h-6 w-6" />
-                          Card
-                        </Label>
-                      </FormItem>
-                      <FormItem>
-                        <FormControl>
-                          <RadioGroupItem
-                            value="UPI"
-                            id="upi"
-                            className="peer sr-only" />
-                        </FormControl>
-                        <Label
-                          htmlFor="upi"
-                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                        >
-                          <QrCode className="mb-3 h-6 w-6" />
-                          UPI
-                        </Label>
-                      </FormItem>
-                      <FormItem>
-                        <FormControl>
-                          <RadioGroupItem
-                            value="OTHER"
-                            id="other"
-                            className="peer sr-only" />
-                        </FormControl>
-                        <Label
-                          htmlFor="other"
-                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                        >
-                          <IndianRupee className="mb-3 h-6 w-6" />
-                          Other
-                        </Label>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="offer"
-              render={({ field }) => (
-                <FormItem className="mt-4">
-                  <FormLabel>Offer</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Special Offers" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <PatronFormDetails
+              form={form}
+              setPlan={setPlan}
+              setDuration={setDuration}
+              setPaidDD={setPaidDD}
             />
             <FormField
               control={form.control}
@@ -254,49 +118,6 @@ export default function RenewForm({ patronId }: { patronId: number }) {
                 </FormItem>
               )}
             />
-            <div className="flex space-x-4">
-              <FormField
-                control={form.control}
-                name="adjust"
-                render={({ field: { onChange, ...fieldProps } }) => (
-                  <FormItem className="mt-4 flex-grow">
-                    <FormLabel>Adjust</FormLabel>
-                    <FormControl>
-                      <Input
-                        onChange={(e) => {
-                          // only allow integers
-                          if (e.target.value === '' || /^-?\d*$/.test(e.target.value)) {
-                            onChange(e.target.value)
-                          }
-                        }}
-                        {...fieldProps}
-                        className="mt-0"
-                        placeholder="-200"
-                        inputMode="numeric"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="reason"
-                render={({ field }) => (
-                  <FormItem className="mt-4 flex-grow">
-                    <FormLabel>Reason</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="mt-0"
-                        placeholder="Previous Member"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
             <Card className="mt-8">
               <CardHeader>
                 <CardTitle>Payment Details</CardTitle>
@@ -322,6 +143,11 @@ export default function RenewForm({ patronId }: { patronId: number }) {
                         <span>Reading Fees:</span>
                         <span>₹{fee[plan - 1] * duration}</span>
                       </div>
+                      {!!paidDD &&
+                        <div className="flex items-center justify-between">
+                          <span>DD Fees:</span>
+                          <span>₹{paidDD * DDFees}</span>
+                        </div>}
                       <div className="flex items-center justify-between">
                         <span>Discount:</span>
                         <span>- ₹{readingFee * dis[index]}</span>
@@ -345,6 +171,7 @@ export default function RenewForm({ patronId }: { patronId: number }) {
                         readingFee -
                         discount -
                         (pastDuesWatch!.toString() !== '-' ? -pastDuesWatch! : 0) -
+                        (paidDD ? -(paidDD * DDFees) : 0) -
                         (adjustWatch!.toString() !== '-' ? -adjustWatch! : 0)
                       }</span>
                     </div>

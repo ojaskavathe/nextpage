@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function PatronsLayout({ children }: { children: React.ReactNode }) {
 
   return (
-    <div className="space-y-6 p-6 pb-16">
+    <div className="space-y-6 pb-16">
       <div className="space-y-0.5">
         <h2 className="text-2xl font-bold tracking-tight">Patrons</h2>
         <p className="text-muted-foreground">
@@ -20,7 +20,7 @@ export default function PatronsLayout({ children }: { children: React.ReactNode 
         </p>
       </div>
       <div className="flex flex-col">
-        <aside className="-mx-4 mb-4">
+        <aside className="mb-4">
           <PatronNav />
         </aside>
         <Separator className="my-0" />

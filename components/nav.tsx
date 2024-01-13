@@ -77,14 +77,14 @@ export function Nav({ userId }: NavProps) {
         animate={{
           y: collaped ? 220 : 0
         }}
-        transition={{ ease: "circIn"}} 
+        transition={{ ease: "easeOut" }} 
       >
-        <aside className="flex flex-col md:hidden fixed bottom-0 left-0 w-full items-center justify-center py-4 px-3 border-t-4 border-primary rounded-t-2xl bg-secondary">
+        <aside className="flex flex-col md:hidden fixed bottom-0 left-0 w-full items-center justify-center py-4 px-3 border-t-2 border-primary rounded-t-2xl bg-secondary">
           <div className="w-full flex space-x-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild className={cn(
                 buttonVariants({ variant: 'outline', size: "lg" }),
-                "w-full justify-start py-2 px-2 flex-grow")
+                "w-full justify-start py-2 px-2 flex-grow rounded-l-2xl")
               }>
                 <Button variant="ghost" className="flex">
                   <Avatar className="h-6 w-6 mr-2">
@@ -108,7 +108,8 @@ export function Nav({ userId }: NavProps) {
             <Button
               onClick={() => setCollapsed(!collaped)}
               className={cn(
-                buttonVariants({ variant: "default", size: 'lg'})
+                buttonVariants({ variant: "default", size: 'lg'}),
+                "rounded-r-2xl"
               )}
             >
               <Menu />

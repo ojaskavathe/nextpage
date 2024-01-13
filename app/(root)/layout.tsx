@@ -13,7 +13,7 @@ export default async function RootLayout({
       <Nav
         userId={session?.user?.id || ''}
       />
-      <div className="flex-grow pb-8 md:pb-0">{children}</div>
+      <div className="flex-grow pb-8 md:pb-0 p-6">{children}</div>
     </div>        
   )
 }
