@@ -1,56 +1,30 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form";
-import * as z from "zod"
-
-import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { patronSchema } from "@/lib/schema";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { AlertCircle, Banknote, CreditCard, IndianRupee, QrCode } from "lucide-react";
-import { useState } from "react";
 import Image from "next/image";
-import { Toggle } from "@/components/ui/toggle";
-import { createPatron } from "@/server/patron";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
+import { AlertCircle } from "lucide-react";
+
 import PatronFormDetails from "@/components/patron-form-details";
-
-const months = [1, 3, 6, 12];
-const dd = [0, 0, 2, 4];
-const hol = [0, 0, 1, 2];
-const dis = [0, 0.05, 0.1, 0.2];
-
-const fee = [300, 400, 500, 600, 700, 800];
-const DDFees = 25;
-const registrationFees = 199;
-const refundableDeposit = 499;
+import { Button } from "@/components/ui/button";
+import {
+  Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle
+} from "@/components/ui/card";
+import {
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Toggle } from "@/components/ui/toggle";
+import { patronCreateSchema } from "@/lib/schema";
+import {
+  DDFees, discounts, durations, fee, freeDDs, holidays, refundableDeposit, registrationFees
+} from "@/lib/utils";
+import { createPatron } from "@/server/patron";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function PatronCreateForm() {
 
@@ -62,13 +36,13 @@ export default function PatronCreateForm() {
 
   const readingFee = fee[plan - 1] * duration;
 
-  const index = months.indexOf(duration);
-  const freeDD = dd[index];
-  const freeHoliday = hol[index];
-  const discount = readingFee * dis[index];
+  const index = durations.indexOf(duration);
+  const freeDD = freeDDs[index];
+  const freeHoliday = holidays[index];
+  const discount = readingFee * discounts[index];
 
-  const form = useForm<z.infer<typeof patronSchema>>({
-    resolver: zodResolver(patronSchema),
+  const form = useForm<z.infer<typeof patronCreateSchema>>({
+    resolver: zodResolver(patronCreateSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -88,7 +62,7 @@ export default function PatronCreateForm() {
 
   const [errorMessage, setErrorMessage] = useState('');
 
-  const onSubmit = async (patronData: z.infer<typeof patronSchema>) => {
+  const onSubmit = async (patronData: z.infer<typeof patronCreateSchema>) => {
     const res = await createPatron(patronData);
 
     if (res.error)
@@ -154,7 +128,7 @@ export default function PatronCreateForm() {
                     </div>}
                   <div className="flex items-center justify-between">
                     <span>Discount:</span>
-                    <span>- ₹{readingFee * dis[index]}</span>
+                    <span>- ₹{readingFee * discounts[index]}</span>
                   </div>
                   {adjustWatch != 0 && adjustWatch.toString() !== '-' &&
                     <div className="flex items-center justify-between">
@@ -323,7 +297,7 @@ export default function PatronCreateForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="mt-6 w-full" >Sign-up</Button>
+        <Button type="submit" className="mt-6 w-full" disabled={form.formState.isSubmitting}>Sign-up</Button>
       </form>
       {errorMessage &&
         <div className="flex text-red-500 mt-4">

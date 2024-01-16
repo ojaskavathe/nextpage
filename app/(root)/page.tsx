@@ -5,6 +5,6 @@ import { redirect } from "next/navigation";
 export default async function PatronDetails() {
   const session = await auth();
   if (session) {
-    redirect('/patrons')
+    redirect('/patrons/search')
   }
 }

@@ -11,13 +11,24 @@ export const optString = z.preprocess(
     .optional(),
 );
 
+export const optPhoneString = z.preprocess(
+  (str) => {
+    if (!str || typeof str !== 'string') return undefined
+    return str === '' ? undefined : str
+  },
+  z
+    .string().regex(/^$|^\d{8,10}$/)
+    .optional(),
+);
+
 export const optIntString = z.preprocess(
   (intStr) => {
+    if (typeof intStr === 'number') return intStr;
     if (!intStr || typeof intStr !== 'string') return 0
 
     if (intStr === '') {
       return 0;
-    } else if (/^\d*$/.test(intStr)) {
+    } else if (/^\d+$/.test(intStr)) {
       return parseInt(intStr);
     }
   },
@@ -27,16 +38,37 @@ export const optIntString = z.preprocess(
   ])
 );
 
+
+export const optSignedIntString = z.preprocess(
+  (intStr) => {
+    // this is needed as server side revalidation checks on a number, not a string
+    // why this isn't needed for the unsigned int string is a mystery, but i'm keeping a check there just in case
+    if (typeof intStr === 'number') return intStr;
+    
+    if (!intStr || typeof intStr !== 'string') return 0;
+
+    if (intStr === '') {
+      return 0;
+    } else if (/^-?\d+$/.test(intStr)) {
+      return parseInt(intStr);
+    }
+  },
+  z.union([
+    z.number().safe(),
+    z.literal('')
+  ])
+);
+
 export const LoginFormSchema = z.object({
   id: z.string().min(1, 'ID required'),
   password: z.string().min(1, 'Password required'),
 });
 
-export const patronSchema = z.object({
-  name: z.string().min(1),
+export const patronCreateSchema = z.object({
+  name: z.string().min(1, {message: "Name required"}),
   email: z.string().email(),
-  phone: z.string().regex(/^\d{8,10}$/),
-  altPhone: z.string().regex(/^$|^\d{8,10}$/),
+  phone: z.string().regex(/^\d{8,10}$/, { message: "Invalid Phone"}),
+  altPhone: optPhoneString,
   address: optString,
   pincode: optString,
   whatsapp: z.boolean().default(true),
@@ -51,7 +83,7 @@ export const patronSchema = z.object({
 
   mode: z.nativeEnum($Enums.TransactionMode),
   pastDues: optIntString,
-  adjust: optIntString,
+  adjust: optSignedIntString,
   reason: optString,
   offer: optString,
 })
@@ -80,11 +112,12 @@ export const patronRenewSchema = z.object({
   }),
   paidDD: optIntString,
   mode: z.nativeEnum($Enums.TransactionMode),
-  pastDues: optIntString,
-  adjust: optIntString,
+  adjust: optSignedIntString,
   reason: optString,
   offer: optString,
+  remarks: optString,
 
+  renewFromExpiry: z.boolean().default(false)
 })
   .superRefine((val, ctx) => {
     if (val.adjust !== 0 && !val.reason) {
@@ -94,10 +127,10 @@ export const patronRenewSchema = z.object({
         path: ['reason']
       })
     }
-    if (val.adjust === 0 && val.reason) {
+    if (val.adjust === 0 && !!val.reason) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'No adjustment to provide reason for.',
+        message: `No adjustment to provide reason for: adjust: ${val.adjust}, reason: ${val.reason}`,
         path: ['reason']
       })
     }
@@ -108,11 +141,11 @@ export const patronUpdateSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   phone: z.string().regex(/^\d{8,10}$/),
-  altPhone: z.string().regex(/^$|^\d{8,10}$/),
-  address: z.string().optional(),
-  pincode: z.string().optional(),
+  altPhone: optPhoneString,
+  address: optString,
+  pincode: optString,
   whatsapp: z.boolean().default(true),
-  remarks: z.string().optional(),
+  remarks: optString,
 });
 
 export const footfallFormSchema = z.object({

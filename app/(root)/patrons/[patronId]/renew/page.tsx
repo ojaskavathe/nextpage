@@ -1,8 +1,10 @@
-import { fetchPatron } from "@/server/patron";
-import RenewForm from "./renew-form";
-import { columns } from "@/components/transactions/columns";
-import { DataTable } from "@/components/ui/data-table";
 import { PatronDetails } from "@/components/patron-details";
+import { columns } from "@/components/transactions/columns";
+import { DataTable } from "@/components/transactions/transaction-data-table";
+
+import { fetchPatron } from "@/server/patron";
+
+import RenewForm from "./renew-form";
 
 export default async function PatronRenew({ params }: { params: { patronId: string } }) {
 
@@ -14,7 +16,7 @@ export default async function PatronRenew({ params }: { params: { patronId: stri
         <PatronDetails patron={patron!} className="flex-grow"/>
         <DataTable columns={columns} data={patron!.transactions} className="flex-grow" />
       </div>
-      <RenewForm patronId={patron!.id} />
+      <RenewForm patron={patron!} />
     </>
   )
 }

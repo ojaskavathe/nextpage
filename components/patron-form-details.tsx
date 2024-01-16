@@ -1,32 +1,34 @@
-"use client";
-
 import {
   Dispatch,
   SetStateAction
 } from "react";
-import { UseFormReturn } from "react-hook-form";
-import { z } from "zod";
 
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+  FormMessage
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  RadioGroup,
+  RadioGroupItem
+} from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
+  SelectValue
+} from "@/components/ui/select";
+
 import {
-  RadioGroup,
-  RadioGroupItem
-} from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+  durations,
+  plans
+} from "@/lib/utils";
+
 import {
   Banknote,
   CreditCard,
@@ -64,7 +66,7 @@ export default function PatronFormDetails({ form, setPlan, setDuration, setPaidD
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6].map(i => (
+                  {plans.map(i => (
                     <SelectItem value={`${i}`} key={i}>{i} Book</SelectItem>
                   ))}
                 </SelectContent>
@@ -91,7 +93,7 @@ export default function PatronFormDetails({ form, setPlan, setDuration, setPaidD
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {[1, 3, 6, 12].map(i => (
+                  {durations.map(i => (
                     <SelectItem value={`${i}`} key={i}>{i} Months</SelectItem>
                   ))}
 

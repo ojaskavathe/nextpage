@@ -8,8 +8,8 @@ import { buttonVariants } from "@/components/ui/button"
 
 const patronNavItems = [
   {
-    title: "Patrons",
-    href: "/patrons",
+    title: "Search",
+    href: "/patrons/search",
   },
   {
     title: "Sign-up",

@@ -1,4 +1,5 @@
-import { Nav } from "@/components/nav"
+import { Nav } from "@/components/nav";
+
 import { auth } from "@/auth";
 
 export default async function RootLayout({

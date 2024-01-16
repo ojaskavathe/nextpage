@@ -9,16 +9,19 @@ export const columns: ColumnDef<Transaction>[] = [
     header: "Type",
   },
   {
+    accessorKey: "newPlan",
+    header: "Plan",
+    cell: ({ row }) => {
+      return `${row.getValue("newPlan")} Books`
+    }
+  },
+  {
     accessorKey: "netPayable",
-    header: "Net Payable",
+    header: "Amount",
   },
   {
-    accessorKey: "adjust",
-    header: "Adjust Amount",
-  },
-  {
-    accessorKey: "reason",
-    header: "Reason",
+    accessorKey: "remarks",
+    header: "Remarks",
   },
   {
     accessorKey: "createdAt",
@@ -37,7 +40,6 @@ export const columns: ColumnDef<Transaction>[] = [
           })}
         </div>
       )
-    },
-    sortingFn: "datetime"
+    }
   }
 ]

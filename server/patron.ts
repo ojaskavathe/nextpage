@@ -1,32 +1,51 @@
 "use server"
 
 import { z } from "zod";
+
+import {
+  $Enums,
+  Footfall,
+  Patron
+} from "@prisma/client";
+
+import {
+  footfallFormSchema,
+  patronCreateSchema,
+  patronRenewSchema,
+  patronUpdateSchema
+} from "@/lib/schema";
+import {
+  DDFees,
+  discounts,
+  durations,
+  fee,
+  freeDDs,
+  holidays,
+  PatronWithSub,
+  refundableDeposit,
+  registrationFees,
+  sr_id
+} from "@/lib/utils";
+
 import { prisma } from "./db";
-import { $Enums, Footfall, FootfallType, Patron } from "@prisma/client";
-import { footfallFormSchema, patronSchema } from "@/lib/schema";
-import { sr_id } from "@/lib/utils";
-
-const months = [1, 3, 6, 12];
-const dd = [0, 0, 2, 4];
-const hol = [0, 0, 1, 2];
-const dis = [0, 0.05, 0.1, 0.2];
-
-const fee = [300, 400, 500, 600, 700, 800];
-const registrationFees = 199;
-const refundableDeposit = 499;
+import PatronUpdateForm from "@/app/(root)/patrons/[patronId]/patron-update-form";
 
 export const fetchPatron = async (patronId: number) => {
   const isId = await z.number().safeParseAsync(patronId);
   if (isId.success) {
-    return await prisma.patron.findUnique({
-      where: {
-        id: patronId
-      },
-      include: {
-        subscription: true,
-        transactions: true
-      }
-    });
+    try {
+      return await prisma.patron.findUnique({
+        where: {
+          id: patronId
+        },
+        include: {
+          subscription: true,
+          transactions: true
+        }
+      });
+    } catch (e) {
+      return null;
+    }
   }
 
   return null;
@@ -35,49 +54,58 @@ export const fetchPatron = async (patronId: number) => {
 export const searchPatrons = async (searchString: string) => {
   const isId = await z.string().regex(/^M\d+$/).safeParseAsync(searchString);
   if (isId.success) {
-    return await prisma.patron.findMany({
-      where: {
-        id: {
-          equals: parseInt(searchString.substring(1))
-        }
-      },
-      include: {
-        subscription: true
-      },
-      take: 5
-    });
+    try {
+      return await prisma.patron.findMany({
+        where: {
+          id: {
+            equals: parseInt(searchString.substring(1))
+          }
+        },
+        include: {
+          subscription: true
+        },
+        take: 5
+      });
+    } catch (e) {
+      return [];
+    }
   }
 
   // if not an ID, check name and email
   const v = await z.string().min(1).safeParseAsync(searchString);
   if (v.success) {
-    return await prisma.patron.findMany({
-      where: {
-        OR: [
-          {
-            name: {
-              contains: searchString,
-              mode: "insensitive" // case-insensitive
+    try {
+      return await prisma.patron.findMany({
+        where: {
+          OR: [
+            {
+              name: {
+                contains: searchString,
+                mode: "insensitive" // case-insensitive
+              }
+            },
+            {
+              email: {
+                contains: searchString,
+                mode: "insensitive"
+              }
             }
-          },
-          {
-            email: {
-              contains: searchString,
-              mode: "insensitive"
-            }
-          }
-        ]
-      },
-      include: {
-        subscription: true
-      },
-      take: 5
-    });
+          ]
+        },
+        include: {
+          subscription: true
+        },
+        take: 5
+      });
+
+    } catch (e) {
+      return []
+    }
   }
   return [];
 }
 
-export async function createPatron(input: z.infer<typeof patronSchema>) {
+export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
 
   let out: {
     data: Patron | null,
@@ -85,7 +113,7 @@ export async function createPatron(input: z.infer<typeof patronSchema>) {
     message: string,
   }
 
-  if (!patronSchema.safeParse(input).success) {
+  if (!patronCreateSchema.safeParse(input).success) {
     out = {
       data: null,
       error: 1,
@@ -95,14 +123,15 @@ export async function createPatron(input: z.infer<typeof patronSchema>) {
   }
 
   const today = new Date();
-  const exp = new Date(today.setMonth(today.getMonth() + input.duration));
+  const exp = new Date(new Date(today).setMonth(today.getMonth() + input.duration));
 
   const readingFee = fee[input.plan - 1] * input.duration;
+  const DDFee = (input.paidDD || 0) * DDFees;
 
-  const index = months.indexOf(input.duration);
-  const freeDD = dd[index];
-  const freeHoliday = hol[index];
-  const discount = readingFee * dis[index];
+  const index = durations.indexOf(input.duration);
+  const freeDD = freeDDs[index];
+  const freeHoliday = holidays[index];
+  const discount = readingFee * discounts[index];
 
   const total = readingFee + registrationFees + refundableDeposit - discount - (input.adjust || 0);
 
@@ -138,13 +167,13 @@ export async function createPatron(input: z.infer<typeof patronSchema>) {
         name: input.name,
         email: input.email,
         phone: input.phone,
-        altPhone: input.altPhone || null,
-        address: input.address || null,
-        pincode: input.pincode || null,
+        altPhone: input.altPhone,
+        address: input.address,
+        pincode: input.pincode,
         joiningDate: today,
         whatsapp: input.whatsapp,
         deposit: refundableDeposit,
-        remarks: input.remarks || null,
+        remarks: input.remarks,
         subscription: {
           create: {
             plan: input.plan,
@@ -164,8 +193,8 @@ export async function createPatron(input: z.infer<typeof patronSchema>) {
               registration: registrationFees,
               deposit: refundableDeposit,
               readingFees: readingFee,
+              DDFees: DDFee,
               discount: discount,
-              pastDues: input.pastDues || 0,
               adjust: input.adjust || 0,
               reason: input.reason || null,
               offer: input.offer || null,
@@ -195,6 +224,157 @@ export async function createPatron(input: z.infer<typeof patronSchema>) {
       data: null,
       error: 5,
       message: '[SERVER]: Something went wrong',
+    }
+  }
+}
+
+export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Promise<{
+  error: number,
+  message: string,
+}> {
+
+  const validity = patronRenewSchema.safeParse(input);
+
+  if (!validity.success) {
+    return {
+      error: 1,
+      message: "Form couldn\'t be validated" 
+    }
+  }
+
+  const patron = await fetchPatron(input.id);
+  if (!patron) {
+    return {
+      error: 2,
+      message: 'Patron doesn\'t exist'
+    }
+  }
+
+  const oldPlan = patron.subscription!.plan;
+
+  const today = new Date();
+  const oldExpiry = patron.subscription!.expiryDate;
+
+  let numDays = 0;
+  const isPatronLate = (patron.subscription!.booksInHand > 0) && (oldExpiry < today);
+  if (isPatronLate) {
+    numDays = Math.floor(
+      (today.valueOf() - oldExpiry.valueOf())
+      / (1000 * 60 * 60 * 24)
+    );
+  }
+
+  const pastDues = input.renewFromExpiry
+    ? 0
+    : Math.floor(fee[input.plan - 1] * numDays / 30)
+
+  const newExpiry = isPatronLate
+    ? input.renewFromExpiry
+      ? new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration))
+      : new Date(today.setMonth(today.getMonth() + input.duration))
+    : new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration))
+
+  const readingFee = fee[input.plan - 1] * input.duration;
+  const DDFee = (input.paidDD || 0) * DDFees;
+
+  const index = durations.indexOf(input.duration);
+  const freeDD = freeDDs[index];
+  const freeHoliday = holidays[index];
+  const discount = readingFee * discounts[index];
+
+  const total = readingFee + pastDues - discount - (input.adjust || 0);
+
+  const totalPaidDDs = patron.subscription!.paidDD + (input.paidDD || 0);
+
+  try {
+    const renewedPatron = await prisma.patron.update({
+      data: {
+        subscription: {
+          update: {
+            plan: input.plan,
+            expiryDate: newExpiry,
+            freeDD: freeDD,
+            paidDD: totalPaidDDs,
+            freeHoliday: freeHoliday,
+            offer: input.offer
+          }
+        },
+        transactions: {
+          create: [
+            {
+              type: $Enums.TransactionType.RENEWAL,
+              mode: input.mode,
+
+              readingFees: readingFee,
+              DDFees: DDFee,
+              discount: discount,
+              pastDues: pastDues,
+              adjust: input.adjust || 0,
+              reason: input.reason || null,
+              offer: input.offer || null,
+              remarks: input.remarks || null,
+
+              netPayable: total,
+
+              oldPlan: oldPlan,
+              newPlan: input.plan,
+              oldExpiry: oldExpiry,
+              newExpiry: newExpiry,
+              attendedBy: 'Server'
+            }
+          ]
+        }
+      },
+      where: {
+        id: input.id
+      }
+    });
+
+    return {
+      error: 0,
+      message: 'u gucci',
+    }
+
+  } catch (e) {
+    return {
+      error: 5,
+      message: '[SERVER]: Something went wrong',
+    }
+  }
+}
+
+export async function updatePatron(input: z.infer<typeof patronUpdateSchema>): Promise<{
+  error: number,
+  message: string,
+}> {
+
+  const validity = await patronUpdateSchema.safeParseAsync(input);
+
+  if (validity.success) {
+    return {
+      error: 1,
+      message: "Failed to validate Patron Data."
+    }
+  }
+
+  const { id, ...props } = input;
+
+  try {
+    await prisma.patron.update({
+      data: props,
+      where: {
+        id
+      }
+    })
+
+    return {
+      error: 0,
+      message: "u gucci"
+    }
+  } catch (e) {
+    return {
+      error: 5,
+      message: '[SERVER]: Something went wrong'
     }
   }
 }
@@ -250,8 +430,8 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
   } catch (e) {
     return {
       data: null,
-      error: 2,
-      message: `There was an error inserting footfall for user: ${sr_id(input.id)}`
+      error: 5,
+      message: `[SERVER]: There was an error inserting footfall for user: ${sr_id(input.id)}`
     }
   }
 }

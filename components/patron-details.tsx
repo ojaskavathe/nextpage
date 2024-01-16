@@ -1,14 +1,43 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { PatronFull, cn, sr_id } from "@/lib/utils";
-import { CircleUser, Fingerprint, Mail, Library, TimerReset, BookOpen, HardDriveUpload, HardDriveDownload, Bike, Truck, Gauge } from "lucide-react";
+import Link from "next/link";
 
-export function PatronDetails({ patron, className }: { patron: PatronFull, className: string }) {
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
+
+import {
+  cn,
+  PatronFull,
+  sr_id
+} from "@/lib/utils";
+
+import {
+  Bike,
+  BookOpen,
+  Fingerprint,
+  Gauge,
+  HardDriveDownload,
+  HardDriveUpload,
+  Library,
+  Mail,
+  TimerReset,
+  Truck
+} from "lucide-react";
+
+export function PatronDetails({ patron, className }: { patron: PatronFull, className?: string }) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
-        <CardTitle>{patron.name}</CardTitle>
+        <CardTitle>
+          <Button className="text-lg font-semibold" variant="outline">
+            <Link href={`/patrons/${patron.id}`}>{patron.name}</Link>
+          </Button>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className='flex justify-between flex-wrap gap-1'>

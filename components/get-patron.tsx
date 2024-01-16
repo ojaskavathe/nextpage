@@ -1,19 +1,40 @@
 "use client";
 
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import Link from "next/link";
+import {
+  useEffect,
+  useState
+} from "react";
 import { z } from "zod";
-import { Bike, BookOpen, Fingerprint, Gauge, HardDriveDownload, HardDriveUpload, Library, Mail, TimerReset, Truck } from 'lucide-react';
-import { Prisma } from '@prisma/client';
 
+import { FootfallDialog } from "@/components/footfall-form";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { sr_id } from '@/lib/utils';
-import { searchPatrons } from '@/server/patron';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { FootfallDialog } from '@/components/footfall-form';
 
-type PatronWithSub = Prisma.PatronGetPayload<{ include: { subscription: true } }>;
+import {
+  PatronWithSub,
+  sr_id
+} from "@/lib/utils";
+import { searchPatrons } from "@/server/patron";
+
+import {
+  Bike,
+  BookOpen,
+  Fingerprint,
+  Gauge,
+  HardDriveDownload,
+  HardDriveUpload,
+  Library,
+  Mail,
+  TimerReset,
+  Truck
+} from "lucide-react";
 
 export default function GetPatron() {
 
@@ -155,13 +176,13 @@ export default function GetPatron() {
                   href={`/patrons/${patron.id}`}
                   className='basis-1/3'
                 >
-                  <Button variant="outline" className='w-full'>Edit</Button>
+                  <Button variant="default" className='w-full'>Edit</Button>
                 </Link>
                 <Link
                   href={`/patrons/${patron.id}/renew`}
                   className='basis-1/3'
                 >
-                  <Button variant="outline" className='w-full'>Renew</Button>
+                  <Button variant="default" className='w-full'>Renew</Button>
                 </Link>
                 <FootfallDialog className='basis-1/3' patron={patron}/>
               </div>

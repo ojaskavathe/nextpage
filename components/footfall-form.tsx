@@ -49,14 +49,12 @@ import {
   RadioGroupItem
 } from "@/components/ui/radio-group";
 
-import { cn } from "@/lib/utils"
+import { PatronWithSub, cn } from "@/lib/utils"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { footfallFormSchema } from "@/lib/schema";
 import { createFootfall } from "@/server/patron";
 
-type PatronWithSub = Prisma.PatronGetPayload<{ include: { subscription: true } }>;
-
-export function FootfallDialog({ className, patron }: { className?: string, patron: PatronWithSub }) {
+export function FootfallDialog({ patron, className }: { patron: PatronWithSub, className?: string}) {
   const [open, setOpen] = useState(false)
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
@@ -64,7 +62,7 @@ export function FootfallDialog({ className, patron }: { className?: string, patr
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className={className} variant="outline">Footfall</Button>
+          <Button className={cn(className, "w-full")} variant="default">Footfall</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -73,10 +71,7 @@ export function FootfallDialog({ className, patron }: { className?: string, patr
               Record patron issue/return
             </DialogDescription>
           </DialogHeader>
-          <FootfallForm patron={patron} setOpen={setOpen} />
-          <DialogFooter className="pt-2">
-            <Button type="submit" form="ff" className="w-full">Submit</Button>
-          </DialogFooter>
+          <FootfallForm isDesktop={isDesktop} patron={patron} setOpen={setOpen} />
         </DialogContent>
       </Dialog>
     )
@@ -85,7 +80,7 @@ export function FootfallDialog({ className, patron }: { className?: string, patr
   return (
     <Drawer open={open} onOpenChange={setOpen} >
       <DrawerTrigger asChild>
-        <Button variant="outline">Footfall</Button>
+        <Button className={cn(className, "w-full")} variant="default">Footfall</Button>
       </DrawerTrigger>
       <DrawerContent className="max-h-[95%]">
         <DrawerHeader className="text-left">
@@ -94,19 +89,17 @@ export function FootfallDialog({ className, patron }: { className?: string, patr
             Record patron issue/return
           </DrawerDescription>
         </DrawerHeader>
-        <FootfallForm className="px-4 overflow-auto" patron={patron} setOpen={setOpen} />
-        <DrawerFooter className="pt-4">
-          <Button type="submit" form="ff">Submit</Button>
-        </DrawerFooter>
+        <FootfallForm isDesktop={isDesktop} className="px-4 overflow-auto" patron={patron} setOpen={setOpen} />
       </DrawerContent>
     </Drawer>
   )
 }
 
-function FootfallForm({ className, patron, setOpen }: {
+function FootfallForm({ className, patron, setOpen, isDesktop }: {
   className?: string,
   patron: PatronWithSub,
-  setOpen: Dispatch<SetStateAction<boolean>>
+  setOpen: Dispatch<SetStateAction<boolean>>,
+  isDesktop: boolean
 }) {
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -132,23 +125,21 @@ function FootfallForm({ className, patron, setOpen }: {
   const isDD = form.watch("isDD");
 
   const onSubmit = async (data: z.infer<typeof footfallFormSchema>) => {
-    // const res = await createFootfall(data);
+    const res = await createFootfall(data);
 
-    // if (res.error)
-    //   setErrorMessage(res.message);
-    // else {
-    //   setOpen(false)
-    //   toast.success("Footfall recorded", {
-    //     description: `M${res.data!.patronId}: ${res.data!.type}`
-    //   })
-    // }
-    console.log(data);
+    if (res.error)
+      setErrorMessage(res.message);
+    else {
+      setOpen(false)
+      toast.success("Footfall recorded", {
+        description: `M${res.data!.patronId}: ${res.data!.type}`
+      })
+    }
   }
 
   return (
     <Form {...form}>
       <form
-        id="ff"
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn("grid items-start gap-4", className)}>
 
@@ -269,6 +260,17 @@ function FootfallForm({ className, patron, setOpen }: {
         </div>
 
         {/* <Button type="submit">Submit</Button> */}
+        {isDesktop
+          ? (
+            <DialogFooter className="pt-2">
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>Submit</Button>
+            </DialogFooter>)
+          : (
+            <DrawerFooter className="pt-4">
+              <Button type="submit" disabled={form.formState.isSubmitting}>Submit</Button>
+            </DrawerFooter>
+          )
+        }
       </form>
       {errorMessage &&
         <div className="flex text-red-500">

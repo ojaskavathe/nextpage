@@ -1,8 +1,7 @@
-import { Metadata } from "next"
+import { Metadata } from "next";
 
-import { Separator } from "@/components/ui/separator"
-import { PatronNav } from "@/components/nav-patron"
-import { getSheetData } from "@/server/sheets"
+import { PatronNav } from "@/components/nav-patron";
+import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
   title: "Patrons",
