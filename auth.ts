@@ -1,9 +1,8 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { NextAuthConfig } from "next-auth";
 
-import { prisma } from "./server/db";
 import { LoginFormSchema } from "./lib/schema";
+import { prisma } from "./server/db";
 
 export const authConfig = {
   pages: {
@@ -31,6 +30,14 @@ export const authConfig = {
       return session;
     },
 
+    redirect: async ({ url, baseUrl }) => {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
+    }
+  
   },
 
   providers: [Credentials({

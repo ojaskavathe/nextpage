@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import {
-  useCallback,
+  usePathname,
+  useRouter
+} from "next/navigation";
+import {
   useEffect,
   useState
 } from "react";
@@ -36,27 +39,20 @@ import {
   TimerReset,
   Truck
 } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function GetPatron({ queryPatron }: { queryPatron?: PatronWithSub }) {
 
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-
 
   // Get a new searchParams string by merging the current
   // searchParams with a provided key/value pair
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString())
-      params.set(name, value)
+  const createQueryString = (name: string, value: string) => {
+    const params = new URLSearchParams()
+    params.set(name, value)
 
-      return params.toString()
-    },
-    [searchParams]
-  )
-
+    return params.toString()
+  }
 
   const delay = 500;
   const [searchString, setSearchString] = useState('');

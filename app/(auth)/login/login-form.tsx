@@ -1,26 +1,31 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  useFormState,
+  useFormStatus
+} from "react-dom";
 import { useForm } from "react-hook-form";
-import * as z from "zod"
-import { useFormState, useFormStatus } from "react-dom";
-import { useRouter } from "next/navigation";
+import * as z from "zod";
 
-import { Button } from "@/components/ui/button"
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+  FormMessage
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
 import { authenticate } from "@/lib/actions";
 import { LoginFormSchema } from "@/lib/schema";
+
 import { AlertCircle } from "lucide-react";
 
-export function LoginForm() {
+export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
 
   const [ errorMessage, dispatch ] = useFormState(authenticate, undefined);
   const { pending } = useFormStatus(); 
@@ -38,6 +43,9 @@ export function LoginForm() {
 
     formData.append('id', data.id);
     formData.append('password', data.password);
+    if (callbackUrl) {
+      formData.append('callbackUrl', callbackUrl);
+    }
     dispatch(formData);
   }
 
@@ -73,7 +81,7 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="mt-6 w-full" aria-disabled={pending}>Login</Button>
+        <Button type="submit" className="mt-6 w-full" aria-disabled={pending} disabled={pending}>Login</Button>
         { errorMessage && 
           <div className="flex text-red-500 mt-4">
             <AlertCircle className="mr-1 w-5"/>

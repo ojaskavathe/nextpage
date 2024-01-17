@@ -1,9 +1,11 @@
 "use server";
 
-import { signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+
+import {
+  signIn,
+  signOut
+} from "@/auth";
 
 export const authenticate = async (prevState: string | undefined, formData: FormData) => {
   try {
@@ -20,8 +22,8 @@ export const authenticate = async (prevState: string | undefined, formData: Form
     throw error;
   }
 
-  revalidatePath('/patrons');
-  redirect('/patrons')
+  // revalidatePath('/patrons');
+  // redirect('/patrons')
 }
 
 export const Logout = async () => {
