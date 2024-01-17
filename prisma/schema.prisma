@@ -51,9 +51,7 @@ model Subscription {
   offer         String?
 
   paidDD        Int               @default(0)
-  paidDDused    Int               @default(0)
   freeDD        Int               @default(0)
-  freeDDused    Int               @default(0)
 }
 
 model Transaction {

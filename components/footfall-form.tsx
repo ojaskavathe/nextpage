@@ -1,14 +1,22 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
-import { $Enums, Prisma } from "@prisma/client";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { UseFormReturn, useForm, useWatch } from "react-hook-form";
+import {
+  Dispatch,
+  SetStateAction,
+  useState
+} from "react";
+import {
+  useForm,
+  UseFormReturn
+} from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 
-import { AlertCircle, ArrowDownUp, Banknote, Bike, CalendarIcon, CreditCard, Download, IndianRupee, QrCode, Truck, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { $Enums } from "@prisma/client";
+
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -16,8 +24,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  DialogTrigger
+} from "@/components/ui/dialog";
 import {
   Drawer,
   DrawerContent,
@@ -25,9 +33,8 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
-import { Input } from "@/components/ui/input"
+  DrawerTrigger
+} from "@/components/ui/drawer";
 import {
   Form,
   FormControl,
@@ -36,25 +43,41 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { Label } from "@/components/ui/label";
 import {
   RadioGroup,
   RadioGroupItem
 } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 
-import { PatronWithSub, cn } from "@/lib/utils"
-import { useMediaQuery } from "@/hooks/use-media-query"
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { footfallFormSchema } from "@/lib/schema";
+import {
+  cn,
+  PatronWithSub,
+  sr_id
+} from "@/lib/utils";
 import { createFootfall } from "@/server/patron";
 
-export function FootfallDialog({ patron, className }: { patron: PatronWithSub, className?: string}) {
+import {
+  AlertCircle,
+  ArrowDownUp,
+  Bike,
+  CalendarIcon,
+  Download,
+  Upload
+} from "lucide-react";
+
+export function FootfallDialog({ patron, className }: {
+  patron: PatronWithSub,
+  className?: string
+}) {
   const [open, setOpen] = useState(false)
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
@@ -71,7 +94,10 @@ export function FootfallDialog({ patron, className }: { patron: PatronWithSub, c
               Record patron issue/return
             </DialogDescription>
           </DialogHeader>
-          <FootfallForm isDesktop={isDesktop} patron={patron} setOpen={setOpen} />
+          <FootfallForm
+            isDesktop={isDesktop}
+            patron={patron}
+            setOpen={setOpen} />
         </DialogContent>
       </Dialog>
     )
@@ -89,7 +115,11 @@ export function FootfallDialog({ patron, className }: { patron: PatronWithSub, c
             Record patron issue/return
           </DrawerDescription>
         </DrawerHeader>
-        <FootfallForm isDesktop={isDesktop} className="px-4 overflow-auto" patron={patron} setOpen={setOpen} />
+        <FootfallForm
+          className="px-4 overflow-auto"
+          isDesktop={isDesktop}
+          patron={patron}
+          setOpen={setOpen} />
       </DrawerContent>
     </Drawer>
   )
@@ -132,7 +162,7 @@ function FootfallForm({ className, patron, setOpen, isDesktop }: {
     else {
       setOpen(false)
       toast.success("Footfall recorded", {
-        description: `M${res.data!.patronId}: ${res.data!.type}`
+        description: `${sr_id(data.id)}: ${data.type}`
       })
     }
   }
@@ -311,7 +341,7 @@ function FootfallDelivery({ isDD, form, DDwarning, patron }: {
                       value={$Enums.DDType.FREE}
                       id={$Enums.DDType.FREE}
                       className="peer sr-only"
-                      disabled={DDwarning}
+                      disabled={patron.subscription!.freeDD <= 0}
                     />
                   </FormControl>
                   <Label

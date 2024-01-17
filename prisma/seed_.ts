@@ -12,26 +12,29 @@ const serviceAccountAuth = new JWT({
   ],
 });
 
-const doc = new GoogleSpreadsheet('19JIUXnHiYs2ExSQcyhthBTykHZquDmEG6oRt3DAeHMw', serviceAccountAuth);
+if (!process.env.PATRON_DOC_ID || !process.env.CHECKOUT_DOC_ID) {
+  process.exit(1);
+}
+const patronDoc = new GoogleSpreadsheet(process.env.PATRON_DOC_ID, serviceAccountAuth);
 const getPatronData = async () => {
 
-  await doc.loadInfo(); // loads document properties and worksheets
+  await patronDoc.loadInfo(); // loads document properties and worksheets
 
-  const sheet = doc.sheetsById[2092942290];
+  const sheet = patronDoc.sheetsById[2092942290];
   const rows = await sheet.getRows();
 
   return rows.map((row) => row.toObject());
 }
 const getTransactionData = async () => {
-  await doc.loadInfo(); // loads document properties and worksheets
+  await patronDoc.loadInfo(); // loads document properties and worksheets
 
-  const sheet = doc.sheetsById[1489557575];
+  const sheet = patronDoc.sheetsById[1489557575];
   const rows = await sheet.getRows();
 
   return rows.map((row) => row.toObject());
 }
 
-const checkoutDoc = new GoogleSpreadsheet('17LJZR15pscyinYVtWXA-f8_OGej0O85vE5fZfThB3NY', serviceAccountAuth);
+const checkoutDoc = new GoogleSpreadsheet(process.env.CHECKOUT_DOC_ID, serviceAccountAuth);
 const getCheckoutData = async () => {
 
   await checkoutDoc.loadInfo(); // loads document properties and worksheets

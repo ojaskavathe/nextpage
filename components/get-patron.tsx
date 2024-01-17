@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  useCallback,
   useEffect,
   useState
 } from "react";
@@ -35,14 +36,33 @@ import {
   TimerReset,
   Truck
 } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export default function GetPatron() {
+export default function GetPatron({ queryPatron }: { queryPatron?: PatronWithSub }) {
+
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+
+  // Get a new searchParams string by merging the current
+  // searchParams with a provided key/value pair
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set(name, value)
+
+      return params.toString()
+    },
+    [searchParams]
+  )
+
 
   const delay = 500;
   const [searchString, setSearchString] = useState('');
 
   const [patrons, setPatrons] = useState<PatronWithSub[]>([]);
-  const [patron, setPatron] = useState<PatronWithSub>();
+  const [patron, setPatron] = useState<PatronWithSub | undefined>(queryPatron);
 
   // debouncing the search query
   useEffect(() => {
@@ -76,6 +96,7 @@ export default function GetPatron() {
               onClick={() => {
                 setPatron(p)
                 setPatrons([])
+                router.push(pathname + '?' + createQueryString('id', p.id.toString()))
               }}
             >
               <div className='font-semibold'>{p.name}</div>
@@ -184,7 +205,7 @@ export default function GetPatron() {
                 >
                   <Button variant="default" className='w-full'>Renew</Button>
                 </Link>
-                <FootfallDialog className='basis-1/3' patron={patron}/>
+                <FootfallDialog className='basis-1/3' patron={patron} />
               </div>
             </CardContent>
           </Card>

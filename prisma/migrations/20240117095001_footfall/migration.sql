@@ -5,9 +5,7 @@ CREATE TYPE "DDType" AS ENUM ('FREE', 'PAID');
 CREATE TYPE "FootfallType" AS ENUM ('ISSUE', 'RETURN', 'BOTH');
 
 -- AlterTable
-ALTER TABLE "Subscription" ADD COLUMN     "freeDDused" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "paidDDused" INTEGER NOT NULL DEFAULT 0,
-ALTER COLUMN "freeDD" SET DEFAULT 0;
+ALTER TABLE "Subscription" ALTER COLUMN "freeDD" SET DEFAULT 0;
 
 -- CreateTable
 CREATE TABLE "Delivery" (

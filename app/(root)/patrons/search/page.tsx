@@ -1,7 +1,34 @@
-import { Separator } from "@/components/ui/separator"
-import GetPatron from "@/components/get-patron"
 
-export default function PatronCreateForm() {
+import GetPatron from "@/components/get-patron";
+import { Separator } from "@/components/ui/separator";
+import { PatronWithSub } from "@/lib/utils";
+import { fetchPatron } from "@/server/patron";
+import { z } from "zod";
+
+export default async function PatronCreateForm({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams?: { [key: string]: string };
+}) {
+
+  const searchedId = searchParams?.id;
+  
+  let queryPatron: PatronWithSub | undefined;
+  
+  const isId = !z.number().safeParse(searchedId).success;
+  if (!isId || !searchedId) {
+    queryPatron == undefined;
+  } else {
+    const id = parseInt(searchedId);
+    queryPatron = await fetchPatron(id)
+      .then((res) => {
+        if (!res) return undefined
+        const { transactions, ...p } = res;
+        return p;
+      })
+  }
 
   return (
     <div className="space-y-6">
@@ -12,7 +39,7 @@ export default function PatronCreateForm() {
         </p>
       </div>
       <Separator />
-      <GetPatron />
+      <GetPatron queryPatron={queryPatron} />
     </div>
   )
 }

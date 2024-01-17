@@ -112,7 +112,6 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
 
     if (res.error == 0) {
       router.push(`/patrons/${patron.id}`);
-      router.refresh();
       toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
     } else {
       setErrorMessage(res.message)

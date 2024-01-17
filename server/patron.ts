@@ -4,7 +4,6 @@ import { z } from "zod";
 
 import {
   $Enums,
-  Footfall,
   Patron
 } from "@prisma/client";
 
@@ -28,7 +27,7 @@ import {
 } from "@/lib/utils";
 
 import { prisma } from "./db";
-import PatronUpdateForm from "@/app/(root)/patrons/[patronId]/patron-update-form";
+import { revalidatePath } from "next/cache";
 
 export const fetchPatron = async (patronId: number) => {
   const isId = await z.number().safeParseAsync(patronId);
@@ -213,6 +212,8 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
       }
     });
 
+    revalidatePath(`/patrons/${newPatron.id}`);
+
     return {
       data: newPatron,
       error: 0,
@@ -238,7 +239,7 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
   if (!validity.success) {
     return {
       error: 1,
-      message: "Form couldn\'t be validated" 
+      message: "Form couldn\'t be validated"
     }
   }
 
@@ -287,7 +288,7 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
   const totalPaidDDs = patron.subscription!.paidDD + (input.paidDD || 0);
 
   try {
-    const renewedPatron = await prisma.patron.update({
+    await prisma.patron.update({
       data: {
         subscription: {
           update: {
@@ -330,6 +331,8 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
       }
     });
 
+    revalidatePath(`/patrons/${patron.id}`);
+
     return {
       error: 0,
       message: 'u gucci',
@@ -367,6 +370,8 @@ export async function updatePatron(input: z.infer<typeof patronUpdateSchema>): P
       }
     })
 
+    revalidatePath(`/patrons/${id}`);
+
     return {
       error: 0,
       message: "u gucci"
@@ -380,40 +385,94 @@ export async function updatePatron(input: z.infer<typeof patronUpdateSchema>): P
 }
 
 export async function createFootfall(input: z.infer<typeof footfallFormSchema>): Promise<{
-  data: Footfall | null,
   error: number,
   message: string,
+  data?: PatronWithSub
 }> {
   if (!footfallFormSchema.safeParse(input).success) {
     return {
-      data: null,
       error: 1,
       message: "Failed to validate Footfall Data."
     }
   }
 
+  const patron = await fetchPatron(input.id);
+  if (!patron) {
+    return {
+      error: 2,
+      message: 'Patron doesn\'t exist'
+    }
+  }
+
+  const currentFreeDD = patron.subscription!.freeDD;
+  if ((input.DDType == $Enums.DDType.FREE) && (currentFreeDD <= 0)) {
+    return {
+      error: 3,
+      message: 'No Free DD Remaining'
+    }
+  }
+
+  const newFreeDD = input.DDType == $Enums.DDType.FREE
+    ? currentFreeDD - 1
+    : currentFreeDD
+
+  const currentPaidDD = patron.subscription!.paidDD;
+  const newPaidDD = input.DDType == $Enums.DDType.PAID
+    ? currentPaidDD - 1
+    : currentPaidDD
+
   try {
 
-    const data: Footfall = input.isDD
-      ? await prisma.footfall.create({
-        data: {
-          patronId: input.id,
-          type: input.type,
-          offer: input.offer,
-          remarks: input.remarks,
-          isDD: true,
-          delivery: {
-            create: {
-              patronId: input.id,
-              type: input.DDType,
-              numBooks: input.numBooks,
-              scheduledFor: input.scheduledDate,
-              message: input.message
+    if (input.isDD) {
+      const [_ff, newpatron] = await prisma.$transaction([
+        prisma.footfall.create({
+          data: {
+            patronId: input.id,
+            type: input.type,
+            offer: input.offer,
+            remarks: input.remarks,
+            isDD: true,
+            delivery: {
+              create: {
+                patronId: input.id,
+                type: input.DDType,
+                numBooks: input.numBooks,
+                scheduledFor: input.scheduledDate,
+                message: input.message
+              }
+            },
+            createdAt: input.scheduledDate
+          }
+        }),
+        prisma.patron.update({
+          data: {
+            subscription: {
+              update: {
+                freeDD: newFreeDD,
+                paidDD: newPaidDD
+              }
             }
           },
-          createdAt: input.scheduledDate
-        }
-      }) : await prisma.footfall.create({
+          where: {
+            id: input.id
+          },
+          include: {
+            subscription: true
+          }
+        })
+      ])
+
+      revalidatePath(`/patrons/${patron.id}`);
+
+      return {
+        error: 0,
+        message: "u gucci",
+        data: newpatron
+      }
+
+    } else {
+
+      await prisma.footfall.create({
         data: {
           patronId: input.id,
           type: input.type,
@@ -422,14 +481,19 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
           isDD: false,
         }
       })
-    return {
-      data: data,
-      error: 0,
-      message: "u gucci"
+
+      revalidatePath(`/patrons/${patron.id}`);
+
+      const { transactions, ...patronWithSubs } = patron;
+      return {
+        error: 0,
+        message: "u gucci",
+        data: patronWithSubs
+      }
     }
+
   } catch (e) {
     return {
-      data: null,
       error: 5,
       message: `[SERVER]: There was an error inserting footfall for user: ${sr_id(input.id)}`
     }
