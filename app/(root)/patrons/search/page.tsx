@@ -1,18 +1,16 @@
+import { z } from "zod";
 
 import GetPatron from "@/components/get-patron";
 import { Separator } from "@/components/ui/separator";
+
 import { PatronWithSub } from "@/lib/utils";
 import { fetchPatron } from "@/server/patron";
-import { z } from "zod";
 
 export default async function PatronCreateForm({
-  params,
   searchParams,
 }: {
-  params: { slug: string };
   searchParams?: { [key: string]: string };
 }) {
-
   const searchedId = searchParams?.id;
   
   let queryPatron: PatronWithSub | undefined;

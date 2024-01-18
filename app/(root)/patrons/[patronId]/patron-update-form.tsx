@@ -96,17 +96,6 @@ export default function PatronUpdateForm({ patron }: { patron: PatronFull }) {
               <CardDescription>View and Edit Patron Details</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className='flex space-x-4 mb-4'>
-                <Link
-                  href={`/patrons/${patron.id}/renew`}
-                  className='basis-1/2'
-                >
-                  <Button variant="default" className="w-full">Renew</Button>
-                </Link>
-                <div className="basis-1/2">
-                  <FootfallDialog patron={patron} className={cn(buttonVariants({ variant: "default" }))} />
-                </div>
-              </div>
               <div className="flex space-x-4">
                 <div className="basis-1/2">
                   <Label>Plan:</Label>

@@ -73,6 +73,7 @@ import {
   Download,
   Upload
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function FootfallDialog({ patron, className }: {
   patron: PatronWithSub,
@@ -131,7 +132,9 @@ function FootfallForm({ className, patron, setOpen, isDesktop }: {
   setOpen: Dispatch<SetStateAction<boolean>>,
   isDesktop: boolean
 }) {
+  
   const [errorMessage, setErrorMessage] = useState('');
+  const { refresh } = useRouter();
 
   const DDType = patron.subscription!.freeDD > 0
     ? $Enums.DDType.FREE
@@ -160,7 +163,8 @@ function FootfallForm({ className, patron, setOpen, isDesktop }: {
     if (res.error)
       setErrorMessage(res.message);
     else {
-      setOpen(false)
+      setOpen(false);
+      refresh();
       toast.success("Footfall recorded", {
         description: `${sr_id(data.id)}: ${data.type}`
       })

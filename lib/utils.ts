@@ -25,3 +25,7 @@ export function cn(...inputs: ClassValue[]) {
 export function sr_id(id: number) {
   return `M${id.toString().padStart(6, '0')}`
 }
+
+export async function wait(time: number = 1000) {
+  await new Promise((resolve) => setTimeout(resolve, time))
+}

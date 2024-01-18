@@ -1,5 +1,6 @@
 "use server"
 
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import {
@@ -27,7 +28,6 @@ import {
 } from "@/lib/utils";
 
 import { prisma } from "./db";
-import { revalidatePath } from "next/cache";
 
 export const fetchPatron = async (patronId: number) => {
   const isId = await z.number().safeParseAsync(patronId);
@@ -463,6 +463,7 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
       ])
 
       revalidatePath(`/patrons/${patron.id}`);
+      revalidatePath(`/patrons/search`);
 
       return {
         error: 0,
@@ -483,6 +484,7 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
       })
 
       revalidatePath(`/patrons/${patron.id}`);
+      revalidatePath(`/patrons/search`);
 
       const { transactions, ...patronWithSubs } = patron;
       return {

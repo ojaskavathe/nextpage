@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +11,7 @@ import {
 import {
   cn,
   PatronFull,
+  PatronWithSub,
   sr_id
 } from "@/lib/utils";
 
@@ -28,8 +27,13 @@ import {
   TimerReset,
   Truck
 } from "lucide-react";
+import { FootfallDialog } from "./footfall-form";
 
-export function PatronDetails({ patron, className }: { patron: PatronFull, className?: string }) {
+export function PatronDetails({ patron, readOnly, className }: { 
+  patron: PatronWithSub, 
+  readOnly?: boolean, 
+  className?: string 
+}) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
@@ -112,6 +116,21 @@ export function PatronDetails({ patron, className }: { patron: PatronFull, class
             </div>
           </div>
         </div>
+        {!readOnly && <div className='flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-8'>
+          <Link
+            href={`/patrons/${patron.id}/renew`}
+            className='basis-1/3'
+          >
+            <Button variant="default" className='w-full'>Renew</Button>
+          </Link>
+          <FootfallDialog className='basis-1/3' patron={patron} />
+          <Link
+            href={`/patrons/${patron.id}/misc`}
+            className='basis-1/3'
+          >
+            <Button variant="default" className='w-full'>Misc</Button>
+          </Link>
+        </div>}
       </CardContent>
     </Card>
   )

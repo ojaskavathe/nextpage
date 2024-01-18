@@ -5,7 +5,6 @@ import { Toaster } from '@/components/ui/sonner'
 
 import './globals.css'
 // import Provider from './_trpc/Provider'
-import { Navbar } from '@/components/navbar'
 
 const inter = Inter({ subsets: ['latin'] })
 
