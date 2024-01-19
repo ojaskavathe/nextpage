@@ -1,9 +1,4 @@
 import {
-  Dispatch,
-  SetStateAction
-} from "react";
-
-import {
   FormControl,
   FormField,
   FormItem,
@@ -16,18 +11,6 @@ import {
   RadioGroup,
   RadioGroupItem
 } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-
-import {
-  durations,
-  plans
-} from "@/lib/utils";
 
 import {
   Banknote,
@@ -36,99 +19,10 @@ import {
   QrCode
 } from "lucide-react";
 
-interface FormDetailProps {
-  form: any;
-  setPlan: Dispatch<SetStateAction<number>>;
-  setDuration: Dispatch<SetStateAction<number>>;
-  setPaidDD: Dispatch<SetStateAction<number>>;
-}
-
-export default function PatronFormDetails({ form, setPlan, setDuration, setPaidDD }: FormDetailProps) {
+export default function TransactionDetails({ form }: any) {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        <FormField
-          control={form.control}
-          name="plan"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel>Plan</FormLabel>
-              <Select
-                onValueChange={(value: string) => {
-                  setPlan(parseInt(value));
-                  field.onChange(parseInt(value));
-                }}
-              >
-                <FormControl>
-                  <SelectTrigger >
-                    <SelectValue placeholder="Select a plan" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {plans.map(i => (
-                    <SelectItem value={`${i}`} key={i}>{i} Book</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="duration"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel>Duration</FormLabel>
-              <Select
-                onValueChange={(value: string) => {
-                  setDuration(parseInt(value));
-                  field.onChange(parseInt(value))
-                }}
-              >
-                <FormControl>
-                  <SelectTrigger >
-                    <SelectValue placeholder="Select a duration" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {durations.map(i => (
-                    <SelectItem value={`${i}`} key={i}>{i} Months</SelectItem>
-                  ))}
-
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="paidDD"
-          render={({ field: { onChange, ...fieldProps } }) => (
-            <FormItem className="w-full">
-              <FormLabel>Paid DD</FormLabel>
-              <FormControl>
-                <Input
-                  onChange={(e) => {
-                    // only allow integers
-                    if (e.target.value === '' || /^\d*$/.test(e.target.value)) {
-                      setPaidDD(parseInt(e.target.value))
-                      onChange(e.target.value)
-                    }
-                  }}
-                  {...fieldProps}
-                  className="mt-0"
-                  placeholder="2"
-                  inputMode="numeric"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
       <FormField
         control={form.control}
         name="mode"

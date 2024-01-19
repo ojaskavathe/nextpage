@@ -10,10 +10,11 @@ import {
 
 import {
   cn,
-  PatronFull,
   PatronWithSub,
   sr_id
 } from "@/lib/utils";
+
+import { FootfallDialog } from "./footfall-form";
 
 import {
   Bike,
@@ -27,7 +28,6 @@ import {
   TimerReset,
   Truck
 } from "lucide-react";
-import { FootfallDialog } from "./footfall-form";
 
 export function PatronDetails({ patron, readOnly, className }: { 
   patron: PatronWithSub, 

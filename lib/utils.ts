@@ -29,3 +29,10 @@ export function sr_id(id: number) {
 export async function wait(time: number = 1000) {
   await new Promise((resolve) => setTimeout(resolve, time))
 }
+
+export const objectMap = (obj: any, fn: any) =>
+  Object.fromEntries(
+    Object.entries(obj).map(
+      ([k, v], i) => [k, fn(v, k, i)]
+    )
+  )

@@ -1,27 +1,39 @@
 "use client"
 
-import { useState } from "react";
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
-import { ArrowLeftRight, ChevronDown, FileSpreadsheet, Library, LucideIcon, Menu, Users } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
-import { Button } from "@/components/ui/button"
+import {
+  Avatar,
+  AvatarFallback
+} from "@/components/ui/avatar";
+import {
+  Button,
+  buttonVariants
+} from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 
-import { Logout } from "@/lib/actions"
+import { Logout } from "@/lib/actions";
+import { cn } from "@/lib/utils";
+
+import {
+  ArrowLeftRight,
+  ChevronDown,
+  FileSpreadsheet,
+  Library,
+  LogOut,
+  LucideIcon,
+  Menu,
+  Users
+} from "lucide-react";
 
 interface NavProps {
   userId: string
@@ -63,21 +75,21 @@ export function Nav({ userId }: NavProps) {
       },
     ];
 
-    const [collaped, setCollapsed] = useState(true);
+  const [collaped, setCollapsed] = useState(true);
 
   return (
     <>
       {/* Mobile */}
       {!collaped &&
-      <div className="fixed bottom-0 left-0 w-screen h-screen z-10">
-      </div>}
+        <div className="fixed bottom-0 left-0 w-screen h-screen z-10">
+        </div>}
       <motion.div
         className="fixed bottom-0 left-0 w-full z-20"
         initial={{ y: 220 }}
         animate={{
           y: collaped ? 220 : 0
         }}
-        transition={{ ease: "easeOut" }} 
+        transition={{ ease: "easeOut" }}
       >
         <aside className="flex flex-col md:hidden fixed bottom-0 left-0 w-full items-center justify-center py-4 px-3 border-t-2 border-primary rounded-t-2xl bg-secondary overflow-hidden">
           <div className="w-full flex space-x-2">
@@ -94,28 +106,29 @@ export function Nav({ userId }: NavProps) {
                   <ChevronDown className="ml-auto" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full" align="end" forceMount>
+              <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]" align="center" forceMount>
                 <DropdownMenuItem className="p-0">
                   <form action={Logout} className="w-full">
                     <Button variant={"ghost"} className="w-full h-8 flex justify-start p-2 font-normal">
-                      Log Out
+                      <LogOut className="h-4 w-4 mr-2" />
+                      <span>Log Out</span>
                     </Button>
                   </form>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            
+
             <Button
               onClick={() => setCollapsed(!collaped)}
               className={cn(
-                buttonVariants({ variant: "default", size: 'lg'}),
+                buttonVariants({ variant: "default", size: 'lg' }),
                 "rounded-r-2xl"
               )}
             >
               <Menu />
             </Button>
           </div>
-          <Separator className="mt-4"/>
+          <Separator className="mt-4" />
           <nav className="grid gap-1 w-full mt-4">
             {routes.map((route, index) =>
               <Link
@@ -138,7 +151,7 @@ export function Nav({ userId }: NavProps) {
 
       {/* Desktop */}
       <aside
-        className="hidden md:flex w-[250px] top-0 h-screen sticky px-4 bg-slate-100 group flex-col gap-4 py-6"
+        className="hidden md:flex flex-col w-[250px] top-0 h-screen sticky px-4 bg-slate-100 group gap-4 py-6"
       >
         <DropdownMenu>
           <DropdownMenuTrigger asChild className={cn(
@@ -153,11 +166,12 @@ export function Nav({ userId }: NavProps) {
               <ChevronDown className="ml-auto" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-full" align="end" forceMount>
-            <DropdownMenuItem className="p-0">
+          <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]" align="center" forceMount>
+            <DropdownMenuItem className="p-0 text-xs">
               <form action={Logout} className="w-full">
-                <Button variant={"ghost"} className="w-full h-8 flex justify-start p-2 font-normal">
-                  Log Out
+                <Button variant={"ghost"} className="w-full h-8 flex justify-start p-2 font-semibold">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  <span>Log Out</span>
                 </Button>
               </form>
             </DropdownMenuItem>

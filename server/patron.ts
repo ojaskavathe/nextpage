@@ -94,6 +94,11 @@ export const searchPatrons = async (searchString: string) => {
         include: {
           subscription: true
         },
+        orderBy: [{
+          subscription: {
+            expiryDate: 'desc'
+          }
+        }],
         take: 5
       });
 

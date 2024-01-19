@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import PatronFormDetails from "@/components/patron-form-details";
+import TransactionDetails from "@/components/transaction-details";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,6 +28,13 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 
@@ -39,6 +46,7 @@ import {
   fee,
   freeDDs,
   holidays,
+  plans,
   refundableDeposit,
   registrationFees
 } from "@/lib/utils";
@@ -101,11 +109,90 @@ export default function PatronCreateForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="xl:w-2/3"
       >
-        <PatronFormDetails
+        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <FormField
+            control={form.control}
+            name="plan"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Plan</FormLabel>
+                <Select
+                  onValueChange={(value: string) => {
+                    setPlan(parseInt(value));
+                    field.onChange(parseInt(value));
+                  }}
+                >
+                  <FormControl>
+                    <SelectTrigger >
+                      <SelectValue placeholder="Select a plan" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {plans.map(i => (
+                      <SelectItem value={`${i}`} key={i}>{i} Book</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="duration"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Duration</FormLabel>
+                <Select
+                  onValueChange={(value: string) => {
+                    setDuration(parseInt(value));
+                    field.onChange(parseInt(value))
+                  }}
+                >
+                  <FormControl>
+                    <SelectTrigger >
+                      <SelectValue placeholder="Select a duration" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {durations.map(i => (
+                      <SelectItem value={`${i}`} key={i}>{i} Months</SelectItem>
+                    ))}
+
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="paidDD"
+            render={({ field: { onChange, ...fieldProps } }) => (
+              <FormItem className="w-full">
+                <FormLabel>Paid DD</FormLabel>
+                <FormControl>
+                  <Input
+                    onChange={(e) => {
+                      // only allow integers
+                      if (e.target.value === '' || /^\d*$/.test(e.target.value)) {
+                        setPaidDD(parseInt(e.target.value))
+                        onChange(e.target.value)
+                      }
+                    }}
+                    {...fieldProps}
+                    className="mt-0"
+                    placeholder="2"
+                    inputMode="numeric"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <TransactionDetails
           form={form}
-          setPlan={setPlan}
-          setDuration={setDuration}
-          setPaidDD={setPaidDD}
         />
 
         <Card className="mt-8">

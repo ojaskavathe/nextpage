@@ -3,7 +3,7 @@ import { z } from "zod";
 import GetPatron from "@/components/get-patron";
 import { Separator } from "@/components/ui/separator";
 
-import { PatronWithSub } from "@/lib/utils";
+import { PatronWithSub, wait } from "@/lib/utils";
 import { fetchPatron } from "@/server/patron";
 
 export default async function PatronCreateForm({
@@ -27,6 +27,8 @@ export default async function PatronCreateForm({
         return p;
       })
   }
+
+  await wait();
 
   return (
     <div className="space-y-6">
