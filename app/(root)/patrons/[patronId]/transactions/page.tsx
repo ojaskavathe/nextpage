@@ -4,7 +4,6 @@ import { DataTable } from "@/components/transactions/transaction-data-table";
 import { fetchPatron } from "@/server/patron";
 
 import { columns } from "./columns";
-import RenewForm from "./renew-form";
 
 export default async function PatronRenew({ params }: { params: { patronId: string } }) {
 
@@ -12,15 +11,14 @@ export default async function PatronRenew({ params }: { params: { patronId: stri
 
   return (
     <>
-      <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4">
+      <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4 mb-2">
         <PatronDetails patron={patron!} className="flex-grow" readOnly={true} />
-        <DataTable
-          columns={columns}
-          data={patron!.transactions}
-          patronId={patron!.id}
-          className="flex-grow" />
       </div>
-      <RenewForm patron={patron!} />
+      <DataTable
+        columns={columns}
+        data={patron!.transactions}
+        pageSize={10}
+        className="w-full" />
     </>
   )
 }

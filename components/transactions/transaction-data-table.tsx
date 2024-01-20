@@ -27,18 +27,26 @@ import {
   ChevronsLeft,
   ChevronsRight
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  data: TData[],
+  pageSize?: number,
+  patronId?: number,
   className?: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  pageSize = 4,
+  patronId,
   className
 }: DataTableProps<TData, TValue>) {
+
+  const path = usePathname();
 
   const table = useReactTable({
     data,
@@ -48,7 +56,7 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     initialState: {
       pagination: {
-        pageSize: 4
+        pageSize: pageSize
       },
       sorting: [{
         id: 'createdAt',
@@ -60,8 +68,17 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="flex items-center justify-between py-2">
-        <div className="font-semibold text-xl">
-          Transactions
+        <div className="flex space-x-2">
+          <div className="font-semibold text-xl">
+            Transactions
+          </div>
+          {patronId && <Link
+            href={`/patrons/${patronId}/transactions`}
+          >
+            <Button className="px-2 py-1 text-xs h-auto">
+              View More
+            </Button>
+          </Link>}
         </div>
 
         <div className="flex items-center space-x-2">

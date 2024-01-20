@@ -27,13 +27,13 @@ export const columns: ColumnDef<Transaction>[] = [
       const date: Date = row.getValue("createdAt");
       return (
         <div>
-          {date.toLocaleDateString("en-IN", {
+          {date.toLocaleString("en-IN", {
             year: '2-digit',
             month: '2-digit',
             day: '2-digit',
             hour: "numeric",
             minute: "numeric",
-            timeZone: "UTC"
+            timeZone: "Asia/Kolkata"
           })}
         </div>
       )

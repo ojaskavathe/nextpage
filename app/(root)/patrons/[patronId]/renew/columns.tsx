@@ -1,7 +1,7 @@
 "use client"
 
-import { Transaction } from "@prisma/client"
-import { ColumnDef } from "@tanstack/react-table"
+import { Transaction } from "@prisma/client";
+import { ColumnDef } from "@tanstack/react-table";
 
 export const columns: ColumnDef<Transaction>[] = [
   {
@@ -33,7 +33,7 @@ export const columns: ColumnDef<Transaction>[] = [
             day: '2-digit',
             hour: "numeric",
             minute: "numeric",
-            timeZone: "UTC"
+            timeZone: "Asia/Kolkata"
           })}
         </div>
       )
