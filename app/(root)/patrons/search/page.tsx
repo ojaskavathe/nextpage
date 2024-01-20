@@ -28,8 +28,6 @@ export default async function PatronCreateForm({
       })
   }
 
-  await wait();
-
   return (
     <div className="space-y-6">
       <div>

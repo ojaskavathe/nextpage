@@ -1,9 +1,9 @@
 import { PatronDetails } from "@/components/patron-details";
-import { columns } from "@/components/transactions/columns";
 import { DataTable } from "@/components/transactions/transaction-data-table";
 
 import { fetchPatron } from "@/server/patron";
 
+import { columns } from "./columns";
 import RenewForm from "./renew-form";
 
 export default async function PatronRenew({ params }: { params: { patronId: string } }) {

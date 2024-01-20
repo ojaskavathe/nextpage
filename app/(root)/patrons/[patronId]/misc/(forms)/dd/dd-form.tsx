@@ -29,12 +29,18 @@ import { Input } from "@/components/ui/input";
 import { patronMiscDDSchema } from "@/lib/schema";
 import {
   DDFees,
-  PatronWithSub
+  PatronWithSub,
+  sr_id
 } from "@/lib/utils";
 
 import { AlertCircle } from "lucide-react";
+import { miscDD } from "@/server/patron";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function MiscDDForm({ patron }: { patron: PatronWithSub }) {
+
+  const router = useRouter();
 
   const [numDD, setNumDD] = useState(0);
 
@@ -67,14 +73,14 @@ export default function MiscDDForm({ patron }: { patron: PatronWithSub }) {
   const adjustWatch = form.watch('adjust', '');
 
   const onSubmit = async (data: z.infer<typeof patronMiscDDSchema>) => {
-    console.log(data)
+    const res = await miscDD(data);
 
-    // if (res.error == 0) {
-    //   router.push(`/patrons/${patron.id}`);
-    //   toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
-    // } else {
-    //   setErrorMessage(res.message)
-    // }
+    if (res.error == 0) {
+      router.push(`/patrons/${data.id}`);
+      toast.success(`Added DD for Patron ${sr_id(data.id)}`);
+    } else {
+      setErrorMessage(res.message)
+    }
   }
 
   return (

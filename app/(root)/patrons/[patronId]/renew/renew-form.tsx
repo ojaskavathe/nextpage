@@ -114,12 +114,10 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
   const adjustWatch = form.watch('adjust', '');
 
   const onSubmit = async (data: z.infer<typeof patronRenewSchema>) => {
-    console.log(data)
-
     const res = await renewPatron(data);
 
     if (res.error == 0) {
-      router.push(`/patrons/${patron.id}`);
+      router.push(`/patrons/${data.id}`);
       toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
     } else {
       setErrorMessage(res.message)

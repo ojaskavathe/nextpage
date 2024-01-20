@@ -1,8 +1,7 @@
 "use client"
 
-import { DDFees } from "@/lib/utils";
-import { Transaction } from "@prisma/client";
-import { ColumnDef } from "@tanstack/react-table";
+import { Transaction } from "@prisma/client"
+import { ColumnDef } from "@tanstack/react-table"
 
 export const columns: ColumnDef<Transaction>[] = [
   {
@@ -10,24 +9,16 @@ export const columns: ColumnDef<Transaction>[] = [
     header: "Type",
   },
   {
-    header: "Details",
-    accessorFn: (row) => {
-      switch (row.type) {
-        case "SIGNUP":
-        case "RENEWAL":
-          return `${row.newPlan} Books`
-        case "DD":
-          return `${row.DDFees / DDFees} DD`
-      }
-    }
-  },
-  {
     accessorKey: "netPayable",
-    header: "Amount",
+    header: "Net Payable",
   },
   {
-    accessorKey: "remarks",
-    header: "Remarks",
+    accessorKey: "adjust",
+    header: "Adjust Amount",
+  },
+  {
+    accessorKey: "reason",
+    header: "Reason",
   },
   {
     accessorKey: "createdAt",
@@ -46,6 +37,7 @@ export const columns: ColumnDef<Transaction>[] = [
           })}
         </div>
       )
-    }
+    },
+    sortingFn: "datetime"
   }
 ]

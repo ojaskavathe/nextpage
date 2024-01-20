@@ -11,6 +11,7 @@ import {
 import {
   footfallFormSchema,
   patronCreateSchema,
+  patronMiscDDSchema,
   patronRenewSchema,
   patronUpdateSchema
 } from "@/lib/schema";
@@ -218,6 +219,7 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
     });
 
     revalidatePath(`/patrons/${newPatron.id}`);
+    revalidatePath(`/patrons/search`);
 
     return {
       data: newPatron,
@@ -336,7 +338,8 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
       }
     });
 
-    revalidatePath(`/patrons/${patron.id}`);
+    revalidatePath(`/patrons/${patron.id}`, 'layout');
+    revalidatePath(`/patrons/search`);
 
     return {
       error: 0,
@@ -375,7 +378,8 @@ export async function updatePatron(input: z.infer<typeof patronUpdateSchema>): P
       }
     })
 
-    revalidatePath(`/patrons/${id}`);
+    revalidatePath(`/patrons/${id}`, 'layout');
+    revalidatePath(`/patrons/search`);
 
     return {
       error: 0,
@@ -467,7 +471,7 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
         })
       ])
 
-      revalidatePath(`/patrons/${patron.id}`);
+      revalidatePath(`/patrons/${patron.id}`, 'layout');
       revalidatePath(`/patrons/search`);
 
       return {
@@ -503,6 +507,72 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
     return {
       error: 5,
       message: `[SERVER]: There was an error inserting footfall for user: ${sr_id(input.id)}`
+    }
+  }
+}
+
+export async function miscDD(input: z.infer<typeof patronMiscDDSchema>): Promise<{
+  error: number,
+  message: string,
+}> {
+  if (!patronMiscDDSchema.safeParse(input).success) {
+    return {
+      error: 1,
+      message: "Failed to validate Footfall Data."
+    }
+  }
+
+  const patron = await fetchPatron(input.id);
+  if (!patron) {
+    return {
+      error: 2,
+      message: 'Patron doesn\'t exist'
+    }
+  }
+
+  try {
+    await prisma.patron.update({
+      data: {
+        subscription: {
+          update: {
+            paidDD: patron.subscription!.paidDD + (input.numDD || 0)
+          }
+        },
+        transactions: {
+          create: {
+            mode: input.mode,
+            type: "DD",
+            DDFees: (input.numDD || 0) * DDFees,
+            netPayable: (input.numDD || 0) * DDFees,
+
+            oldPlan: patron.subscription!.plan,
+            newPlan: patron.subscription!.plan,
+            oldExpiry: patron.subscription!.expiryDate,
+            newExpiry: patron.subscription!.expiryDate,
+
+            adjust: input.adjust || 0,
+            reason: input.reason,
+            offer: input.offer,
+            remarks: input.remarks,
+          }
+        }
+
+      },
+      where: {
+        id: input.id
+      }
+    })
+
+    revalidatePath(`/patrons/${input.id}`, 'layout');
+
+    return {
+      error: 0,
+      message: "u gucci"
+    }
+  } catch (e) {
+    return {
+      error: 5,
+      message: '[SERVER]: Something went wrong'
     }
   }
 }
