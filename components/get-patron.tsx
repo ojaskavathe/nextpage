@@ -39,7 +39,7 @@ export default function GetPatron({ queryPatron }: { queryPatron?: PatronWithSub
     return params.toString()
   }
   
-  const delay = 500;
+  const delay = 300;
   const [searchString, setSearchString] = useState('');
   
   const [patrons, setPatrons] = useState<PatronWithSub[]>([]);

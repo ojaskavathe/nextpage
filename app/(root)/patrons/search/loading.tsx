@@ -17,7 +17,7 @@ export default async function searchLoading() {
           <Separator className="mt-4" />
         </div>
         <div className='basis-1/2'>
-          <Skeleton className="basis-1/2 h-72"/>
+          <Skeleton className="basis-1/2 h-72" />
         </div>
       </div>
     </div>

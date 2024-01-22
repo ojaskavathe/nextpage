@@ -43,7 +43,11 @@ export default async function PatronRenew({ params, children }: { params: { patr
     <>
       <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4">
         <PatronDetails patron={patron!} className="flex-grow" readOnly={true} />
-        <DataTable columns={columns} data={patron!.transactions} className="flex-grow" />
+        <DataTable 
+          columns={columns} 
+          data={patron!.transactions} 
+          patronId={patron!.id}
+          className="flex-grow" />
       </div>
       <Card className="mt-8 xl:w-2/3">
         <CardHeader>

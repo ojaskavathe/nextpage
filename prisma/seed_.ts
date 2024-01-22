@@ -180,12 +180,16 @@ async function main() {
     }
   })
 
-  await prisma.support.create({
-    data: {
-      id: 'server',
-      password: 'password'
-    }
-  });
+  try {
+    await prisma.support.create({
+      data: {
+        id: 'server',
+        password: 'password'
+      }
+    });
+  } catch (e) {
+    console.log('Error adding support!')
+  }
 
   await prisma.$executeRaw`
     SELECT setval(pg_get_serial_sequence('"Patron"', 'id'), coalesce(max(id)+1, 1), false) FROM "Patron";
