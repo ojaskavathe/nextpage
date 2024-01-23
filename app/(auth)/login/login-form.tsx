@@ -9,7 +9,6 @@ import * as z from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -19,6 +18,7 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 import { authenticate } from "@/lib/actions";
 import { LoginFormSchema } from "@/lib/schema";
@@ -35,24 +35,14 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
     defaultValues: {
       id: "",
       password: "",
+      callbackUrl: callbackUrl
     },
   })
-
-  const onSubmit = async (data: z.infer<typeof LoginFormSchema>) => {
-    const formData = new FormData();
-
-    formData.append('id', data.id);
-    formData.append('password', data.password);
-    if (callbackUrl) {
-      formData.append('callbackUrl', callbackUrl);
-    }
-    dispatch(formData);
-  }
 
   return (
     <Form {...form}>
       <form 
-        onSubmit={form.handleSubmit(onSubmit)}
+        action={dispatch}
         className="w-2/3 py-8"
       >
         <FormField
@@ -81,7 +71,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
             </FormItem>
           )}
         />
-        <Button type="submit" className="mt-6 w-full" aria-disabled={pending} disabled={pending}>Login</Button>
+        <SubmitButton className="mt-6 w-full">Login</SubmitButton>
         { errorMessage && 
           <div className="flex text-red-500 mt-4">
             <AlertCircle className="mr-1 w-5"/>
