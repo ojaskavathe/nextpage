@@ -28,7 +28,6 @@ import { AlertCircle } from "lucide-react";
 export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
 
   const [ errorMessage, dispatch ] = useFormState(authenticate, undefined);
-  const { pending } = useFormStatus(); 
 
   const form = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),

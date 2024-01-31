@@ -1,12 +1,23 @@
 import { Metadata } from "next";
 
-import { PatronNav } from "@/components/nav-patron";
+import { InnerNav } from "@/components/nav-inner";
 import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
   title: "Patrons",
   description: "Manage patrons.",
 }
+
+const patronNavItems = [
+  {
+    title: "Search",
+    href: "/patrons/search",
+  },
+  {
+    title: "Sign-up",
+    href: "/patrons/create",
+  },
+]
 
 export default function PatronsLayout({ children }: { children: React.ReactNode }) {
 
@@ -20,7 +31,7 @@ export default function PatronsLayout({ children }: { children: React.ReactNode 
       </div>
       <div className="flex flex-col">
         <aside className="mb-4">
-          <PatronNav />
+          <InnerNav navItems={patronNavItems}/>
         </aside>
         <Separator className="my-0" />
         <div className="mt-4 flex-1">{children}</div>

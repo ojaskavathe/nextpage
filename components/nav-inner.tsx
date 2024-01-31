@@ -6,25 +6,19 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-const patronNavItems = [
-  {
-    title: "Search",
-    href: "/patrons/search",
-  },
-  {
-    title: "Sign-up",
-    href: "/patrons/create",
-  },
-]
+interface navItem {
+  title: string,
+  href: string,
+}
 
-export function PatronNav() {
+export function InnerNav({ navItems }: { navItems: navItem[] }) {
   const pathname = usePathname()
 
   return (
     <nav
       className={"flex md:justify-start md:space-x-2"}
     >
-      {patronNavItems.map((item) => (
+      {navItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}

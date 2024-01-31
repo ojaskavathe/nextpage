@@ -36,6 +36,7 @@ import { Toggle } from "@/components/ui/toggle";
 
 import { patronMiscAddonSchema } from "@/lib/schema";
 import {
+  addonFee,
   durations,
   fee,
   PatronWithSub,
@@ -68,10 +69,10 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
     );
   }
 
-  const addonFee = Math.ceil(
+  const addonFees = Math.ceil(
     tillExpiry
-      ? numDays * fee[addonPlan - 1] / 30
-      : addonDuration * fee[addonPlan - 1])
+      ? numDays * addonFee * addonPlan / 30
+      : addonDuration * addonFee * addonPlan)
 
   const form = useForm<z.infer<typeof patronMiscAddonSchema>>({
     resolver: zodResolver(patronMiscAddonSchema),
@@ -219,7 +220,7 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
                     <div className="mb-8">
                       <div className="flex items-center justify-between">
                         <span>Reading Fee:</span>
-                        <span>{addonFee}</span>
+                        <span>{addonFees}</span>
                       </div>
                     </div>
                   </div>
@@ -235,7 +236,7 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
                 <div className="w-full font-bold flex items-center justify-between">
                   <span>Total:</span>
                   <span>₹{
-                    addonFee -
+                    addonFees -
                     (adjustWatch!.toString() !== '-' ? -adjustWatch! : 0)
                   }</span>
                 </div>

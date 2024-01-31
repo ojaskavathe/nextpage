@@ -151,7 +151,7 @@ export function Nav({ userId }: NavProps) {
 
       {/* Desktop */}
       <aside
-        className="hidden md:flex flex-col w-[250px] top-0 h-screen sticky px-4 bg-slate-100 group gap-4 py-6"
+        className="hidden md:flex flex-col w-[250px] top-0 h-screen sticky px-4 bg-slate-100 group gap-4 py-6 flex-shrink-0"
       >
         <DropdownMenu>
           <DropdownMenuTrigger asChild className={cn(

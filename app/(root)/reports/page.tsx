@@ -1,6 +1,6 @@
 import { Construction } from "lucide-react";
 
-export default function LibraryPage() {
+export default function ReportsPage() {
   return (
     <div className="flex space-x-4">
       <Construction />

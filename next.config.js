@@ -11,6 +11,11 @@ const nextConfig = {
         source: '/patrons',
         destination: '/patrons/search',
         permanent: true
+      },
+      {
+        source: '/reports',
+        destination: '/reports/transactions',
+        permanent: true
       }
     ]
   }

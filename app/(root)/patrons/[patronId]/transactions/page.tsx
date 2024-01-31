@@ -10,8 +10,6 @@ export default async function PatronRenew({ params }: { params: { patronId: stri
 
   const patron = await fetchPatron(parseInt(params.patronId));
 
-  await wait();
-
   return (
     <>
       <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4 mb-2">

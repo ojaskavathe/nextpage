@@ -11,7 +11,7 @@ export default function PatronsLayout({ children }: { children: React.ReactNode 
   return (
     <div className="space-y-6 pb-16">
       <div className="space-y-0.5">
-        <h2 className="text-2xl font-bold tracking-tight">Patrons</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Library</h2>
         <p className="text-muted-foreground">
           View and Edit Books, Magazine, Categories.
         </p>
