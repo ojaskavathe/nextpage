@@ -361,7 +361,7 @@ export async function updatePatron(input: z.infer<typeof patronUpdateSchema>): P
 
   const validity = await patronUpdateSchema.safeParseAsync(input);
 
-  if (validity.success) {
+  if (!validity.success) {
     return {
       error: 1,
       message: "Failed to validate Patron Data."

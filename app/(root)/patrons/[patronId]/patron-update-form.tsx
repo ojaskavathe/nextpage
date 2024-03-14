@@ -38,16 +38,20 @@ import { Toggle } from "@/components/ui/toggle";
 
 import { patronUpdateSchema } from "@/lib/schema";
 import {
-  cn,
+  PatronFull,
   sr_id
 } from "@/lib/utils";
 import { updatePatron } from "@/server/patron";
 
 import { AlertCircle } from "lucide-react";
 
-type PatronFull = Prisma.PatronGetPayload<{ include: { subscription: true, transactions: true } }>;
-
-export default function PatronUpdateForm({ patron }: { patron: PatronFull }) {
+export default function PatronUpdateForm({ 
+  patron,
+  className 
+}: { 
+  patron: PatronFull 
+  className?: string
+}) {
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -83,7 +87,7 @@ export default function PatronUpdateForm({ patron }: { patron: PatronFull }) {
   }
 
   return (
-    <div>
+    <div className={className}>
 
       <Form {...form}>
         <form

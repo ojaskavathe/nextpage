@@ -32,6 +32,7 @@ model Patron {
   transactions  Transaction[]
   deliveries    Delivery[]
   footfall      Footfall[]
+  checkouts     Checkout[]
 
   @@index(fields: [id])
 }
@@ -114,6 +115,19 @@ model Footfall {
   delivery      Delivery?
 
   createdAt     DateTime          @default(now())
+}
+
+model Checkout {
+  id            String            @id @default(uuid())
+  patron        Patron            @relation(fields: [patronId], references: [id])
+  patronId      Int
+
+  itemBarcode   Int
+  title         String
+  authors       String
+
+  checked_out   DateTime
+  checked_in    DateTime?
 }
 
 enum TransactionType {

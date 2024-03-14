@@ -4,7 +4,7 @@ import { DDFees } from "@/lib/utils";
 import { Transaction } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 
-export const columns: ColumnDef<Transaction>[] = [
+export const columns_transactions: ColumnDef<Transaction>[] = [
   {
     accessorKey: "type",
     header: "Type",

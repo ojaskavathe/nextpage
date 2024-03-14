@@ -1,11 +1,22 @@
 import { Prisma } from "@prisma/client";
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-export type PatronFull = Prisma.PatronGetPayload<{ include: { subscription: true, transactions: true } }>;
-export type PatronWithSub = Prisma.PatronGetPayload<{ include: { subscription: true } }>;
-export type TransactionWithPatron = Prisma.TransactionGetPayload<{ include: { patron: true } }>;
-export type FootfallWithPatron = Prisma.FootfallGetPayload<{ include: { patron: true } }>;
+export type PatronFull = Prisma.PatronGetPayload<{
+  include: { subscription: true; transactions: true };
+}>;
+export type PatronWithSub = Prisma.PatronGetPayload<{
+  include: { subscription: true };
+}>;
+export type TransactionWithPatron = Prisma.TransactionGetPayload<{
+  include: { patron: true };
+}>;
+export type FootfallWithPatron = Prisma.FootfallGetPayload<{
+  include: { patron: true };
+}>;
+export type CheckoutWithPatron = Prisma.CheckoutGetPayload<{
+  include: { patron: true };
+}>;
 
 export const plans = [1, 2, 3, 4, 5, 6];
 export const durations = [1, 3, 6, 12];
@@ -22,20 +33,16 @@ export const registrationFees = 199;
 export const refundableDeposit = 499;
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function sr_id(id: number) {
-  return `M${id.toString().padStart(6, '0')}`
+  return `M${id.toString().padStart(6, "0")}`;
 }
 
 export async function wait(time: number = 1000) {
-  await new Promise((resolve) => setTimeout(resolve, time))
+  await new Promise((resolve) => setTimeout(resolve, time));
 }
 
 export const objectMap = (obj: any, fn: any) =>
-  Object.fromEntries(
-    Object.entries(obj).map(
-      ([k, v], i) => [k, fn(v, k, i)]
-    )
-  )
+  Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)]));

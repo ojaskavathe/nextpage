@@ -30,6 +30,32 @@ export const fetchFootfall = async () => {
       }
     });
   } catch (e) {
-    return null;
+    return [];
+  }
+}
+
+export const fetchCheckouts = async (patronId?: number) => {
+  if (patronId) {
+    try {
+      return await prisma.checkout.findMany({
+        where: {
+          patronId
+        },
+        orderBy: {
+          checked_out: "desc"
+        }
+      });
+    } catch(e) {
+      return [];
+    }
+  }
+  try {
+    return await prisma.checkout.findMany({
+      orderBy: {
+        checked_out: "desc"
+      }
+    });
+  } catch (e) {
+    return [];
   }
 }

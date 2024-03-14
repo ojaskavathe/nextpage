@@ -12,7 +12,7 @@ export default async function FootfallReport() {
     <>
       <FootfallReportsTable
         columns={columns}
-        data={footfall!}
+        data={footfall}
         pageSize={10}
       />
     </>
