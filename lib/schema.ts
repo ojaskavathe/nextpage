@@ -76,7 +76,7 @@ export const optSignedIntString = z.preprocess(
 );
 
 export const LoginFormSchema = z.object({
-  id: z.string().min(1, 'ID required'),
+  username: z.string().min(1, 'ID required'),
   password: z.string().min(1, 'Password required'),
   callbackUrl: z.string().optional()
 });

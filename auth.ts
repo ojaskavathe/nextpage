@@ -1,8 +1,16 @@
-import NextAuth, { NextAuthConfig } from "next-auth";
+import NextAuth, { NextAuthConfig, User } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { LoginFormSchema } from "./lib/schema";
 import { prisma } from "./server/db";
+import { $Enums } from "@prisma/client";
+
+declare module "next-auth" {
+  interface User {
+    id: string,
+    role: $Enums.Role
+  }
+}
 
 export const authConfig = {
   pages: {
@@ -21,12 +29,12 @@ export const authConfig = {
     
     jwt: async ({ token, user }) => {
       if (user) {
-        token.user = user;
+        token.user = user as User;
       }
       return token;
     },
     session: async ({ session, token }) => {
-      session.user = token.user as { id: string };
+      session.user = token.user as { id: string, role: string };
       return session;
     },
 
@@ -42,23 +50,23 @@ export const authConfig = {
 
   providers: [Credentials({
     credentials: {
-      id: { label: "ID", type: "text" },
+      username: { label: "ID", type: "text" },
       password: { label: "Password", type: "password" }
     },
     async authorize(credentials) {
       const parsedCredentials = LoginFormSchema.safeParse(credentials);
       if (parsedCredentials.success) {
-        const { id, password } = parsedCredentials.data;
+        const { username, password } = parsedCredentials.data;
         
         const user = await prisma.support.findFirst({
           where: {
-            id,
+            username,
             password
           }
         })
   
         if(!user) return null;
-        return { id: user.id };
+        return { id: user.username, role: user.role };
       }
       return null;
     },

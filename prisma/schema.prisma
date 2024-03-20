@@ -10,8 +10,14 @@ datasource db {
 }
 
 model Support {
-  id            String            @unique
+  id            String            @id @default(uuid())
+
+  role          Role              @default(NON_ADMIN)
+  username      String            @unique
   password      String
+
+  transactions  Transaction[]
+  footfalls     Footfall[]
 }
 
 model Patron {
@@ -82,6 +88,9 @@ model Transaction {
   newExpiry     DateTime?         @db.Date
   attendedBy    String?
 
+  support       Support           @relation(fields: [supportId], references: [id])
+  supportId     String            
+
   createdAt     DateTime          @default(now())
 
   @@index([patronId])
@@ -113,6 +122,9 @@ model Footfall {
   offer         String?
   remarks       String?
   delivery      Delivery?
+  
+  attendedBy    Support           @relation(fields: [supportId], references: [id])
+  supportId     String            
 
   createdAt     DateTime          @default(now())
 }
@@ -158,4 +170,9 @@ enum FootfallType {
   ISSUE
   RETURN
   BOTH
+}
+
+enum Role {
+  ADMIN
+  NON_ADMIN
 }

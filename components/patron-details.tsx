@@ -29,18 +29,20 @@ import {
   Truck
 } from "lucide-react";
 
-export function PatronDetails({ patron, readOnly, className }: { 
-  patron: PatronWithSub, 
-  readOnly?: boolean, 
-  className?: string 
+export function PatronDetails({ patron, readOnly, className }: {
+  patron: PatronWithSub,
+  readOnly?: boolean,
+  className?: string
 }) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
         <CardTitle>
-          <Button className="text-lg font-semibold" variant="outline">
-            <Link href={`/patrons/${patron.id}`}>{patron.name}</Link>
-          </Button>
+          <Link href={`/patrons/${patron.id}`}>
+            <Button className="text-lg font-semibold" variant="outline">
+              {patron.name}
+            </Button>
+          </Link>
         </CardTitle>
       </CardHeader>
       <CardContent>

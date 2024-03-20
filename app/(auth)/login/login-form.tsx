@@ -2,7 +2,6 @@
 
 import {
   useFormState,
-  useFormStatus
 } from "react-dom";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -32,7 +31,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
   const form = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      id: "",
+      username: "",
       password: "",
       callbackUrl: callbackUrl
     },
@@ -46,7 +45,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
       >
         <FormField
           control={form.control}
-          name="id"
+          name="username"
           render={({ field }) => (
             <FormItem>
               <FormLabel>ID</FormLabel>

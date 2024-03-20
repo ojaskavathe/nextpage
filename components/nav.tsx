@@ -32,15 +32,17 @@ import {
   LogOut,
   LucideIcon,
   Menu,
+  Pickaxe,
   Users
 } from "lucide-react";
+import { $Enums } from "@prisma/client";
 
 interface NavProps {
   userId: string
+  role: $Enums.Role
 }
 
-export function Nav({ userId }: NavProps) {
-
+export function Nav({ userId, role }: NavProps) {
   const pathName = usePathname();
 
   const routes: {
@@ -194,6 +196,13 @@ export function Nav({ userId }: NavProps) {
             </Link>
           )}
         </nav>
+        {role == "ADMIN" && <Link href="/admin" className="mt-auto">
+          <Button className="justify-start w-full" >
+            <Pickaxe className="mr-2 h-4 w-4" />
+            Admin
+          </Button>
+        </Link>}
+
       </aside>
     </>
   )

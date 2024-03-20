@@ -1,4 +1,4 @@
-import { PrismaClient, $Enums } from "@prisma/client";
+import { PrismaClient, Support } from "@prisma/client";
 
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { JWT } from "google-auth-library";
@@ -57,12 +57,31 @@ const getCheckinData = async () => {
 const prisma = new PrismaClient();
 
 async function main() {
-  const months = [1, 3, 6, 12];
-  const dd = [0, 0, 2, 4];
-  const hol = [0, 0, 1, 2];
-  const dis = [0, 0.05, 0.1, 0.2];
-  const patronData = await getPatronData();
 
+  // creating support
+  let admin: Support;
+  try {
+    admin = await prisma.support.create({
+      data: {
+        username: "server",
+        password: "password",
+        role: "ADMIN"
+      },
+    });
+
+    await prisma.support.create({
+      data: {
+        username: "frontoffice",
+        password: "password",
+        role: "NON_ADMIN"
+      },
+    });
+  } catch (e) {
+    console.log("Error adding support!");
+  }
+
+  // seeding patrons
+  const patronData = await getPatronData();
   patronData.forEach(async (row) => {
     // based on duration
     const freeDD = parseInt(row["Free DD / Month"]);
@@ -102,8 +121,8 @@ async function main() {
     }
   });
 
+  // seeding transactions
   const transactionData = await getTransactionData();
-
   transactionData.forEach(async (row) => {
     try {
       await prisma.patron.update({
@@ -146,6 +165,13 @@ async function main() {
               offer: row["Special Offer"] || null,
               attendedBy: row["Attended By"] || null,
               remarks: row["Remarks"] || null,
+
+              support: {
+                connect: {
+                  id: admin.id
+                }
+              }
+              
             },
           },
         },
@@ -239,17 +265,6 @@ async function main() {
       }
     }
   });
-
-  try {
-    await prisma.support.create({
-      data: {
-        id: "server",
-        password: "password",
-      },
-    });
-  } catch (e) {
-    console.log("Error adding support!");
-  }
 
   await prisma.$executeRaw`
     SELECT setval(pg_get_serial_sequence('"Patron"', 'id'), coalesce(max(id)+1, 1), false) FROM "Patron";
