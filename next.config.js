@@ -16,6 +16,11 @@ const nextConfig = {
         source: '/reports',
         destination: '/reports/transactions',
         permanent: true
+      },
+      {
+        source: '/admin',
+        destination: '/admin/transactions',
+        permanent: true
       }
     ]
   }

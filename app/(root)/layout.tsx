@@ -12,7 +12,7 @@ export default async function RootLayout({
   return (
     <div className="flex flex-col-reverse md:flex-row">
       <Nav
-        userId={session?.user?.id || ''}
+        userId={session?.user?.username || ''}
         role={session?.user?.role || "NON_ADMIN"}
       />
       <div className="flex-grow pb-8 md:pb-0 p-6 overflow-x-hidden">{children}</div>

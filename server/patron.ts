@@ -11,11 +11,13 @@ import {
 import {
   footfallFormSchema,
   patronCreateSchema,
+  patronMiscAddonSchema,
   patronMiscDDSchema,
   patronRenewSchema,
   patronUpdateSchema
 } from "@/lib/schema";
 import {
+    addonFee,
   DDFees,
   discounts,
   durations,
@@ -29,6 +31,12 @@ import {
 } from "@/lib/utils";
 
 import { prisma } from "./db";
+import { auth } from "@/auth";
+
+const currentStaff = async() => {
+  const session = await auth();
+  return session?.user!
+}
 
 export const fetchPatron = async (patronId: number) => {
   const isId = await z.number().safeParseAsync(patronId);
@@ -127,6 +135,8 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
     return out;
   }
 
+  const staff = await currentStaff();
+
   const today = new Date();
   const exp = new Date(new Date(today).setMonth(today.getMonth() + input.duration));
 
@@ -211,6 +221,12 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
               newPlan: input.plan,
               oldExpiry: today,
               newExpiry: exp,
+
+              support: {
+                connect: {
+                  id: staff.id
+                }
+              },
               attendedBy: 'Server'
             }
           ]
@@ -293,6 +309,8 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
   const total = readingFee + pastDues - discount - (input.adjust || 0);
 
   const totalPaidDDs = patron.subscription!.paidDD + (input.paidDD || 0);
+  
+  const support = await currentStaff();
 
   try {
     await prisma.patron.update({
@@ -328,7 +346,8 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
               newPlan: input.plan,
               oldExpiry: oldExpiry,
               newExpiry: newExpiry,
-              attendedBy: 'Server'
+
+              supportId: support.id,
             }
           ]
         }
@@ -430,6 +449,8 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
     ? currentPaidDD - 1
     : currentPaidDD
 
+  const support = await currentStaff();
+
   try {
 
     if (input.isDD) {
@@ -450,6 +471,7 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
                 message: input.message
               }
             },
+            supportId: support.id,
             createdAt: input.scheduledDate
           }
         }),
@@ -489,6 +511,7 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
           offer: input.offer,
           remarks: input.remarks,
           isDD: false,
+          supportId: support.id
         }
       })
 
@@ -530,6 +553,8 @@ export async function miscDD(input: z.infer<typeof patronMiscDDSchema>): Promise
     }
   }
 
+  const support = await currentStaff();
+
   try {
     await prisma.patron.update({
       data: {
@@ -543,7 +568,7 @@ export async function miscDD(input: z.infer<typeof patronMiscDDSchema>): Promise
             mode: input.mode,
             type: "DD",
             DDFees: (input.numDD || 0) * DDFees,
-            netPayable: (input.numDD || 0) * DDFees,
+            netPayable: (input.numDD || 0) * DDFees + (input.adjust || 0),
 
             oldPlan: patron.subscription!.plan,
             newPlan: patron.subscription!.plan,
@@ -554,6 +579,98 @@ export async function miscDD(input: z.infer<typeof patronMiscDDSchema>): Promise
             reason: input.reason,
             offer: input.offer,
             remarks: input.remarks,
+
+            supportId: support.id,
+          }
+        }
+
+      },
+      where: {
+        id: input.id
+      }
+    })
+
+    revalidatePath(`/patrons/${input.id}`, 'layout');
+
+    return {
+      error: 0,
+      message: "u gucci"
+    }
+  } catch (e) {
+    return {
+      error: 5,
+      message: '[SERVER]: Something went wrong'
+    }
+  }
+}
+
+export async function patronAddon(input: z.infer<typeof patronMiscAddonSchema>): Promise<{
+  error: number,
+  message: string,
+}> {
+  if (!patronMiscAddonSchema.safeParse(input).success) {
+    return {
+      error: 1,
+      message: "Failed to validate Addon Data."
+    }
+  }
+
+  const patron = await fetchPatron(input.id);
+  if (!patron) {
+    return {
+      error: 2,
+      message: 'Patron doesn\'t exist'
+    }
+  }
+
+  const today = new Date();
+  const planExpiry = patron.subscription!.expiryDate;
+  const isPlanValid = planExpiry > today;
+  if (!isPlanValid) {
+    return {
+      error: 3,
+      message: 'Patron subscription has expired'
+    }
+  }
+ 
+  const addonExpiry = input.tillExpiry 
+      ? patron.subscription!.expiryDate
+      : new Date(today.setMonth(today.getMonth() + input.duration!))
+
+  let numDays = 0;
+  numDays = Math.floor(
+    (planExpiry.valueOf() - today.valueOf())
+      / (1000 * 60 * 60 * 24)
+  );
+
+  const addonFees = Math.ceil(
+    input.tillExpiry
+      ? numDays * addonFee * input.plan / 30
+      : input.duration! * addonFee * input.plan)
+
+  const support = await currentStaff();
+
+  try {
+    await prisma.patron.update({
+      data: {
+        addons: {
+          create: {
+            plan: input.plan,
+            expiryDate: addonExpiry, 
+          }
+        },
+        transactions: {
+          create: {
+            mode: input.mode,
+            type: "ADDON",
+            netPayable: addonFees + (input.adjust || 0),
+
+            adjust: input.adjust || 0,
+            reason: input.reason,
+            offer: input.offer,
+            remarks: input.remarks,
+
+            supportId: support.id,
           }
         }
 

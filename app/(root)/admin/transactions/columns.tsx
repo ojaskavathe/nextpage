@@ -6,16 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 
-import { sr_id, TransactionWithPatron } from "@/lib/utils";
-
-const dateTimeFormat: Intl.DateTimeFormatOptions = {
-  year: "2-digit",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "numeric",
-  minute: "numeric",
-  timeZone: "Asia/Kolkata",
-};
+import { sr_id, TransactionWithSupport } from "@/lib/utils";
 
 const dateFormat: Intl.DateTimeFormatOptions = {
   year: "numeric",
@@ -30,7 +21,7 @@ const timeFormat: Intl.DateTimeFormatOptions = {
   timeZone: "Asia/Kolkata",
 };
 
-export const columns: ColumnDef<TransactionWithPatron>[] = [
+export const columns: ColumnDef<TransactionWithSupport>[] = [
   {
     header: "Date",
     accessorFn: (row) => {
@@ -47,6 +38,12 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
     },
   },
   {
+    header: "Staff",
+    accessorFn: (row) => {
+      return row.support.username;
+    },
+  },
+  {
     header: "Patron",
     cell: ({ cell }) => {
       const patronId = cell.getValue() as number;
@@ -59,7 +56,7 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
       );
     },
     accessorFn: (row) => {
-      return row.patronId;
+      return row.patron.id;
     },
   },
   {
@@ -69,82 +66,5 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
   {
     accessorKey: "netPayable",
     header: "Net Payable",
-  },
-  {
-    accessorKey: "readingFees",
-    header: "Reading Fee",
-  },
-  {
-    accessorKey: "discount",
-    header: "Discount",
-  },
-  {
-    accessorKey: "DDFees",
-    header: "DD Fees",
-  },
-  {
-    accessorKey: "registration",
-    header: "Registration",
-  },
-  {
-    accessorKey: "deposit",
-    header: "Deposit",
-  },
-  {
-    accessorKey: "adjust",
-    header: "Adjust",
-  },
-  {
-    header: "Reason",
-    accessorFn: (row) => {
-      return row.reason ?? "";
-    },
-  },
-  {
-    accessorKey: "mode",
-    header: "Mode",
-  },
-  {
-    accessorKey: "oldPlan",
-    header: "Old Plan",
-  },
-  {
-    accessorKey: "newPlan",
-    header: "New Plan",
-  },
-  {
-    accessorKey: "oldExpiry",
-    header: "Old Expiry",
-    accessorFn: (row) => {
-      if (!row.oldExpiry) {
-        return;
-      }
-      const date: Date = row.oldExpiry;
-      return date.toLocaleDateString("en-IN", dateFormat);
-    },
-  },
-  {
-    accessorKey: "newExpiry",
-    header: "New Expiry",
-    accessorFn: (row) => {
-      if (!row.newExpiry) {
-        return;
-      }
-      const date: Date = row.newExpiry;
-      return date.toLocaleDateString("en-IN", dateFormat);
-    },
-  },
-  {
-    header: "Offer",
-    accessorFn: (row) => {
-      return row.offer ?? "";
-    },
-  },
-  {
-    accessorKey: "remarks",
-    header: "Remarks",
-    accessorFn: (row) => {
-      return row.remarks ?? "";
-    },
   },
 ];

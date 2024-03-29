@@ -8,6 +8,7 @@ import { $Enums } from "@prisma/client";
 declare module "next-auth" {
   interface User {
     id: string,
+    username: string,
     role: $Enums.Role
   }
 }
@@ -18,7 +19,7 @@ export const authConfig = {
   },
 
   session: {
-    strategy: "jwt", 
+    strategy: "jwt",
     maxAge: 1 * 24 * 60 * 60
   },
 
@@ -26,7 +27,7 @@ export const authConfig = {
     authorized: ({ auth, request: { nextUrl } }) => {
       return !!auth?.user;
     },
-    
+
     jwt: async ({ token, user }) => {
       if (user) {
         token.user = user as User;
@@ -34,7 +35,7 @@ export const authConfig = {
       return token;
     },
     session: async ({ session, token }) => {
-      session.user = token.user as { id: string, role: string };
+      session.user = token.user as User;
       return session;
     },
 
@@ -45,7 +46,7 @@ export const authConfig = {
       else if (new URL(url).origin === baseUrl) return url
       return baseUrl
     }
-  
+
   },
 
   providers: [Credentials({
@@ -57,24 +58,24 @@ export const authConfig = {
       const parsedCredentials = LoginFormSchema.safeParse(credentials);
       if (parsedCredentials.success) {
         const { username, password } = parsedCredentials.data;
-        
+
         const user = await prisma.support.findFirst({
           where: {
             username,
             password
           }
         })
-  
-        if(!user) return null;
-        return { id: user.username, role: user.role };
+
+        if (!user) return null;
+        return { id: user.id, username: user.username, role: user.role };
       }
       return null;
     },
 
   })],
-  
+
   secret: process.env.AUTH_SECRET,
 
 } satisfies NextAuthConfig
 
-export const { handlers: {GET, POST}, auth, signIn, signOut } = NextAuth(authConfig)
+export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth(authConfig)

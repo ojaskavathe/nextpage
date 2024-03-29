@@ -14,7 +14,7 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import {
   Form,
@@ -22,7 +22,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,27 +30,16 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 
 import { patronMiscAddonSchema } from "@/lib/schema";
-import {
-  addonFee,
-  durations,
-  fee,
-  PatronWithSub,
-  plans
-} from "@/lib/utils";
+import { addonFee, dateFormat, durations, fee, PatronWithSub, plans } from "@/lib/utils";
 
-import {
-  AlertCircle,
-  CalendarMinus,
-  CalendarPlus
-} from "lucide-react";
+import { AlertCircle, CalendarMinus, CalendarPlus } from "lucide-react";
 
 export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
-
   const [addonPlan, setAddonPlan] = useState(0);
   const [addonDuration, setAddonDuration] = useState(0);
   const [tillExpiry, setTillExpiry] = useState(false);
@@ -60,36 +49,40 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
   const today = new Date();
   const planExpiry = patron.subscription!.expiryDate;
 
+  const addonExpiry = tillExpiry
+    ? patron.subscription!.expiryDate
+    : new Date(today.setMonth(today.getMonth() + addonDuration));
+
   let numDays = 0;
   const isPlanValid = planExpiry > today;
   if (isPlanValid) {
     numDays = Math.floor(
-      (planExpiry.valueOf() - today.valueOf())
-      / (1000 * 60 * 60 * 24)
+      (planExpiry.valueOf() - today.valueOf()) / (1000 * 60 * 60 * 24),
     );
   }
 
   const addonFees = Math.ceil(
     tillExpiry
-      ? numDays * addonFee * addonPlan / 30
-      : addonDuration * addonFee * addonPlan)
+      ? (numDays * addonFee * addonPlan) / 30
+      : addonDuration * addonFee * addonPlan,
+  );
 
   const form = useForm<z.infer<typeof patronMiscAddonSchema>>({
     resolver: zodResolver(patronMiscAddonSchema),
     defaultValues: {
       id: patron.id,
-      adjust: '',
-      reason: '',
-      offer: '',
-      remarks: '',
+      adjust: "",
+      reason: "",
+      offer: "",
+      remarks: "",
       tillExpiry: false,
-    }
-  })
+    },
+  });
 
-  const adjustWatch = form.watch('adjust', '');
+  const adjustWatch = form.watch("adjust", "");
 
   const onSubmit = async (data: z.infer<typeof patronMiscAddonSchema>) => {
-    console.log(data)
+    console.log(data);
 
     // if (res.error == 0) {
     //   router.push(`/patrons/${patron.id}`);
@@ -97,13 +90,11 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
     // } else {
     //   setErrorMessage(res.message)
     // }
-  }
+  };
 
-  return (
+  return isPlanValid ? (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
           <FormField
             control={form.control}
@@ -118,13 +109,15 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
                   }}
                 >
                   <FormControl>
-                    <SelectTrigger >
+                    <SelectTrigger>
                       <SelectValue placeholder="Select a plan" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {plans.map(i => (
-                      <SelectItem value={`${i}`} key={i}>{i} Book</SelectItem>
+                    {plans.map((i) => (
+                      <SelectItem value={`${i}`} key={i}>
+                        {i} Book
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -143,18 +136,20 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
                   <Select
                     onValueChange={(value: string) => {
                       setAddonDuration(parseInt(value));
-                      field.onChange(parseInt(value))
+                      field.onChange(parseInt(value));
                     }}
                     disabled={tillExpiry}
                   >
                     <FormControl>
-                      <SelectTrigger >
+                      <SelectTrigger>
                         <SelectValue placeholder="Select a duration" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {durations.map(i => (
-                        <SelectItem value={`${i}`} key={i}>{i} Months</SelectItem>
+                      {durations.map((i) => (
+                        <SelectItem value={`${i}`} key={i}>
+                          {i} Months
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -179,7 +174,11 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
                       }}
                       className="w-full flex items-center justify-center space-x-2"
                     >
-                      {field.value ? <CalendarPlus className="w-4" /> : <CalendarMinus className="w-4" />}
+                      {field.value ? (
+                        <CalendarPlus className="w-4" />
+                      ) : (
+                        <CalendarMinus className="w-4" />
+                      )}
                       <span className="hidden md:inline">TillExpiry</span>
                     </Toggle>
                   </FormControl>
@@ -188,11 +187,8 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
               )}
             />
           </div>
-
         </div>
-        <TransactionDetails
-          form={form}
-        />
+        <TransactionDetails form={form} />
         <FormField
           control={form.control}
           name="remarks"
@@ -209,15 +205,20 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
         <Card className="mt-8">
           <CardHeader>
             <CardTitle>Payment Details</CardTitle>
-            {((!!addonDuration || tillExpiry) && !!addonPlan) &&
-              <CardDescription>Select Plan and Duration First!</CardDescription>}
+            {(!!addonDuration || tillExpiry) && !!addonPlan && (
+              <CardDescription>Select Plan and Duration First!</CardDescription>
+            )}
           </CardHeader>
-          {(!!addonDuration || tillExpiry) && !!addonPlan &&
+          {(!!addonDuration || tillExpiry) && !!addonPlan && (
             <>
               <CardContent>
                 <div>
                   <div>
                     <div className="mb-8">
+                      <div className="flex items-center justify-between">
+                        <span>Addon Expiry:</span>
+                        <span>{addonExpiry.toLocaleString("en-IN", dateFormat)}</span>
+                      </div>
                       <div className="flex items-center justify-between">
                         <span>Reading Fee:</span>
                         <span>{addonFees}</span>
@@ -225,23 +226,30 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
                     </div>
                   </div>
 
-                  {!!adjustWatch && adjustWatch.toString() !== '-' &&
+                  {!!adjustWatch && adjustWatch.toString() !== "-" && (
                     <div className="flex items-center justify-between">
                       <span>Adjustment:</span>
-                      <span>{adjustWatch < 0 ? `- ₹${-adjustWatch}` : `₹${adjustWatch}`}</span>
-                    </div>}
+                      <span>
+                        {adjustWatch < 0
+                          ? `- ₹${-adjustWatch}`
+                          : `₹${adjustWatch}`}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
               <CardFooter>
                 <div className="w-full font-bold flex items-center justify-between">
                   <span>Total:</span>
-                  <span>₹{
-                    addonFees -
-                    (adjustWatch!.toString() !== '-' ? -adjustWatch! : 0)
-                  }</span>
+                  <span>
+                    ₹
+                    {addonFees -
+                      (adjustWatch!.toString() !== "-" ? -adjustWatch! : 0)}
+                  </span>
                 </div>
               </CardFooter>
-            </>}
+            </>
+          )}
         </Card>
         <Button
           type="submit"
@@ -251,13 +259,14 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
           Add-on
         </Button>
       </form>
-      {errorMessage &&
+      {errorMessage && (
         <div className="flex text-red-500 mt-4">
           <AlertCircle className="mr-1 w-5" />
-          <p className="font-semibold">
-            {errorMessage}
-          </p>
-        </div>}
+          <p className="font-semibold">{errorMessage}</p>
+        </div>
+      )}
     </Form>
-  )
+  ) : (
+    <div>{"Patron\'s subscription has expired."}</div>
+  );
 }

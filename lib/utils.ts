@@ -11,12 +11,34 @@ export type PatronWithSub = Prisma.PatronGetPayload<{
 export type TransactionWithPatron = Prisma.TransactionGetPayload<{
   include: { patron: true };
 }>;
+export type TransactionWithSupport = Prisma.TransactionGetPayload<{
+  include: { patron: true; support: true };
+}>;
 export type FootfallWithPatron = Prisma.FootfallGetPayload<{
   include: { patron: true };
 }>;
 export type CheckoutWithPatron = Prisma.CheckoutGetPayload<{
   include: { patron: true };
 }>;
+export type SupportFull = Prisma.SupportGetPayload<{
+  include: { transactions:true; footfalls: true };
+}>;
+
+export const dateTimeFormat: Intl.DateTimeFormatOptions = {
+  year: '2-digit',
+  month: '2-digit',
+  day: '2-digit',
+  hour: "numeric",
+  minute: "numeric",
+  timeZone: "Asia/Kolkata"
+}
+
+export const dateFormat: Intl.DateTimeFormatOptions = {
+  year: '2-digit',
+  month: '2-digit',
+  day: '2-digit',
+  timeZone: "Asia/Kolkata"
+}
 
 export const plans = [1, 2, 3, 4, 5, 6];
 export const durations = [1, 3, 6, 12];

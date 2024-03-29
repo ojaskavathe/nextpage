@@ -81,6 +81,12 @@ export const LoginFormSchema = z.object({
   callbackUrl: z.string().optional()
 });
 
+export const supportCreateSchema = z.object({
+  username: z.string().min(1, 'ID required'),
+  password: z.string().min(1, 'Password required'),
+  role: z.nativeEnum($Enums.Role),
+});
+
 export const patronCreateSchema = z.object({
   name: z.string().min(1, { message: "Name required" }),
   email: z.string().email(),
@@ -363,3 +369,5 @@ export const patronMiscOtherSchema = z.object({
   reason: optString,
 })
   .superRefine(adjustRefine);
+
+

@@ -1,9 +1,9 @@
 import { TransactionReportsTable } from "@/components/reports/transactions-reports-table";
 
 import { columns } from "./columns";
-import { fetchTransactions } from "@/server/reports";
+import { fetchTransactions } from "@/server/staff";
 
-export default async function TransactionReport() {
+export default async function AdminTransactions() {
 
   const transactions = await fetchTransactions();
 
