@@ -147,4 +147,8 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
       return row.remarks ?? "";
     },
   },
+  {
+    accessorKey: "id",
+    header: "ID",
+  },
 ];

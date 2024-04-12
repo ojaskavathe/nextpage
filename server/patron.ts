@@ -670,6 +670,11 @@ export async function patronAddon(input: z.infer<typeof patronMiscAddonSchema>):
             offer: input.offer,
             remarks: input.remarks,
 
+            oldPlan: patron.subscription!.plan,
+            newPlan: patron.subscription!.plan,
+            oldExpiry: patron.subscription!.expiryDate,
+            newExpiry: patron.subscription!.expiryDate,
+
             supportId: support.id,
           }
         }
