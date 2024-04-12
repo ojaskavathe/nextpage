@@ -1,5 +1,6 @@
 import { $Enums } from '@prisma/client';
 import * as z from 'zod';
+import { addonDurations, durations } from './utils';
 
 export const optString = z.preprocess(
   (str) => {
@@ -99,7 +100,7 @@ export const patronCreateSchema = z.object({
   remarks: optString,
 
   plan: z.number().min(1).max(6),
-  duration: z.number().refine((val) => [1, 3, 6, 12].includes(val), {
+  duration: z.number().refine((val) => durations.includes(val), {
     message: "Duration can only be 1, 3, 6 or 12 months"
   }),
   paidDD: optIntString,
@@ -130,7 +131,7 @@ export const patronCreateSchema = z.object({
 export const patronRenewSchema = z.object({
   id: z.number().min(0),
   plan: z.number().min(1).max(6),
-  duration: z.number().refine((val) => [1, 3, 6, 12].includes(val), {
+  duration: z.number().refine((val) => durations.includes(val), {
     message: "Duration can only be 1, 3, 6 or 12 months"
   }),
   paidDD: optIntString,
@@ -211,7 +212,7 @@ export const patronMiscSchema = z.object({
   ),
 
   plan: z.number().min(1).max(6).optional(),
-  duration: z.number().refine((val) => [1, 3, 6, 12].includes(val), {
+  duration: z.number().refine((val) => durations.includes(val), {
     message: "Duration can only be 1, 3, 6 or 12 months"
   }).optional(),
   tillExpiry: z.boolean().optional(),
@@ -260,8 +261,8 @@ export const patronMiscAddonSchema = z.object({
   }),
 
   plan: z.number().min(1).max(6),
-  duration: z.number().refine((val) => [1, 3, 6, 12].includes(val), {
-    message: "Duration can only be 1, 3, 6 or 12 months"
+  duration: z.number().refine((val) => addonDurations.includes(val), {
+    message: "Duration can only be 1, 2, 3 or 4 months"
   }).optional(),
   tillExpiry: z.boolean(),
 

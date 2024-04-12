@@ -3,10 +3,10 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export type PatronFull = Prisma.PatronGetPayload<{
-  include: { subscription: true; transactions: true };
+  include: { subscription: true; transactions: true; addons: true; };
 }>;
 export type PatronWithSub = Prisma.PatronGetPayload<{
-  include: { subscription: true };
+  include: { subscription: true, addons: true };
 }>;
 export type TransactionWithPatron = Prisma.TransactionGetPayload<{
   include: { patron: true };
@@ -42,6 +42,7 @@ export const dateFormat: Intl.DateTimeFormatOptions = {
 
 export const plans = [1, 2, 3, 4, 5, 6];
 export const durations = [1, 3, 6, 12];
+export const addonDurations = [1, 2, 3, 4];
 
 export const freeDDs = [0, 0, 2, 4];
 export const holidays = [0, 0, 1, 2];

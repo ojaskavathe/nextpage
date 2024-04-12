@@ -35,11 +35,23 @@ import {
 import { Toggle } from "@/components/ui/toggle";
 
 import { patronMiscAddonSchema } from "@/lib/schema";
-import { addonFee, dateFormat, durations, fee, PatronWithSub, plans } from "@/lib/utils";
+import {
+  addonFee,
+  dateFormat,
+  addonDurations,
+  PatronWithSub,
+  plans,
+  sr_id,
+} from "@/lib/utils";
 
 import { AlertCircle, CalendarMinus, CalendarPlus } from "lucide-react";
+import { patronAddon } from "@/server/patron";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
+  const router = useRouter();
+
   const [addonPlan, setAddonPlan] = useState(0);
   const [addonDuration, setAddonDuration] = useState(0);
   const [tillExpiry, setTillExpiry] = useState(false);
@@ -48,16 +60,22 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
 
   const today = new Date();
   const planExpiry = patron.subscription!.expiryDate;
+  const isPlanValid = planExpiry >= today;
 
   const addonExpiry = tillExpiry
     ? patron.subscription!.expiryDate
-    : new Date(today.setMonth(today.getMonth() + addonDuration));
+    : new Date(new Date().setMonth(today.getMonth() + addonDuration));
+
+  const isAddonValid = addonExpiry <= planExpiry;
+  const validAddonDurations = addonDurations.filter((dur) => {
+    const exp = new Date(new Date().setMonth(today.getMonth() + dur));
+    return exp <= planExpiry
+  });
 
   let numDays = 0;
-  const isPlanValid = planExpiry > today;
   if (isPlanValid) {
     numDays = Math.floor(
-      (planExpiry.valueOf() - today.valueOf()) / (1000 * 60 * 60 * 24),
+      (addonExpiry.valueOf() - today.valueOf()) / (1000 * 60 * 60 * 24),
     );
   }
 
@@ -82,14 +100,14 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
   const adjustWatch = form.watch("adjust", "");
 
   const onSubmit = async (data: z.infer<typeof patronMiscAddonSchema>) => {
-    console.log(data);
+    const res = await patronAddon(data);
 
-    // if (res.error == 0) {
-    //   router.push(`/patrons/${patron.id}`);
-    //   toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
-    // } else {
-    //   setErrorMessage(res.message)
-    // }
+    if (res.error == 0) {
+      router.push(`/patrons/${patron.id}`);
+      toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
+    } else {
+      setErrorMessage(res.message);
+    }
   };
 
   return isPlanValid ? (
@@ -146,7 +164,7 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {durations.map((i) => (
+                      {validAddonDurations.map((i) => (
                         <SelectItem value={`${i}`} key={i}>
                           {i} Months
                         </SelectItem>
@@ -217,7 +235,9 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
                     <div className="mb-8">
                       <div className="flex items-center justify-between">
                         <span>Addon Expiry:</span>
-                        <span>{addonExpiry.toLocaleString("en-IN", dateFormat)}</span>
+                        <span>
+                          {addonExpiry.toLocaleString("en-IN", dateFormat)}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Reading Fee:</span>
@@ -254,7 +274,7 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
         <Button
           type="submit"
           className="mt-6 w-full"
-          disabled={form.formState.isSubmitting}
+          disabled={form.formState.isSubmitting || !isAddonValid}
         >
           Add-on
         </Button>
@@ -267,6 +287,6 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
       )}
     </Form>
   ) : (
-    <div>{"Patron\'s subscription has expired."}</div>
+    <div>{"Patron's subscription has expired."}</div>
   );
 }

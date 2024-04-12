@@ -17,7 +17,7 @@ import {
   patronUpdateSchema
 } from "@/lib/schema";
 import {
-    addonFee,
+  addonFee,
   DDFees,
   discounts,
   durations,
@@ -48,7 +48,8 @@ export const fetchPatron = async (patronId: number) => {
         },
         include: {
           subscription: true,
-          transactions: true
+          transactions: true,
+          addons: true
         }
       });
     } catch (e) {
@@ -70,8 +71,14 @@ export const searchPatrons = async (searchString: string) => {
           }
         },
         include: {
-          subscription: true
+          subscription: true,
+          addons: true,
         },
+        orderBy: [{
+          subscription: {
+            expiryDate: 'desc'
+          }
+        }],
         take: 5
       });
     } catch (e) {
@@ -101,7 +108,8 @@ export const searchPatrons = async (searchString: string) => {
           ]
         },
         include: {
-          subscription: true
+          subscription: true,
+          addons: true,
         },
         orderBy: [{
           subscription: {
@@ -635,11 +643,19 @@ export async function patronAddon(input: z.infer<typeof patronMiscAddonSchema>):
  
   const addonExpiry = input.tillExpiry 
       ? patron.subscription!.expiryDate
-      : new Date(today.setMonth(today.getMonth() + input.duration!))
+      : new Date(new Date().setMonth(today.getMonth() + input.duration!))
+
+  const isAddonValid = addonExpiry <= planExpiry;
+  if (!isAddonValid) {
+    return {
+      error: 4,
+      message: 'Addon duration too long'
+    }
+  }
 
   let numDays = 0;
   numDays = Math.floor(
-    (planExpiry.valueOf() - today.valueOf())
+    (addonExpiry.valueOf() - today.valueOf())
       / (1000 * 60 * 60 * 24)
   );
 
