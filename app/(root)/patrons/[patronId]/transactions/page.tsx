@@ -4,7 +4,6 @@ import { DataTable } from "@/components/transactions/transaction-data-table";
 import { fetchPatron } from "@/server/patron";
 
 import { columns } from "./columns";
-import { wait } from "@/lib/utils";
 
 export default async function PatronRenew({ params }: { params: { patronId: string } }) {
 

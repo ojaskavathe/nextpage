@@ -133,7 +133,7 @@ model Footfall {
   remarks       String?
   delivery      Delivery?
   
-  support    Support           @relation(fields: [supportId], references: [id])
+  support       Support           @relation(fields: [supportId], references: [id])
   supportId     String            
 
   createdAt     DateTime          @default(now())

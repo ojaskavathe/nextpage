@@ -27,7 +27,6 @@ export const columns: ColumnDef<Transaction>[] = [
       const date: Date = row.createdAt;
       return date.toLocaleString("en-IN", dateTimeFormat)
     },
-    sortingFn: "datetime"
   },
   {
     accessorKey: "type",

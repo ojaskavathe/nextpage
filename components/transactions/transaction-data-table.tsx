@@ -58,10 +58,6 @@ export function DataTable<TData, TValue>({
       pagination: {
         pageSize: pageSize
       },
-      sorting: [{
-        id: 'createdAt',
-        desc: true
-      }]
     }
   })
 

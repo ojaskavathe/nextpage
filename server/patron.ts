@@ -1,20 +1,18 @@
-"use server"
+"use server";
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import {
-  $Enums,
-  Patron
-} from "@prisma/client";
+import { $Enums, Patron } from "@prisma/client";
 
 import {
   footfallFormSchema,
   patronCreateSchema,
   patronMiscAddonSchema,
   patronMiscDDSchema,
+  patronMiscRefundSchema,
   patronRenewSchema,
-  patronUpdateSchema
+  patronUpdateSchema,
 } from "@/lib/schema";
 import {
   addonFee,
@@ -24,19 +22,18 @@ import {
   fee,
   freeDDs,
   holidays,
-  PatronWithSub,
   refundableDeposit,
   registrationFees,
-  sr_id
+  sr_id,
 } from "@/lib/utils";
 
 import { prisma } from "./db";
 import { auth } from "@/auth";
 
-const currentStaff = async() => {
+const currentStaff = async () => {
   const session = await auth();
-  return session?.user!
-}
+  return session?.user!;
+};
 
 export const fetchPatron = async (patronId: number) => {
   const isId = await z.number().safeParseAsync(patronId);
@@ -44,13 +41,17 @@ export const fetchPatron = async (patronId: number) => {
     try {
       return await prisma.patron.findUnique({
         where: {
-          id: patronId
+          id: patronId,
         },
         include: {
           subscription: true,
-          transactions: true,
-          addons: true
-        }
+          transactions: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+          addons: true,
+        },
       });
     } catch (e) {
       return null;
@@ -58,28 +59,33 @@ export const fetchPatron = async (patronId: number) => {
   }
 
   return null;
-}
+};
 
 export const searchPatrons = async (searchString: string) => {
-  const isId = await z.string().regex(/^M\d+$/).safeParseAsync(searchString);
+  const isId = await z
+    .string()
+    .regex(/^M\d+$/)
+    .safeParseAsync(searchString);
   if (isId.success) {
     try {
       return await prisma.patron.findMany({
         where: {
           id: {
-            equals: parseInt(searchString.substring(1))
-          }
+            equals: parseInt(searchString.substring(1)),
+          },
         },
         include: {
           subscription: true,
           addons: true,
         },
-        orderBy: [{
-          subscription: {
-            expiryDate: 'desc'
-          }
-        }],
-        take: 5
+        orderBy: [
+          {
+            subscription: {
+              expiryDate: "desc",
+            },
+          },
+        ],
+        take: 5,
       });
     } catch (e) {
       return [];
@@ -96,57 +102,59 @@ export const searchPatrons = async (searchString: string) => {
             {
               name: {
                 contains: searchString,
-                mode: "insensitive" // case-insensitive
-              }
+                mode: "insensitive", // case-insensitive
+              },
             },
             {
               email: {
                 contains: searchString,
-                mode: "insensitive"
-              }
-            }
-          ]
+                mode: "insensitive",
+              },
+            },
+          ],
         },
         include: {
           subscription: true,
           addons: true,
         },
-        orderBy: [{
-          subscription: {
-            expiryDate: 'desc'
-          }
-        }],
-        take: 5
+        orderBy: [
+          {
+            subscription: {
+              expiryDate: "desc",
+            },
+          },
+        ],
+        take: 5,
       });
-
     } catch (e) {
-      return []
+      return [];
     }
   }
   return [];
-}
+};
 
 export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
-
   let out: {
-    data: Patron | null,
-    error: number,
-    message: string,
-  }
+    data: Patron | null;
+    error: number;
+    message: string;
+  };
 
   if (!patronCreateSchema.safeParse(input).success) {
     out = {
       data: null,
       error: 1,
-      message: 'Form couldn\'t be validated',
-    }
+      message: "Form couldn't be validated",
+    };
     return out;
   }
 
   const staff = await currentStaff();
 
   const today = new Date();
-  const exp = new Date(new Date(today).setMonth(today.getMonth() + input.duration));
+  const exp = new Date(
+    new Date(today).setMonth(today.getMonth() + input.duration),
+  );
 
   const readingFee = fee[input.plan - 1] * input.duration;
   const DDFee = (input.paidDD || 0) * DDFees;
@@ -156,33 +164,38 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
   const freeHoliday = holidays[index];
   const discount = readingFee * discounts[index];
 
-  const total = readingFee + registrationFees + refundableDeposit - discount - (input.adjust || 0);
+  const total =
+    readingFee +
+    registrationFees +
+    refundableDeposit -
+    discount -
+    (input.adjust || 0);
 
   try {
     const exists = await prisma.patron.findFirst({
       where: {
         OR: [
           {
-            phone: input.phone
+            phone: input.phone,
           },
           {
             email: {
               equals: input.email,
-              mode: "insensitive"
-            }
-          }
-        ]
+              mode: "insensitive",
+            },
+          },
+        ],
       },
     });
 
     if (exists) {
-      const which = exists.email === input.email ? 'Email' : 'Phone'
+      const which = exists.email === input.email ? "Email" : "Phone";
 
       return {
         data: null,
         error: 2,
         message: `${which} already exists!`,
-      }
+      };
     }
 
     const newPatron = await prisma.patron.create({
@@ -204,8 +217,8 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
             freeDD: freeDD,
             paidDD: input.paidDD || 0,
             freeHoliday: freeHoliday,
-            offer: input.offer
-          }
+            offer: input.offer,
+          },
         },
         transactions: {
           create: [
@@ -232,14 +245,14 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
 
               support: {
                 connect: {
-                  id: staff.id
-                }
+                  id: staff.id,
+                },
               },
-              attendedBy: 'Server'
-            }
-          ]
-        }
-      }
+              attendedBy: "Server",
+            },
+          ],
+        },
+      },
     });
 
     revalidatePath(`/patrons/${newPatron.id}`);
@@ -248,38 +261,38 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
     return {
       data: newPatron,
       error: 0,
-      message: 'u gucci',
-    }
-
+      message: "u gucci",
+    };
   } catch (e) {
     return {
       data: null,
       error: 5,
-      message: '[SERVER]: Something went wrong',
-    }
+      message: "[SERVER]: Something went wrong",
+    };
   }
 }
 
-export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Promise<{
-  error: number,
-  message: string,
+export async function renewPatron(
+  input: z.infer<typeof patronRenewSchema>,
+): Promise<{
+  error: number;
+  message: string;
 }> {
-
   const validity = patronRenewSchema.safeParse(input);
 
   if (!validity.success) {
     return {
       error: 1,
-      message: "Form couldn\'t be validated"
-    }
+      message: "Form couldn't be validated",
+    };
   }
 
   const patron = await fetchPatron(input.id);
   if (!patron) {
     return {
       error: 2,
-      message: 'Patron doesn\'t exist'
-    }
+      message: "Patron doesn't exist",
+    };
   }
 
   const oldPlan = patron.subscription!.plan;
@@ -288,23 +301,27 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
   const oldExpiry = patron.subscription!.expiryDate;
 
   let numDays = 0;
-  const isPatronLate = (patron.subscription!.booksInHand > 0) && (oldExpiry < today);
+  const isPatronLate =
+    patron.subscription!.booksInHand > 0 && oldExpiry < today;
   if (isPatronLate) {
     numDays = Math.floor(
-      (today.valueOf() - oldExpiry.valueOf())
-      / (1000 * 60 * 60 * 24)
+      (today.valueOf() - oldExpiry.valueOf()) / (1000 * 60 * 60 * 24),
     );
   }
 
   const pastDues = input.renewFromExpiry
     ? 0
-    : Math.floor(fee[input.plan - 1] * numDays / 30)
+    : Math.floor((fee[input.plan - 1] * numDays) / 30);
 
   const newExpiry = isPatronLate
     ? input.renewFromExpiry
-      ? new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration))
+      ? new Date(
+        new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration),
+      )
       : new Date(today.setMonth(today.getMonth() + input.duration))
-    : new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration))
+    : new Date(
+      new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration),
+    );
 
   const readingFee = fee[input.plan - 1] * input.duration;
   const DDFee = (input.paidDD || 0) * DDFees;
@@ -317,7 +334,7 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
   const total = readingFee + pastDues - discount - (input.adjust || 0);
 
   const totalPaidDDs = patron.subscription!.paidDD + (input.paidDD || 0);
-  
+
   const support = await currentStaff();
 
   try {
@@ -330,8 +347,8 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
             freeDD: freeDD,
             paidDD: totalPaidDDs,
             freeHoliday: freeHoliday,
-            offer: input.offer
-          }
+            offer: input.offer,
+          },
         },
         transactions: {
           create: [
@@ -356,43 +373,43 @@ export async function renewPatron(input: z.infer<typeof patronRenewSchema>): Pro
               newExpiry: newExpiry,
 
               supportId: support.id,
-            }
-          ]
-        }
+            },
+          ],
+        },
       },
       where: {
-        id: input.id
-      }
+        id: input.id,
+      },
     });
 
-    revalidatePath(`/patrons/${patron.id}`, 'layout');
+    revalidatePath(`/patrons/${patron.id}`, "layout");
     revalidatePath(`/patrons/search`);
 
     return {
       error: 0,
-      message: 'u gucci',
-    }
-
+      message: "u gucci",
+    };
   } catch (e) {
     return {
       error: 5,
-      message: '[SERVER]: Something went wrong',
-    }
+      message: "[SERVER]: Something went wrong",
+    };
   }
 }
 
-export async function updatePatron(input: z.infer<typeof patronUpdateSchema>): Promise<{
-  error: number,
-  message: string,
+export async function updatePatron(
+  input: z.infer<typeof patronUpdateSchema>,
+): Promise<{
+  error: number;
+  message: string;
 }> {
-
   const validity = await patronUpdateSchema.safeParseAsync(input);
 
   if (!validity.success) {
     return {
       error: 1,
-      message: "Failed to validate Patron Data."
-    }
+      message: "Failed to validate Patron Data.",
+    };
   }
 
   const { id, ...props } = input;
@@ -401,117 +418,109 @@ export async function updatePatron(input: z.infer<typeof patronUpdateSchema>): P
     await prisma.patron.update({
       data: props,
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
 
-    revalidatePath(`/patrons/${id}`, 'layout');
+    revalidatePath(`/patrons/${id}`, "layout");
     revalidatePath(`/patrons/search`);
 
     return {
       error: 0,
-      message: "u gucci"
-    }
+      message: "u gucci",
+    };
   } catch (e) {
     return {
       error: 5,
-      message: '[SERVER]: Something went wrong'
-    }
+      message: "[SERVER]: Something went wrong",
+    };
   }
 }
 
-export async function createFootfall(input: z.infer<typeof footfallFormSchema>): Promise<{
-  error: number,
-  message: string,
-  data?: PatronWithSub
+export async function createFootfall(
+  input: z.infer<typeof footfallFormSchema>,
+): Promise<{
+  error: number;
+  message: string;
 }> {
   if (!footfallFormSchema.safeParse(input).success) {
     return {
       error: 1,
-      message: "Failed to validate Footfall Data."
-    }
+      message: "Failed to validate Footfall Data.",
+    };
   }
 
   const patron = await fetchPatron(input.id);
   if (!patron) {
     return {
       error: 2,
-      message: 'Patron doesn\'t exist'
-    }
+      message: "Patron doesn't exist",
+    };
   }
 
   const currentFreeDD = patron.subscription!.freeDD;
-  if ((input.DDType == $Enums.DDType.FREE) && (currentFreeDD <= 0)) {
+  if (input.DDType == $Enums.DDType.FREE && currentFreeDD <= 0) {
     return {
       error: 3,
-      message: 'No Free DD Remaining'
-    }
+      message: "No Free DD Remaining",
+    };
   }
 
-  const newFreeDD = input.DDType == $Enums.DDType.FREE
-    ? currentFreeDD - 1
-    : currentFreeDD
+  const newFreeDD =
+    input.DDType == $Enums.DDType.FREE ? currentFreeDD - 1 : currentFreeDD;
 
   const currentPaidDD = patron.subscription!.paidDD;
-  const newPaidDD = input.DDType == $Enums.DDType.PAID
-    ? currentPaidDD - 1
-    : currentPaidDD
+  const newPaidDD =
+    input.DDType == $Enums.DDType.PAID ? currentPaidDD - 1 : currentPaidDD;
 
   const support = await currentStaff();
 
   try {
-
     if (input.isDD) {
-      const [_ff, newpatron] = await prisma.$transaction([
-        prisma.footfall.create({
-          data: {
-            patronId: input.id,
-            type: input.type,
-            offer: input.offer,
-            remarks: input.remarks,
-            isDD: true,
-            delivery: {
-              create: {
-                patronId: input.id,
-                type: input.DDType,
-                numBooks: input.numBooks,
-                scheduledFor: input.scheduledDate,
-                message: input.message
-              }
+      prisma.patron.update({
+        data: {
+          subscription: {
+            update: {
+              freeDD: newFreeDD,
+              paidDD: newPaidDD,
             },
-            supportId: support.id,
-            createdAt: input.scheduledDate
-          }
-        }),
-        prisma.patron.update({
-          data: {
-            subscription: {
-              update: {
-                freeDD: newFreeDD,
-                paidDD: newPaidDD
-              }
-            }
           },
-          where: {
-            id: input.id
+          footfall: {
+            create: {
+              type: input.type,
+              offer: input.offer,
+              remarks: input.remarks,
+              isDD: true,
+              delivery: {
+                create: {
+                  patronId: input.id,
+                  type: input.DDType,
+                  numBooks: input.numBooks,
+                  scheduledFor: input.scheduledDate,
+                  message: input.message,
+                },
+              },
+              supportId: support.id,
+              createdAt: input.scheduledDate,
+            },
           },
-          include: {
-            subscription: true
-          }
-        })
-      ])
+        },
+        where: {
+          id: input.id,
+        },
+        include: {
+          subscription: true,
+        },
+      });
 
-      revalidatePath(`/patrons/${patron.id}`, 'layout');
+      revalidatePath(`/patrons/${patron.id}`, "layout");
       revalidatePath(`/patrons/search`);
 
       return {
         error: 0,
         message: "u gucci",
-        data: newpatron
-      }
-
+      };
     } else {
-
       await prisma.footfall.create({
         data: {
           patronId: input.id,
@@ -519,46 +528,45 @@ export async function createFootfall(input: z.infer<typeof footfallFormSchema>):
           offer: input.offer,
           remarks: input.remarks,
           isDD: false,
-          supportId: support.id
-        }
-      })
+          supportId: support.id,
+        },
+      });
 
       revalidatePath(`/patrons/${patron.id}`);
       revalidatePath(`/patrons/search`);
 
-      const { transactions, ...patronWithSubs } = patron;
       return {
         error: 0,
         message: "u gucci",
-        data: patronWithSubs
-      }
+      };
     }
-
   } catch (e) {
     return {
       error: 5,
-      message: `[SERVER]: There was an error inserting footfall for user: ${sr_id(input.id)}`
-    }
+      message: `[SERVER]: There was an error inserting footfall for user: ${sr_id(input.id)}`,
+    };
   }
 }
 
-export async function miscDD(input: z.infer<typeof patronMiscDDSchema>): Promise<{
-  error: number,
-  message: string,
+export async function miscDD(
+  input: z.infer<typeof patronMiscDDSchema>,
+): Promise<{
+  error: number;
+  message: string;
 }> {
   if (!patronMiscDDSchema.safeParse(input).success) {
     return {
       error: 1,
-      message: "Failed to validate Footfall Data."
-    }
+      message: "Failed to validate Footfall Data.",
+    };
   }
 
   const patron = await fetchPatron(input.id);
   if (!patron) {
     return {
       error: 2,
-      message: 'Patron doesn\'t exist'
-    }
+      message: "Patron doesn't exist",
+    };
   }
 
   const support = await currentStaff();
@@ -568,8 +576,8 @@ export async function miscDD(input: z.infer<typeof patronMiscDDSchema>): Promise
       data: {
         subscription: {
           update: {
-            paidDD: patron.subscription!.paidDD + (input.numDD || 0)
-          }
+            paidDD: patron.subscription!.paidDD + (input.numDD || 0),
+          },
         },
         transactions: {
           create: {
@@ -589,46 +597,110 @@ export async function miscDD(input: z.infer<typeof patronMiscDDSchema>): Promise
             remarks: input.remarks,
 
             supportId: support.id,
-          }
-        }
-
+          },
+        },
       },
       where: {
-        id: input.id
-      }
-    })
+        id: input.id,
+      },
+    });
 
-    revalidatePath(`/patrons/${input.id}`, 'layout');
+    revalidatePath(`/patrons/${input.id}`, "layout");
 
     return {
       error: 0,
-      message: "u gucci"
-    }
+      message: "u gucci",
+    };
   } catch (e) {
     return {
       error: 5,
-      message: '[SERVER]: Something went wrong'
-    }
+      message: "[SERVER]: Something went wrong",
+    };
   }
 }
 
-export async function patronAddon(input: z.infer<typeof patronMiscAddonSchema>): Promise<{
-  error: number,
-  message: string,
-}> {
-  if (!patronMiscAddonSchema.safeParse(input).success) {
+export async function miscRefund(
+  input: z.infer<typeof patronMiscRefundSchema>,
+) {
+  if (!patronMiscRefundSchema.safeParse(input).success) {
     return {
       error: 1,
-      message: "Failed to validate Addon Data."
-    }
+      message: "Failed to validate Addon Data.",
+    };
   }
 
   const patron = await fetchPatron(input.id);
   if (!patron) {
     return {
       error: 2,
-      message: 'Patron doesn\'t exist'
-    }
+      message: "Patron doesn't exist",
+    };
+  }
+
+  const support = await currentStaff();
+
+  try {
+    await prisma.patron.update({
+      data: {
+        deposit: 0,
+        transactions: {
+          create: {
+            mode: input.mode,
+            type: "REFUND",
+            netPayable: -patron.deposit,
+
+            oldPlan: patron.subscription!.plan,
+            newPlan: patron.subscription!.plan,
+            oldExpiry: patron.subscription!.expiryDate,
+            newExpiry: patron.subscription!.expiryDate,
+
+            adjust: input.adjust || 0,
+            reason: input.reason,
+            offer: input.offer,
+            remarks: input.remarks,
+
+            supportId: support.id,
+          },
+        },
+      },
+      where: {
+        id: input.id,
+      },
+    });
+
+    revalidatePath(`/patrons/${input.id}`, "layout");
+
+    return {
+      error: 0,
+      message: "u gucci",
+    };
+  } catch (e) {
+    return {
+      error: 5,
+      message: "[SERVER]: Something went wrong",
+    };
+  }
+}
+
+export async function patronAddon(
+  input: z.infer<typeof patronMiscAddonSchema>,
+): Promise<{
+  error: number;
+  message: string;
+}> {
+  if (!patronMiscAddonSchema.safeParse(input).success) {
+    return {
+      error: 1,
+      message: "Failed to validate Addon Data.",
+    };
+  }
+
+  const patron = await fetchPatron(input.id);
+  if (!patron) {
+    return {
+      error: 2,
+      message: "Patron doesn't exist",
+    };
   }
 
   const today = new Date();
@@ -637,32 +709,32 @@ export async function patronAddon(input: z.infer<typeof patronMiscAddonSchema>):
   if (!isPlanValid) {
     return {
       error: 3,
-      message: 'Patron subscription has expired'
-    }
+      message: "Patron subscription has expired",
+    };
   }
- 
-  const addonExpiry = input.tillExpiry 
-      ? patron.subscription!.expiryDate
-      : new Date(new Date().setMonth(today.getMonth() + input.duration!))
+
+  const addonExpiry = input.tillExpiry
+    ? patron.subscription!.expiryDate
+    : new Date(new Date().setMonth(today.getMonth() + input.duration!));
 
   const isAddonValid = addonExpiry <= planExpiry;
   if (!isAddonValid) {
     return {
       error: 4,
-      message: 'Addon duration too long'
-    }
+      message: "Addon duration too long",
+    };
   }
 
   let numDays = 0;
   numDays = Math.floor(
-    (addonExpiry.valueOf() - today.valueOf())
-      / (1000 * 60 * 60 * 24)
+    (addonExpiry.valueOf() - today.valueOf()) / (1000 * 60 * 60 * 24),
   );
 
   const addonFees = Math.ceil(
     input.tillExpiry
-      ? numDays * addonFee * input.plan / 30
-      : input.duration! * addonFee * input.plan)
+      ? (numDays * addonFee * input.plan) / 30
+      : input.duration! * addonFee * input.plan,
+  );
 
   const support = await currentStaff();
 
@@ -672,8 +744,8 @@ export async function patronAddon(input: z.infer<typeof patronMiscAddonSchema>):
         addons: {
           create: {
             plan: input.plan,
-            expiryDate: addonExpiry, 
-          }
+            expiryDate: addonExpiry,
+          },
         },
         transactions: {
           create: {
@@ -692,25 +764,24 @@ export async function patronAddon(input: z.infer<typeof patronMiscAddonSchema>):
             newExpiry: patron.subscription!.expiryDate,
 
             supportId: support.id,
-          }
-        }
-
+          },
+        },
       },
       where: {
-        id: input.id
-      }
-    })
+        id: input.id,
+      },
+    });
 
-    revalidatePath(`/patrons/${input.id}`, 'layout');
+    revalidatePath(`/patrons/${input.id}`, "layout");
 
     return {
       error: 0,
-      message: "u gucci"
-    }
+      message: "u gucci",
+    };
   } catch (e) {
     return {
       error: 5,
-      message: '[SERVER]: Something went wrong'
-    }
+      message: "[SERVER]: Something went wrong",
+    };
   }
 }

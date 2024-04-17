@@ -104,7 +104,7 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
 
     if (res.error == 0) {
       router.push(`/patrons/${patron.id}`);
-      toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
+      toast.success(`Patron ${sr_id(data.id)}: addon applied!`);
     } else {
       setErrorMessage(res.message);
     }

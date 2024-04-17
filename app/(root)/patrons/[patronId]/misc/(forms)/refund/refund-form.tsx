@@ -27,12 +27,16 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { patronMiscRefundSchema } from "@/lib/schema";
-import { PatronWithSub } from "@/lib/utils";
+import { PatronWithSub, sr_id } from "@/lib/utils";
 
 import { AlertCircle } from "lucide-react";
+import { miscRefund } from "@/server/patron";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function MiscRefundForm({ patron }: { patron: PatronWithSub }) {
 
+  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
 
   const form = useForm<z.infer<typeof patronMiscRefundSchema>>({
@@ -49,14 +53,14 @@ export default function MiscRefundForm({ patron }: { patron: PatronWithSub }) {
   const adjustWatch = form.watch('adjust', '');
 
   const onSubmit = async (data: z.infer<typeof patronMiscRefundSchema>) => {
-    console.log(data)
+    const res = await miscRefund(data);
 
-    // if (res.error == 0) {
-    //   router.push(`/patrons/${patron.id}`);
-    //   toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
-    // } else {
-    //   setErrorMessage(res.message)
-    // }
+    if (res.error == 0) {
+      router.push(`/patrons/${patron.id}`);
+      toast.success(`Patron ${sr_id(data.id)} deposit refunded!`);
+    } else {
+      setErrorMessage(res.message)
+    }
   }
 
   return (
@@ -115,7 +119,7 @@ export default function MiscRefundForm({ patron }: { patron: PatronWithSub }) {
         <Button
           type="submit"
           className="mt-6 w-full"
-          disabled={form.formState.isSubmitting}
+          disabled={form.formState.isSubmitting || !patron.deposit}
         >
           Submit
         </Button>
