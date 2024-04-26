@@ -50,11 +50,15 @@ export function PatronDetails({
             <div className="text-sm font-normal flex items-center">
               <Gauge className="w-4" />
               <span className="pl-2 font-semibold">
-                {patron.subscription?.expiryDate! >= new Date() ? (
-                  <span className="">ACTIVE</span>
-                ) : (
-                  <span className="text-red-500">EXPIRED</span>
-                )}
+                {patron.subscription?.closed 
+                ? (
+                  <span className="text-gray-500">CLOSED</span>
+                ) : patron.subscription?.expiryDate! >= new Date() 
+                    ? (
+                      <span className="">ACTIVE</span>
+                    ) : (
+                      <span className="text-red-500">EXPIRED</span>
+                    )}
               </span>
             </div>
             <div className="text-sm font-normal flex items-center">
@@ -133,8 +137,11 @@ export function PatronDetails({
             </div>
           </div>
         </div>
-        {active_addons.map(addon => (
-          <div key={addon.id} className="my-2 p-2 border border-gray-200 rounded-sm">
+        {active_addons.map((addon) => (
+          <div
+            key={addon.id}
+            className="my-2 p-2 border border-gray-200 rounded-sm"
+          >
             <div className="text-sm font-normal flex items-center">
               <GitPullRequestCreateArrow className="w-4" />
               <span className="pl-2">

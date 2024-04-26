@@ -27,9 +27,12 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { patronMiscOtherSchema } from "@/lib/schema";
-import { PatronWithSub } from "@/lib/utils";
+import { PatronWithSub, sr_id } from "@/lib/utils";
 
 import { AlertCircle } from "lucide-react";
+import { miscOther } from "@/server/patron";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function MiscOtherForm({ patron }: { patron: PatronWithSub }) {
 
@@ -50,15 +53,23 @@ export default function MiscOtherForm({ patron }: { patron: PatronWithSub }) {
   const adjustWatch = form.watch('adjust', '');
   const amountWatch = form.watch('amount', '');
 
-  const onSubmit = async (data: z.infer<typeof patronMiscOtherSchema>) => {
-    console.log(data)
+  const total =
+    // @ts-ignore
+    Number(adjustWatch == "" || adjustWatch == "-" ? 0 : adjustWatch) +
+    // @ts-ignore
+    Number(amountWatch == "" || amountWatch == "-" ? 0 : amountWatch);
 
-    // if (res.error == 0) {
-    //   router.push(`/patrons/${patron.id}`);
-    //   toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
-    // } else {
-    //   setErrorMessage(res.message)
-    // }
+  const router = useRouter();
+
+  const onSubmit = async (data: z.infer<typeof patronMiscOtherSchema>) => {
+    const res = await miscOther(data);
+
+    if (res.error == 0) {
+      router.push(`/patrons/${patron.id}`);
+      toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
+    } else {
+      setErrorMessage(res.message)
+    }
   }
   
   return (
@@ -84,22 +95,6 @@ export default function MiscOtherForm({ patron }: { patron: PatronWithSub }) {
                     {...fieldProps}
                     placeholder="-200"
                     inputMode="numeric"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="why"
-            render={({ field }) => (
-              <FormItem className="flex-grow">
-                <FormLabel>Why?</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Previous Member"
-                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -135,7 +130,7 @@ export default function MiscOtherForm({ patron }: { patron: PatronWithSub }) {
                 <div>
                   <div className="flex items-center justify-between">
                     <span>Amount:</span>
-                    <span>₹{amountWatch}</span>
+                    <span>{amountWatch < 0 ? `- ₹${-amountWatch}` : `₹${amountWatch}`}</span>
                   </div>
                   {!!adjustWatch && adjustWatch.toString() !== '-' &&
                     <div className="flex items-center justify-between">
@@ -147,10 +142,7 @@ export default function MiscOtherForm({ patron }: { patron: PatronWithSub }) {
               <CardFooter>
                 <div className="w-full font-bold flex items-center justify-between">
                   <span>Total:</span>
-                  <span>₹{
-                    amountWatch -
-                    (adjustWatch!.toString() !== '-' ? -adjustWatch! : 0)
-                  }</span>
+                  <span>{total < 0 ? `- ₹${-total}` : `₹${total}`}</span>
                 </div>
               </CardFooter>
             </>}
@@ -160,7 +152,7 @@ export default function MiscOtherForm({ patron }: { patron: PatronWithSub }) {
           className="mt-6 w-full"
           disabled={form.formState.isSubmitting}
         >
-          Add DD
+          Submit
         </Button>
       </form>
       {errorMessage &&

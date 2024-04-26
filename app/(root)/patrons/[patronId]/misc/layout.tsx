@@ -34,6 +34,10 @@ export default async function PatronRenew({ params, children }: { params: { patr
       href: `/patrons/${params.patronId}/misc/lost`,
     },
     {
+      title: "Closure",
+      href: `/patrons/${params.patronId}/misc/closure`,
+    },
+    {
       title: "Other",
       href: `/patrons/${params.patronId}/misc/other`,
     },

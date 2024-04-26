@@ -39,23 +39,6 @@ export const optIntString = z.preprocess(
   ])
 );
 
-const adjustRefine = (val: any, ctx: z.RefinementCtx) => {
-  if (val.adjust !== 0 && !val.reason) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Specify the reason for adjustment.',
-      path: ['reason']
-    })
-  }
-  if (val.adjust === 0 && !!val.reason) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `No adjustment to provide reason for: adjust: ${val.adjust}, reason: ${val.reason}`,
-      path: ['reason']
-    })
-  }
-}
-
 export const optSignedIntString = z.preprocess(
   (intStr) => {
     // this is needed as server side revalidation checks on a number, not a string
@@ -75,6 +58,23 @@ export const optSignedIntString = z.preprocess(
     z.literal('')
   ])
 );
+
+const adjustRefine = (val: any, ctx: z.RefinementCtx) => {
+  if (val.adjust !== 0 && !val.reason) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Specify the reason for adjustment.',
+      path: ['reason']
+    })
+  }
+  if (val.adjust === 0 && !!val.reason) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `No adjustment to provide reason for: adjust: ${val.adjust}, reason: ${val.reason}`,
+      path: ['reason']
+    })
+  }
+}
 
 export const LoginFormSchema = z.object({
   username: z.string().min(1, 'ID required'),
@@ -187,47 +187,11 @@ export const footfallFormSchema = z.object({
 
 const { SIGNUP, RENEWAL, CLOSURE, ...m } = $Enums.TransactionType;
 export const MiscTransactionType = m;
-export const patronMiscSchema = z.object({
-  id: z.number(),
-  type: z.nativeEnum(MiscTransactionType),
-  mode: z.nativeEnum($Enums.TransactionMode, {
-    errorMap: (issue, ctx) => ({ message: 'Select the mode of transaction!' })
-  }),
-  // optIntString, but with min(1)
-  numDD: z.preprocess(
-    (intStr) => {
-      if (typeof intStr === 'number') return intStr;
-      if (!intStr || typeof intStr !== 'string') return 0
-
-      if (intStr === '') {
-        return 0;
-      } else if (/^\d+$/.test(intStr)) {
-        return parseInt(intStr);
-      }
-    },
-    z.union([
-      z.number().min(1, { message: "Mininum 1 DD required!" }),
-      z.literal('')
-    ]).optional()
-  ),
-
-  plan: z.number().min(1).max(6).optional(),
-  duration: z.number().refine((val) => durations.includes(val), {
-    message: "Duration can only be 1, 3, 6 or 12 months"
-  }).optional(),
-  tillExpiry: z.boolean().optional(),
-
-  offer: optString,
-  remarks: optString,
-  adjust: optSignedIntString,
-  reason: optString,
-})
-  .superRefine(adjustRefine);
 
 export const patronMiscDDSchema = z.object({
   id: z.number(),
   mode: z.nativeEnum($Enums.TransactionMode, {
-    errorMap: (issue, ctx) => ({ message: 'Select the mode of transaction!' })
+    errorMap: () => ({ message: 'Select the mode of transaction!' })
   }),
   // optIntString, but with min(1)
   numDD: z.preprocess(
@@ -257,7 +221,7 @@ export const patronMiscDDSchema = z.object({
 export const patronMiscAddonSchema = z.object({
   id: z.number(),
   mode: z.nativeEnum($Enums.TransactionMode, {
-    errorMap: (issue, ctx) => ({ message: 'Select the mode of transaction!' })
+    errorMap: () => ({ message: 'Select the mode of transaction!' })
   }),
 
   plan: z.number().min(1).max(6),
@@ -298,9 +262,22 @@ export const patronMiscAddonSchema = z.object({
 export const patronMiscRefundSchema = z.object({
   id: z.number(),
   mode: z.nativeEnum($Enums.TransactionMode, {
-    errorMap: (issue, ctx) => ({ message: 'Select the mode of transaction!' })
+    errorMap: () => ({ message: 'Select the mode of transaction!' })
   }),
 
+  offer: optString,
+  remarks: optString,
+  adjust: optSignedIntString,
+  reason: optString,
+})
+  .superRefine(adjustRefine);
+
+export const patronMiscClosureSchema = z.object({
+  id: z.number(),
+  mode: z.nativeEnum($Enums.TransactionMode, {
+    errorMap: () => ({ message: 'Select the mode of transaction!' })
+  }),
+  depositRefund: z.boolean(),
   offer: optString,
   remarks: optString,
   adjust: optSignedIntString,
@@ -311,7 +288,7 @@ export const patronMiscRefundSchema = z.object({
 export const patronMiscLostSchema = z.object({
   id: z.number(),
   mode: z.nativeEnum($Enums.TransactionMode, {
-    errorMap: (issue, ctx) => ({ message: 'Select the mode of transaction!' })
+    errorMap: () => ({ message: 'Select the mode of transaction!' })
   }),
 
   // optIntString, but with min(1)
@@ -342,33 +319,40 @@ export const patronMiscLostSchema = z.object({
 export const patronMiscOtherSchema = z.object({
   id: z.number(),
   mode: z.nativeEnum($Enums.TransactionMode, {
-    errorMap: (issue, ctx) => ({ message: 'Select the mode of transaction!' })
+    errorMap: () => ({
+      message: "Select the mode of transaction!",
+    }),
   }),
 
-  // optIntString, but with min(1)
+  // non zero numbers, but the default value is an empty string
   amount: z.preprocess(
     (intStr) => {
-      if (typeof intStr === 'number') return intStr;
-      if (!intStr || typeof intStr !== 'string') return 0
+      if (typeof intStr === "number") return intStr;
+      if (!intStr || typeof intStr !== "string") return null;
 
-      if (intStr === '') {
-        return 0;
-      } else if (/^\d+$/.test(intStr)) {
+      if (/^-?\d+$/.test(intStr)) {
         return parseInt(intStr);
       }
     },
-    z.union([
-      z.number().positive().or( z.number().negative() ),
-      z.literal('')
-    ])
+    z.union([z.number({
+      errorMap: () => ({
+        message: "Amount needs to be entered."
+      })
+    }).safe(), z.literal("")]),
   ),
-  why: optString,
 
   offer: optString,
   remarks: optString,
   adjust: optSignedIntString,
   reason: optString,
 })
-  .superRefine(adjustRefine);
-
-
+  .superRefine(adjustRefine)
+  .superRefine((val: any, ctx: z.RefinementCtx) => {
+    if (val.amount !== 0 && !val.remarks) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Specify the reason for this transaction.",
+        path: ["remarks"],
+      });
+    }
+  });

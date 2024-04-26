@@ -9,7 +9,9 @@ import {
   footfallFormSchema,
   patronCreateSchema,
   patronMiscAddonSchema,
+  patronMiscClosureSchema,
   patronMiscDDSchema,
+  patronMiscOtherSchema,
   patronMiscRefundSchema,
   patronRenewSchema,
   patronUpdateSchema,
@@ -348,6 +350,7 @@ export async function renewPatron(
             paidDD: totalPaidDDs,
             freeHoliday: freeHoliday,
             offer: input.offer,
+            closed: false,
           },
         },
         transactions: {
@@ -625,7 +628,7 @@ export async function miscRefund(
   if (!patronMiscRefundSchema.safeParse(input).success) {
     return {
       error: 1,
-      message: "Failed to validate Addon Data.",
+      message: "Failed to validate Refund Data.",
     };
   }
 
@@ -647,7 +650,78 @@ export async function miscRefund(
           create: {
             mode: input.mode,
             type: "REFUND",
-            netPayable: -patron.deposit,
+            netPayable: -patron.deposit + (input.adjust || 0),
+
+            oldPlan: patron.subscription!.plan,
+            newPlan: patron.subscription!.plan,
+            oldExpiry: patron.subscription!.expiryDate,
+            newExpiry: patron.subscription!.expiryDate,
+
+            adjust: input.adjust || 0,
+            reason: input.reason,
+            offer: input.offer,
+            remarks: input.remarks,
+
+            supportId: support.id,
+          },
+        },
+      },
+      where: {
+        id: input.id,
+      },
+    });
+
+    revalidatePath(`/patrons/${input.id}`, "layout");
+
+    return {
+      error: 0,
+      message: "u gucci",
+    };
+  } catch (e) {
+    return {
+      error: 5,
+      message: "[SERVER]: Something went wrong",
+    };
+  }
+}
+
+export async function miscClosure(
+  input: z.infer<typeof patronMiscClosureSchema>,
+) {
+  if (!patronMiscClosureSchema.safeParse(input).success) {
+    return {
+      error: 1,
+      message: "Failed to validate Closure Data.",
+    };
+  }
+
+  const patron = await fetchPatron(input.id);
+  if (!patron) {
+    return {
+      error: 2,
+      message: "Patron doesn't exist",
+    };
+  }
+
+  const support = await currentStaff();
+
+  const netPayable =
+    (input.adjust || 0) - (input.depositRefund ? patron.deposit : 0);
+
+  try {
+    await prisma.patron.update({
+      data: {
+        deposit: input.depositRefund ? 0 : patron.deposit,
+        subscription: {
+          update: {
+            closed: true,
+          },
+        },
+        transactions: {
+          create: {
+            mode: input.mode,
+            type: "CLOSURE",
+            netPayable: netPayable,
 
             oldPlan: patron.subscription!.plan,
             newPlan: patron.subscription!.plan,
@@ -762,6 +836,70 @@ export async function patronAddon(
             newPlan: patron.subscription!.plan,
             oldExpiry: patron.subscription!.expiryDate,
             newExpiry: patron.subscription!.expiryDate,
+
+            supportId: support.id,
+          },
+        },
+      },
+      where: {
+        id: input.id,
+      },
+    });
+
+    revalidatePath(`/patrons/${input.id}`, "layout");
+
+    return {
+      error: 0,
+      message: "u gucci",
+    };
+  } catch (e) {
+    return {
+      error: 5,
+      message: "[SERVER]: Something went wrong",
+    };
+  }
+}
+
+export async function miscOther(
+  input: z.infer<typeof patronMiscOtherSchema>,
+) {
+  if (!patronMiscOtherSchema.safeParse(input).success) {
+    return {
+      error: 1,
+      message: "Failed to validate Data.",
+    };
+  }
+
+  const patron = await fetchPatron(input.id);
+  if (!patron) {
+    return {
+      error: 2,
+      message: "Patron doesn't exist",
+    };
+  }
+
+  const support = await currentStaff();
+
+  const total = ( input.amount || 0 ) + ( input.adjust || 0 );
+
+  try {
+    await prisma.patron.update({
+      data: {
+        transactions: {
+          create: {
+            mode: input.mode,
+            type: "OTHER",
+            netPayable: total,
+
+            oldPlan: patron.subscription!.plan,
+            newPlan: patron.subscription!.plan,
+            oldExpiry: patron.subscription!.expiryDate,
+            newExpiry: patron.subscription!.expiryDate,
+
+            adjust: input.adjust || 0,
+            reason: input.reason,
+            offer: input.offer,
+            remarks: input.remarks,
 
             supportId: support.id,
           },

@@ -30,12 +30,6 @@ const getTransactionData = async () => {
   const rows = await sheet.getRows();
   return rows.map((row) => row.toObject());
 };
-const getLendingData = async () => {
-  await patronDoc.loadInfo();
-  const sheet = patronDoc.sheetsById[1319624793];
-  const rows = await sheet.getRows();
-  return rows.map((row) => row.toObject());
-};
 
 const checkoutDoc = new GoogleSpreadsheet(
   process.env.CHECKOUT_DOC_ID,
@@ -50,6 +44,12 @@ const getCheckoutData = async () => {
 const getCheckinData = async () => {
   await checkoutDoc.loadInfo();
   const sheet = checkoutDoc.sheetsById[398655784];
+  const rows = await sheet.getRows();
+  return rows.map((row) => row.toObject());
+};
+const getLendingData = async () => {
+  await checkoutDoc.loadInfo();
+  const sheet = checkoutDoc.sheetsById[1415617122];
   const rows = await sheet.getRows();
   return rows.map((row) => row.toObject());
 };
