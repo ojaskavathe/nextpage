@@ -27,10 +27,12 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  FileDown
 } from "lucide-react";
 import { useState } from "react";
 import { Input } from "../ui/input";
+import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -92,6 +94,11 @@ export function TransactionReportsTable<TData, TValue>({
             }
             className="max-w-sm"
           />
+          <Button variant="outline">
+            <Link href="/api/export">
+              <FileDown className="h-5"/>
+            </Link>
+          </Button>
         </div>
 
         <div className="flex items-center space-x-2">
