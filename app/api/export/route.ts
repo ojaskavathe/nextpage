@@ -1,6 +1,8 @@
 import { prisma } from "@/server/db";
 import { AsyncParser } from "@json2csv/node";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const parser = new AsyncParser();
 

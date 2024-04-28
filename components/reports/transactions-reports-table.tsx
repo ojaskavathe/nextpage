@@ -11,7 +11,7 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -83,7 +83,7 @@ export function TransactionReportsTable<TData, TValue>({
     <div>
       <div className="flex items-center justify-between py-2">
         <div className="flex space-x-4 items-center">
-          <div className="font-semibold text-xl">
+          <div className="hidden md:block font-semibold text-xl">
             Transactions
           </div>
           <Input
@@ -94,11 +94,9 @@ export function TransactionReportsTable<TData, TValue>({
             }
             className="max-w-sm"
           />
-          <Button variant="outline">
-            <Link href="/api/export">
-              <FileDown className="h-5"/>
-            </Link>
-          </Button>
+          <Link href="/api/export" className={buttonVariants({ variant: "default" })}>
+            <FileDown className="h-5" />
+          </Link>
         </div>
 
         <div className="flex items-center space-x-2">
