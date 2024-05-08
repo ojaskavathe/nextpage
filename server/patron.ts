@@ -216,6 +216,7 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
           create: {
             plan: input.plan,
             expiryDate: exp,
+            monthlyDD: freeDD,
             freeDD: freeDD,
             paidDD: input.paidDD || 0,
             freeHoliday: freeHoliday,
@@ -346,6 +347,7 @@ export async function renewPatron(
           update: {
             plan: input.plan,
             expiryDate: newExpiry,
+            monthlyDD: freeDD,
             freeDD: freeDD,
             paidDD: totalPaidDDs,
             freeHoliday: freeHoliday,
@@ -442,10 +444,7 @@ export async function updatePatron(
 
 export async function createFootfall(
   input: z.infer<typeof footfallFormSchema>,
-): Promise<{
-  error: number;
-  message: string;
-}> {
+) {
   if (!footfallFormSchema.safeParse(input).success) {
     return {
       error: 1,
@@ -480,7 +479,7 @@ export async function createFootfall(
 
   try {
     if (input.isDD) {
-      prisma.patron.update({
+      await prisma.patron.update({
         data: {
           subscription: {
             update: {
@@ -503,7 +502,11 @@ export async function createFootfall(
                   message: input.message,
                 },
               },
-              supportId: support.id,
+              support: {
+                connect: {
+                  id: support.id
+                }
+              },
               createdAt: input.scheduledDate,
             },
           },
@@ -526,12 +529,20 @@ export async function createFootfall(
     } else {
       await prisma.footfall.create({
         data: {
-          patronId: input.id,
+          patron: {
+            connect: {
+              id: patron.id
+            }
+          },
           type: input.type,
           offer: input.offer,
           remarks: input.remarks,
           isDD: false,
-          supportId: support.id,
+          support: {
+            connect: {
+              id: support.id
+            }
+          },
         },
       });
 

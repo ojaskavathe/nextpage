@@ -125,7 +125,7 @@ export function PatronDetails({
               <Bike className="w-4" />
               <span className="pl-2">
                 <span className="font-semibold">Free Delivery: </span>
-                {`${patron.subscription?.freeDD || 0}`}
+                {`${patron.subscription?.freeDD || 0}`} / {`${patron.subscription?.monthlyDD || 0}`}
               </span>
             </div>
             <div className="text-sm font-normal flex items-center">

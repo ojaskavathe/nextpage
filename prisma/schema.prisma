@@ -58,6 +58,7 @@ model Subscription {
   closed        Boolean           @default(false)
   offer         String?
 
+  monthlyDD     Int               @default(0)
   paidDD        Int               @default(0)
   freeDD        Int               @default(0)
 }
@@ -144,7 +145,7 @@ model Checkout {
   patron        Patron            @relation(fields: [patronId], references: [id])
   patronId      Int
 
-  itemBarcode   Int
+  itemBarcode   String
   title         String
   authors       String
 

@@ -110,6 +110,7 @@ async function main() {
             create: {
               plan: parseInt(row["Plan"]),
               expiryDate: new Date(row["Expiry Date"] + "T00:00:00.000Z"),
+              monthlyDD: freeDD,
               freeDD: freeDD,
               freeHoliday: freeHoliday,
             },
@@ -243,8 +244,8 @@ async function main() {
             checkouts: {
               create: {
                 itemBarcode: row["item_barcode"]
-                  ? parseInt(row["item_barcode"])
-                  : 0,
+                  ? String(row["item_barcode"])
+                  : "",
                 title: row["title"],
                 authors: row["creators"],
                 checked_out: row["checked_out"]

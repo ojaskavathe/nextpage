@@ -1,14 +1,18 @@
 import { cronRefreshFreeDD } from "@/server/cron/cron";
+import { cronFetchLending } from "@/server/cron/lending";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-  const authheader = req.headers.get('authorization') || req.headers.get('Authorization');
+  const authheader =
+    req.headers.get("authorization") || req.headers.get("Authorization");
 
   if (!authheader) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const auth = Buffer.from(authheader.split(' ')[1], 'base64').toString().split(':');
+  const auth = Buffer.from(authheader.split(" ")[1], "base64")
+    .toString()
+    .split(":");
   const user = auth[0];
   const pass = auth[1];
 
@@ -16,8 +20,6 @@ export async function GET(req: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  await cronRefreshFreeDD()
-
-  return new Response("FreeDD Fetched!");
+  await cronFetchLending();
+  await cronRefreshFreeDD();
 }
-
