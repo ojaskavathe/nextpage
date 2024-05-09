@@ -20,10 +20,6 @@ export const columns_transactions: ColumnDef<Transaction>[] = [
     header: "Type",
   },
   {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
     header: "Details",
     accessorFn: (row) => {
       switch (row.type) {
@@ -38,10 +34,6 @@ export const columns_transactions: ColumnDef<Transaction>[] = [
   {
     accessorKey: "netPayable",
     header: "Amount",
-  },
-  {
-    accessorKey: "remarks",
-    header: "Remarks",
   },
   {
     accessorKey: "createdAt",

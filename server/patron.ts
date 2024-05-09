@@ -251,12 +251,33 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
                   id: staff.id,
                 },
               },
-              attendedBy: "Server",
             },
           ],
         },
       },
     });
+
+    const [first, ...rest] = input.name.split(' ');
+    const last = rest.length > 0 ? rest.join(' ') : 'SR';
+    await fetch(
+      "https://api.libib.com/patrons?" + new URLSearchParams({
+        first_name: first,
+        last_name: last,
+        email: input.email,
+        patron_id: sr_id( newPatron.id ),
+        phone: input.phone,
+        address1: input.address || '',
+        city: 'Pune',
+        country: 'IN',
+        zip: input.pincode || '',
+      }), {
+        method: 'POST',
+        headers: {
+          'x-api-key': process.env.LIBIB_API_KEY || '',
+          'x-api-user': process.env.LIBIB_API_USER || '',
+        }
+      }
+    )
 
     revalidatePath(`/patrons/${newPatron.id}`);
     revalidatePath(`/patrons/search`);
@@ -427,6 +448,24 @@ export async function updatePatron(
       },
     });
 
+    const [first, ...rest] = input.name.split(' ');
+    const last = rest.length > 0 ? rest.join(' ') : 'SR';
+    await fetch(
+      "https://api.libib.com/patrons?" + new URLSearchParams({
+        first_name: first,
+        last_name: last,
+        email: input.email,
+        phone: input.phone,
+        address1: input.address || '',
+        zip: input.pincode || '',
+      }), {
+        method: 'POST',
+        headers: {
+          'x-api-key': process.env.LIBIB_API_KEY || '',
+          'x-api-user': process.env.LIBIB_API_USER || '',
+        }
+      }
+    )
     revalidatePath(`/patrons/${id}`, "layout");
     revalidatePath(`/patrons/search`);
 
