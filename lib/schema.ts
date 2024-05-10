@@ -356,3 +356,30 @@ export const patronMiscOtherSchema = z.object({
       });
     }
   });
+
+export const expenseSchema = z.object({
+  category: z.string(),
+
+  mode: z.nativeEnum($Enums.TransactionMode, {
+    errorMap: () => ({ message: 'Select the mode of expense!' })
+  }),
+
+  // non zero numbers, but the default value is an empty string
+  amount: z.preprocess(
+    (intStr) => {
+      if (typeof intStr === "number") return intStr;
+      if (!intStr || typeof intStr !== "string") return null;
+
+      if (/^-?\d+$/.test(intStr)) {
+        return parseInt(intStr);
+      }
+    },
+    z.union([z.number({
+      errorMap: () => ({
+        message: "Amount needs to be entered."
+      })
+    }).safe(), z.literal("")]),
+  ),
+
+  remarks: optString,
+})

@@ -58,7 +58,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div>
+    <div className={className}>
       <div className="flex items-center justify-between py-2">
         {title !== "" && (
           <div className="flex space-x-2">
@@ -108,7 +108,7 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
-      <div className={cn("rounded-md border", className)}>
+      <div className={cn("rounded-md border")}>
         <Table className="table-fixed">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

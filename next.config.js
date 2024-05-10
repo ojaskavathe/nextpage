@@ -19,9 +19,15 @@ const nextConfig = {
       },
       {
         source: '/admin',
-        destination: '/admin/transactions',
+        destination: '/admin/staff',
+        permanent: true
+      },
+      {
+        source: '/expenses',
+        destination: '/expenses/add',
         permanent: true
       }
+
     ]
   }
 }

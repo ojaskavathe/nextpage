@@ -22,6 +22,7 @@ import {
   ArrowLeftRight,
   ChevronDown,
   FileSpreadsheet,
+  HandCoins,
   Library,
   LogOut,
   LucideIcon,
@@ -68,6 +69,12 @@ export function Nav({ userId, role }: NavProps) {
       href: "/reports",
       icon: FileSpreadsheet,
       variant: pathName.startsWith("/reports") ? "default" : "ghost",
+    },
+    {
+      title: "Expenses",
+      href: "/expenses",
+      icon: HandCoins,
+      variant: pathName.startsWith("/expenses") ? "default" : "ghost",
     },
   ];
 

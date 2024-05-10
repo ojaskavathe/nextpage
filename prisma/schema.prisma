@@ -18,6 +18,7 @@ model Support {
 
   transactions  Transaction[]
   footfalls     Footfall[]
+  expenses      Expense[]
 }
 
 model Patron {
@@ -105,6 +106,24 @@ model Transaction {
   createdAt     DateTime          @default(now())
 
   @@index([patronId])
+}
+
+model ExpenseCategory {
+  id            String            @id @default(uuid())
+  name          String
+}
+
+model Expense {
+  id            String            @id @default(uuid())
+
+  support       Support           @relation(fields: [supportId], references: [id])
+  supportId     String
+
+  category      String
+  amount        Int
+  Remarks       String?        
+
+  createdAt     DateTime          @default(now())
 }
 
 model Delivery {

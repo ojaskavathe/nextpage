@@ -5,14 +5,18 @@ import { Separator } from "@/components/ui/separator";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Reports",
-  description: "View Reports.",
+  title: "Expenses",
+  description: "View Expenses.",
 }
 
-const adminNavItems = [
+const expensesNavItems = [
   {
-    title: "Staff",
-    href: "/admin/staff",
+    title: "Expenses",
+    href: "/expenses/add",
+  },
+  {
+    title: "Report",
+    href: "/expenses/report",
   },
 ]
 
@@ -29,15 +33,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="space-y-6 pb-16">
       <div className="space-y-0.5">
-        <h2 className="text-2xl font-bold tracking-tight">Admin</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Expenses</h2>
         <p className="text-muted-foreground">
-          View staff and their actions
+          Cash Expenses & Reports
         </p>
       </div>
       <div className="flex flex-col">
         <aside className="mb-4 flex space-x-4">
-          <InnerNav navItems={adminNavItems} />
-          <SupportCreateDialog className="px-4"/>
+          <InnerNav navItems={expensesNavItems} />
         </aside>
         <Separator className="my-0" />
         <div className="mt-4 flex-1">{children}</div>
