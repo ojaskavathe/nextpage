@@ -109,8 +109,7 @@ model Transaction {
 }
 
 model ExpenseCategory {
-  id            String            @id @default(uuid())
-  name          String
+  name          String            @id
 }
 
 model Expense {
@@ -119,9 +118,10 @@ model Expense {
   support       Support           @relation(fields: [supportId], references: [id])
   supportId     String
 
+  mode          TransactionMode
   category      String
   amount        Int
-  Remarks       String?        
+  remarks       String?        
 
   createdAt     DateTime          @default(now())
 }

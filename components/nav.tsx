@@ -79,6 +79,7 @@ export function Nav({ userId, role }: NavProps) {
   ];
 
   const [collaped, setCollapsed] = useState(true);
+  const height = 310;
 
   return (
     <>
@@ -88,9 +89,9 @@ export function Nav({ userId, role }: NavProps) {
       )}
       <motion.div
         className="fixed bottom-0 left-0 w-full z-20"
-        initial={{ y: 270 }}
+        initial={{ y: height }}
         animate={{
-          y: collaped ? 270 : 0,
+          y: collaped ? height : 0,
         }}
         transition={{ ease: "easeOut" }}
       >

@@ -2,8 +2,10 @@
 
 import {
   ColumnDef,
+  FilterFn,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
@@ -27,6 +29,8 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { Input } from "./ui/input";
+import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   title?: string;
@@ -44,27 +48,62 @@ export function DataTable<TData, TValue>({
   pageSize = 4,
   className,
 }: DataTableProps<TData, TValue>) {
+  const [globalFilter, setGlobalFilter] = useState("");
+
+  const globalFilterFn: FilterFn<TData> = (
+    row,
+    columnId,
+    filterValue: string,
+  ) => {
+    const search = filterValue.toLowerCase();
+
+    let value = row.getValue(columnId) as string;
+    if (typeof value === "number") value = String(value);
+
+    return value?.toLowerCase().includes(search);
+  };
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn,
     initialState: {
       pagination: {
         pageSize: pageSize,
       },
     },
+    state: {
+      globalFilter
+    },
+    defaultColumn: {
+      size: 100,
+      minSize: 10,
+      maxSize: 200,
+    }
   });
 
   return (
     <div className={className}>
       <div className="flex items-center justify-between py-2">
-        {title !== "" && (
-          <div className="flex space-x-2">
-            <div className="font-semibold text-xl">{title}</div>
-          </div>
-        )}
+        <div className="flex space-x-4 items-center">
+          {title !== "" && (
+            <div className="flex space-x-2">
+              <div className="font-semibold text-xl">{title}</div>
+            </div>
+          )}
+          <Input
+            placeholder="Filter"
+            value={globalFilter ?? ""}
+            onChange={(event) =>
+              setGlobalFilter(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
@@ -124,9 +163,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   );
                 })}

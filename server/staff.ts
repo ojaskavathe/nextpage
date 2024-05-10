@@ -5,6 +5,12 @@ import { prisma } from "./db";
 import { supportCreateSchema } from "@/lib/schema";
 import { Support } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
+
+export const currentStaff = async () => {
+  const session = await auth();
+  return session?.user!;
+};
 
 export const createSupport = async (input: z.infer<typeof supportCreateSchema>) => {
   let out: {

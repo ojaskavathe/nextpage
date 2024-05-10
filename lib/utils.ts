@@ -23,6 +23,9 @@ export type CheckoutWithPatron = Prisma.CheckoutGetPayload<{
 export type SupportFull = Prisma.SupportGetPayload<{
   include: { transactions:true; footfalls: true };
 }>;
+export type ExpenseWithSupport = Prisma.ExpenseGetPayload<{
+  include: { support: true };
+}>;
 
 export const dateTimeFormat: Intl.DateTimeFormatOptions = {
   year: '2-digit',

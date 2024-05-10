@@ -21,15 +21,6 @@ const expensesNavItems = [
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-
-  const session = await auth();
-
-  if (session?.user?.role != "ADMIN") {
-    return (
-      <div>You are not authorized to be here!</div>
-    )
-  }
-
   return (
     <div className="space-y-6 pb-16">
       <div className="space-y-0.5">

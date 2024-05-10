@@ -30,12 +30,7 @@ import {
 } from "@/lib/utils";
 
 import { prisma } from "./db";
-import { auth } from "@/auth";
-
-const currentStaff = async () => {
-  const session = await auth();
-  return session?.user!;
-};
+import { currentStaff } from "./staff"
 
 export const fetchPatron = async (patronId: number) => {
   const isId = await z.number().safeParseAsync(patronId);

@@ -9,14 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TransactionMode } from "@/components/transaction-details";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Form,
   FormControl,
   FormField,
@@ -28,7 +20,7 @@ import { Input } from "@/components/ui/input";
 
 import { expenseSchema } from "@/lib/schema";
 import { useRouter } from "next/navigation";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CircleMinus } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -36,16 +28,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { prisma } from "@/server/db";
-import { ExpenseCategory } from "@prisma/client";
-import { addCategory } from "@/server/expenses";
+import { $Enums, ExpenseCategory } from "@prisma/client";
+import { addCategory, createExpense, removeCategory } from "@/server/expenses";
+import { toast } from "sonner";
 
 export default function ExpenseForm({
   categories,
+  role,
   className,
 }: {
-  categories: ExpenseCategory[];
-  className: string;
+  categories: ExpenseCategory[],
+  role: $Enums.Role,
+  className: string,
 }) {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
@@ -61,24 +55,32 @@ export default function ExpenseForm({
     },
   });
 
-  const [isPending, startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition();
   async function handleAdd() {
-    await addCategory(newCat)
+    if ( !newCat ) return;
+    await addCategory(newCat);
 
     startTransition(() => {
-      router.refresh()
-    })
+      router.refresh();
+    });
+  }
+
+  async function handleRemove(id: string) {
+    await removeCategory(id);
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   const onSubmit = async (data: z.infer<typeof expenseSchema>) => {
-    // const res = await miscRefund(data);
-    //
-    // if (res.error == 0) {
-    //   router.push(`/patrons/${patron.id}`);
-    //   toast.success(`Patron ${sr_id(data.id)} deposit refunded!`);
-    // } else {
-    //   setErrorMessage(res.message)
-    // }
+    const res = await createExpense(data);
+
+    if (res.error == 0) {
+      router.refresh()
+      toast.success(`Expense Added!`);
+    } else {
+      setErrorMessage(res.message)
+    }
   };
 
   const [newCat, setNewCat] = useState("");
@@ -107,25 +109,44 @@ export default function ExpenseForm({
                   </FormControl>
                   <SelectContent>
                     {categories?.map((i) => (
-                      <SelectItem value={`${i.id}`} key={i.id}>
-                        {i.name}
-                      </SelectItem>
-                    ))}
-                    <div className="p-1 flex space-x-2 items-center justify-between max-w-[--radix-select-trigger-width]">
-                      <Input
-                        className="h-8 w-full"
-                        onChange={(e) => {setNewCat(e.target.value)}}
-                        disabled={isPending}
-                      />
-                      <Button
-                        size="sm"
-                        className="h-8"
-                        onClick={handleAdd}
-                        disabled={isPending}
+                      <div
+                        className="flex items-center justify-between"
+                        key={i.name}
                       >
-                        +
-                      </Button>
-                    </div>
+                        <SelectItem value={`${i.name}`} key={i.name}>
+                          {i.name}
+                        </SelectItem>
+                        {role == $Enums.Role.ADMIN &&
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="p-0 h-4 w-4 mx-4 rounded-full"
+                            onClick={() => handleRemove(i.name)}
+                          >
+                            <CircleMinus className="h-full" />
+                          </Button>
+                        }
+                      </div>
+                    ))}
+                    {role == $Enums.Role.ADMIN && 
+                      <div className="mt-2 p-1 flex space-x-2 items-center justify-between max-w-[--radix-select-trigger-width]">
+                        <Input
+                          className="h-8 w-full"
+                          onChange={(e) => {
+                            setNewCat(e.target.value);
+                          }}
+                          disabled={isPending}
+                        />
+                        <Button
+                          size="sm"
+                          className="h-8"
+                          onClick={handleAdd}
+                          disabled={isPending}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    }
                   </SelectContent>
                 </Select>
                 <FormMessage />
