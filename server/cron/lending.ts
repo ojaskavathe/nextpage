@@ -1,3 +1,5 @@
+"use server";
+
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { JWT } from "google-auth-library";
 import { z } from "zod";
