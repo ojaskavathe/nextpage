@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CashReportWithSupport, dateTimeFormat } from "@/lib/utils";
+import { CashReportWithSupport, dateFormat } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
@@ -13,7 +13,7 @@ export const columns: ColumnDef<CashReportWithSupport>[] = [
       const date: Date = row.getValue("createdAt");
       return (
         <div>
-          {date.toLocaleDateString("en-IN", dateTimeFormat)}
+          {date.toLocaleDateString("en-IN", dateFormat)}
         </div>
       );
     },

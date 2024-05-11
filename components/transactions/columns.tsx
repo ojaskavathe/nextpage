@@ -1,5 +1,6 @@
 "use client"
 
+import { dateTimeFormat } from "@/lib/utils";
 import { Transaction } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 
@@ -27,14 +28,7 @@ export const columns: ColumnDef<Transaction>[] = [
       const date: Date = row.getValue("createdAt");
       return (
         <div>
-          {date.toLocaleString("en-IN", {
-            year: '2-digit',
-            month: '2-digit',
-            day: '2-digit',
-            hour: "numeric",
-            minute: "numeric",
-            timeZone: "Asia/Kolkata"
-          })}
+          {date.toLocaleString("en-IN", dateTimeFormat)}
         </div>
       )
     },

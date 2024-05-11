@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "./db";
 import { cashReportSchema, expenseSchema } from "@/lib/schema";
 import { currentStaff } from "./staff";
+import { revalidatePath } from "next/cache";
 
 export async function getExpenses() {
   return prisma.expense.findMany({
@@ -55,6 +56,10 @@ export async function createExpense(input: z.infer<typeof expenseSchema>) {
         remarks: input.remarks,
       },
     });
+
+    revalidatePath('/expenses/add')
+    revalidatePath('/expenses/summary')
+
     return {
       error: 0,
       message: "u gucci",
@@ -78,7 +83,7 @@ export async function addCategory(name: string) {
         name,
       },
     });
-  } catch (e) {}
+  } catch (e) { }
 }
 
 export async function removeCategory(name: string) {
@@ -88,7 +93,7 @@ export async function removeCategory(name: string) {
         name,
       },
     });
-  } catch (e) {}
+  } catch (e) { }
 }
 
 export async function addCashReport(input: z.infer<typeof cashReportSchema>) {
@@ -112,6 +117,10 @@ export async function addCashReport(input: z.infer<typeof cashReportSchema>) {
         },
       },
     });
+
+    revalidatePath('/expenses/report')
+    revalidatePath('/expenses/summary')
+
     return {
       error: 0,
       message: "u gucci",
@@ -122,4 +131,81 @@ export async function addCashReport(input: z.infer<typeof cashReportSchema>) {
       message: "Server Error",
     };
   }
+}
+
+export async function getExpenseSummary() {
+  // try {
+    const reportedCash = await prisma.cashReport.findMany({
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
+    const expenses = await prisma.expense.findMany();
+    const transactions = await prisma.transaction.findMany();
+    if (reportedCash.length == 0) {
+      return []
+    }
+
+    return reportedCash.map((r, i, arr) => {
+      if (i == arr.length - 1) {                               // for the first report, can't be checked against any previous reports
+        const thisDaysExpenses = expenses.filter(e => {
+          return e.createdAt < r.createdAt &&
+            e.mode == "CASH"
+        })
+        let sumOfExpenses = 0;
+        thisDaysExpenses.forEach(e => {
+          sumOfExpenses += e.amount;
+        })
+
+        let sumOfIncome = 0;
+
+        const calculatedCash = sumOfExpenses + sumOfIncome;
+        const diff = r.amount - calculatedCash;
+
+        return {
+          createdAt: r.createdAt,
+          reportedCash: r.amount,
+          expenses: sumOfExpenses,
+          income: sumOfIncome,
+          calculatedCash,
+          diff,
+        }
+      }
+
+      const thisDaysExpenses = expenses.filter(e => {
+        return e.createdAt > arr[i + 1].createdAt &&     // expenses after the last report
+          e.createdAt < r.createdAt &&            // and before this report
+          e.mode == "CASH"
+      })
+      let sumOfExpenses = 0;
+      thisDaysExpenses.forEach(e => {
+        sumOfExpenses += e.amount;
+      })
+
+      let thisDaysIncome = transactions.filter(t => {
+        return t.createdAt > arr[i + 1].createdAt &&     // transactions after the last report
+          t.createdAt < r.createdAt &&            // and before this report
+          t.mode == "CASH"
+      })
+      let sumOfIncome = 0;
+      thisDaysIncome.forEach(e => {
+        sumOfIncome += e.netPayable;
+      })
+
+      const calculatedCash = arr[i + 1].amount - sumOfExpenses + sumOfIncome;
+      const diff = r.amount - calculatedCash;
+
+      return {
+        createdAt: r.createdAt,
+        reportedCash: r.amount,
+        expenses: sumOfExpenses,
+        income: sumOfIncome,
+        calculatedCash,
+        diff,
+      }
+    })
+  // } catch (e) {
+  //   return []
+  // }
+
 }

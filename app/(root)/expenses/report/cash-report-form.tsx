@@ -30,11 +30,11 @@ function Count({
   setNotes: Dispatch<SetStateAction<INotes>>;
   setTotal: Dispatch<SetStateAction<number>>;
 }) {
-  const [num, setNum] = useState<string>('');
+  const [num, setNum] = useState<string>("");
 
   return (
     <div className="flex space-x-2 items-center justify-between w-full basis-1/2">
-      <Label className="basis-1/5">{amount}</Label>
+      <Label className="basis-1/5">₹{amount}</Label>
       <Input
         className="basis-4/5"
         value={num}
@@ -70,11 +70,7 @@ function Count({
   );
 }
 
-export default function CashReportForm({
-  className,
-}: {
-  className: string;
-}) {
+export default function CashReportForm({ className }: { className: string }) {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -104,12 +100,12 @@ export default function CashReportForm({
   const onSubmit = async (_data: z.infer<typeof cashReportSchema>) => {
     if (amount == 0) {
       router.refresh();
-      toast.warning('Non-zero amount required!');
+      toast.warning("Non-zero amount required!");
       return;
     }
 
     const res = await addCashReport({
-      amount: amount
+      amount: amount,
     });
 
     if (res.error == 0) {
@@ -128,7 +124,7 @@ export default function CashReportForm({
         setNotes={setNotes}
         setTotal={setAmount}
         key={note}
-      />
+      />,
     );
   }
 
@@ -136,9 +132,12 @@ export default function CashReportForm({
     <div className="flex flex-col">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className={className}>
-          <div className="mt-4 grid grid-cols-2 items-center gap-4">{rows}</div>
-          <div className="mt-4 ">
-            <span className="font-bold">Total:</span> ₹{amount}
+          <div className="mt-4 grid grid-cols-2 items-center gap-4">
+            {rows}
+            <div className="space-x-4">
+              <span className="font-bold">Total:</span>
+              <span>₹{amount}</span>
+            </div>
           </div>
           <Button
             type="submit"

@@ -276,6 +276,7 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
 
     revalidatePath(`/patrons/${newPatron.id}`);
     revalidatePath(`/patrons/search`);
+    revalidatePath('/expenses/summary')
 
     return {
       data: newPatron,
@@ -405,6 +406,7 @@ export async function renewPatron(
 
     revalidatePath(`/patrons/${patron.id}`, "layout");
     revalidatePath(`/patrons/search`);
+    revalidatePath('/expenses/summary')
 
     return {
       error: 0,
@@ -654,6 +656,7 @@ export async function miscDD(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
+    revalidatePath('/expenses/summary')
 
     return {
       error: 0,
@@ -717,6 +720,7 @@ export async function miscRefund(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
+    revalidatePath('/expenses/summary')
 
     return {
       error: 0,
@@ -788,6 +792,7 @@ export async function miscClosure(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
+    revalidatePath('/expenses/summary')
 
     return {
       error: 0,
@@ -892,6 +897,7 @@ export async function patronAddon(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
+    revalidatePath('/expenses/summary')
 
     return {
       error: 0,
@@ -956,6 +962,7 @@ export async function miscOther(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
+    revalidatePath('/expenses/summary')
 
     return {
       error: 0,

@@ -7,9 +7,9 @@ export default async function ExpensesPage() {
   const cashReports = await getCashReports();
 
   return (
-    <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+    <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 sm:-mt-4">
       <CashReportForm
-        className="-mt-4 basis-1/3"
+        className="basis-1/3"
       />
       <DataTable
         title="Report"

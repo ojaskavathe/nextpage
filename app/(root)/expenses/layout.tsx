@@ -1,5 +1,3 @@
-import { auth } from "@/auth";
-import { SupportCreateDialog } from "@/components/admin/support-form";
 import { InnerNav } from "@/components/nav-inner";
 import { Separator } from "@/components/ui/separator";
 import { Metadata } from "next";
@@ -17,6 +15,10 @@ const expensesNavItems = [
   {
     title: "Report",
     href: "/expenses/report",
+  },
+  {
+    title: "Summary",
+    href: "/expenses/summary",
   },
 ]
 
