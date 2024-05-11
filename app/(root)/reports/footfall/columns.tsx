@@ -1,60 +1,47 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
-import { FootfallWithPatron, TransactionWithPatron, sr_id } from "@/lib/utils";
-import { Patron, Transaction } from "@prisma/client";
+import { FootfallWithPatron, dateFormat, sr_id, timeFormat } from "@/lib/utils";
+import { Patron } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { ReactNode } from "react";
-
-const dateTimeFormat: Intl.DateTimeFormatOptions = {
-  year: '2-digit',
-  month: '2-digit',
-  day: '2-digit',
-  hour: "numeric",
-  minute: "numeric",
-  timeZone: "Asia/Kolkata"
-}
-
-const dateFormat: Intl.DateTimeFormatOptions = {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  timeZone: "Asia/Kolkata"
-}
-
-const timeFormat: Intl.DateTimeFormatOptions = {
-  hour: "numeric",
-  minute: "numeric",
-  timeZone: "Asia/Kolkata"
-}
 
 export const columns: ColumnDef<FootfallWithPatron>[] = [
   {
     header: "Date",
     accessorFn: (row) => {
       const date: Date = row.createdAt;
-      return date.toLocaleString("en-IN", dateFormat)
+      return date.toLocaleString("en-IN", dateFormat);
     },
-    sortingFn: "datetime"
+    sortingFn: "datetime",
   },
   {
     header: "Time",
     accessorFn: (row) => {
       const date: Date = row.createdAt;
-      return date.toLocaleString("en-IN", timeFormat)
+      return date.toLocaleString("en-IN", timeFormat);
     },
   },
   {
-    accessorKey: "patron",
     header: "Patron",
+    accessorFn: (row) => {
+      return row.patron.id;
+    },
     cell: (row) => {
-      const patron = row.getValue() as Patron;
+      const patronid = row.getValue() as number;
       return (
-        <Button className="font-semibold text-sm" variant="outline">
-          <Link href={`/patrons/${patron.id}`}>{sr_id(patron.id)}</Link>
-        </Button>
-      )
+        <Link href={`/patrons/${patronid}`}>
+          <Button className="font-semibold text-sm" variant="outline">
+            {sr_id(patronid)}
+          </Button>
+        </Link>
+      );
+    },
+  },
+  {
+    header: "Patron Name",
+    accessorFn: (row) => {
+      return row.patron.name;
     },
   },
   {
@@ -73,5 +60,4 @@ export const columns: ColumnDef<FootfallWithPatron>[] = [
     accessorKey: "remarks",
     header: "Remarks",
   },
-
-]
+];

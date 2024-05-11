@@ -19,6 +19,7 @@ model Support {
   transactions  Transaction[]
   footfalls     Footfall[]
   expenses      Expense[]
+  cashReports   CashReport[]
 }
 
 model Patron {
@@ -122,6 +123,17 @@ model Expense {
   category      String
   amount        Int
   remarks       String?        
+
+  createdAt     DateTime          @default(now())
+}
+
+model CashReport {
+  id            String            @id @default(uuid())
+
+  support       Support           @relation(fields: [supportId], references: [id])
+  supportId     String
+
+  amount        Int
 
   createdAt     DateTime          @default(now())
 }

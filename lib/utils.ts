@@ -26,6 +26,9 @@ export type SupportFull = Prisma.SupportGetPayload<{
 export type ExpenseWithSupport = Prisma.ExpenseGetPayload<{
   include: { support: true };
 }>;
+export type CashReportWithSupport = Prisma.CashReportGetPayload<{
+  include: { support: true };
+}>;
 
 export const dateTimeFormat: Intl.DateTimeFormatOptions = {
   year: '2-digit',
@@ -42,6 +45,12 @@ export const dateFormat: Intl.DateTimeFormatOptions = {
   day: '2-digit',
   timeZone: "Asia/Kolkata"
 }
+
+export const timeFormat: Intl.DateTimeFormatOptions = {
+  hour: "numeric",
+  minute: "numeric",
+  timeZone: "Asia/Kolkata",
+};
 
 export const plans = [1, 2, 3, 4, 5, 6];
 export const durations = [1, 3, 6, 12];

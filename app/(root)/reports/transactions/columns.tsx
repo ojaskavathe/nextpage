@@ -6,29 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 
-import { sr_id, TransactionWithPatron } from "@/lib/utils";
-
-const dateTimeFormat: Intl.DateTimeFormatOptions = {
-  year: "2-digit",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "numeric",
-  minute: "numeric",
-  timeZone: "Asia/Kolkata",
-};
-
-const dateFormat: Intl.DateTimeFormatOptions = {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  timeZone: "Asia/Kolkata",
-};
-
-const timeFormat: Intl.DateTimeFormatOptions = {
-  hour: "numeric",
-  minute: "numeric",
-  timeZone: "Asia/Kolkata",
-};
+import { dateFormat, sr_id, timeFormat, TransactionWithPatron } from "@/lib/utils";
 
 export const columns: ColumnDef<TransactionWithPatron>[] = [
   {
@@ -53,13 +31,19 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
       return (
         <Link href={`/patrons/${patronId}`}>
           <Button className="font-semibold text-sm" variant="outline">
-            {sr_id(cell.getValue() as number)}
+            {sr_id(patronId)}
           </Button>
         </Link>
       );
     },
     accessorFn: (row) => {
       return row.patronId;
+    },
+  },
+  {
+    header: "Patron Name",
+    accessorFn: (row) => {
+      return row.patron.name;
     },
   },
   {

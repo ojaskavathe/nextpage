@@ -44,8 +44,6 @@ export default function ExpenseForm({
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [category, setCategory] = useState("");
-
   const form = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
@@ -98,7 +96,6 @@ export default function ExpenseForm({
                 <FormLabel>Category</FormLabel>
                 <Select
                   onValueChange={(value: string) => {
-                    setCategory(value);
                     field.onChange(value);
                   }}
                 >

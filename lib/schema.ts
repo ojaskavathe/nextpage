@@ -383,3 +383,8 @@ export const expenseSchema = z.object({
 
   remarks: optString,
 })
+
+export const cashReportSchema = z.object({
+  // non zero numbers, but the default value is an empty string
+  amount: z.number().gt(0),
+})
