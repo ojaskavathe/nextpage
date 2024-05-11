@@ -1,4 +1,3 @@
-#!/bin/bash
 source /home/ubuntu/.bashrc
 cd /home/ubuntu/nextpage 
 git pull origin master
