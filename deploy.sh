@@ -2,7 +2,7 @@
 cd /home/ubuntu/nextpage 
 git pull origin master
 export NODE_ENV=production
-bun install &&
+/home/ubuntu/.bun/bin/bun install &&
 npx prisma generate &&
-bun run build &&
+npm run build &&
 pm2 restart nextpage 
