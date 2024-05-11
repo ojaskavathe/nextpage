@@ -5,4 +5,4 @@ export NODE_ENV=production
 /home/ubuntu/.bun/bin/bun install &&
 /home/ubuntu/.bun/bin/bunx prisma generate &&
 /home/ubuntu/.bun/bin/bun run build &&
-pm2 restart nextpage 
+/usr/bun/pm2 restart nextpage 
