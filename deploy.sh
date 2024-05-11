@@ -1,8 +1,8 @@
-source /home/ubuntu/.bashrc
+#!/bin/bash
 cd /home/ubuntu/nextpage 
 git pull origin master
 export NODE_ENV=production
-bun install &&
-npx prisma generate &&
-bun run build &&
+/home/ubuntu/.bun/bin/bun install &&
+/home/ubuntu/.bun/bin/bunx prisma generate &&
+/home/ubuntu/.bun/bin/bun run build &&
 pm2 restart nextpage 
