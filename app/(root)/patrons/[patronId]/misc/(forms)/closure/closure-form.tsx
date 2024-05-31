@@ -61,7 +61,7 @@ export default function MiscClosureForm({ patron }: { patron: PatronWithSub }) {
   const total =
     // @ts-ignore
     Number(adjustWatch == "" || adjustWatch == "-" ? 0 : adjustWatch) +
-    Number(depositRefund ? patron.deposit : 0);
+    Number(depositRefund ? -patron.deposit : 0);
 
   const onSubmit = async (data: z.infer<typeof patronMiscClosureSchema>) => {
     const res = await miscClosure(data);
@@ -154,7 +154,7 @@ export default function MiscClosureForm({ patron }: { patron: PatronWithSub }) {
                   {depositRefund && (
                     <div className="flex items-center justify-between">
                       <span>Deposit Refund:</span>
-                      <span>₹{patron.deposit}</span>
+                      <span>- ₹{patron.deposit}</span>
                     </div>
                   )}
                   {!!adjustWatch && adjustWatch.toString() !== "-" && (

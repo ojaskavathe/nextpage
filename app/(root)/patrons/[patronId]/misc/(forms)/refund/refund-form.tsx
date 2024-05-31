@@ -52,6 +52,11 @@ export default function MiscRefundForm({ patron }: { patron: PatronWithSub }) {
 
   const adjustWatch = form.watch('adjust', '');
 
+  const total =
+    // @ts-ignore
+    Number(adjustWatch == "" || adjustWatch == "-" ? 0 : adjustWatch) -
+    patron.deposit;
+
   const onSubmit = async (data: z.infer<typeof patronMiscRefundSchema>) => {
     const res = await miscRefund(data);
 
@@ -96,7 +101,7 @@ export default function MiscRefundForm({ patron }: { patron: PatronWithSub }) {
                 <div>
                   <div className="flex items-center justify-between">
                     <span>Deposit Refund:</span>
-                    <span>₹{patron.deposit}</span>
+                    <span>- ₹{patron.deposit}</span>
                   </div>
                   {!!adjustWatch && adjustWatch.toString() !== '-' &&
                     <div className="flex items-center justify-between">
@@ -108,10 +113,7 @@ export default function MiscRefundForm({ patron }: { patron: PatronWithSub }) {
               <CardFooter>
                 <div className="w-full font-bold flex items-center justify-between">
                   <span>Total:</span>
-                  <span>₹{
-                    patron.deposit -
-                    (adjustWatch!.toString() !== '-' ? -adjustWatch! : 0)
-                  }</span>
+                  <span>{total < 0 ? `- ₹${-total}` : `₹${total}`}</span>
                 </div>
               </CardFooter>
             </>}
