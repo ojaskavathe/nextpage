@@ -3,6 +3,7 @@ import { SupportCreateDialog } from "@/components/admin/support-form";
 import { InnerNav } from "@/components/nav-inner";
 import { Separator } from "@/components/ui/separator";
 import { Metadata } from "next";
+import RefreshLending from "./refreshLending";
 
 export const metadata: Metadata = {
   title: "Reports",
@@ -38,6 +39,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <aside className="mb-4 flex space-x-4">
           <InnerNav navItems={adminNavItems} />
           <SupportCreateDialog className="px-4"/>
+          <RefreshLending />
         </aside>
         <Separator className="my-0" />
         <div className="mt-4 flex-1">{children}</div>

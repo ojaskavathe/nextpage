@@ -57,7 +57,6 @@ const getLendingData = async () => {
 const prisma = new PrismaClient();
 
 async function main() {
-
   // creating support
   let admin: Support;
   try {
@@ -65,7 +64,7 @@ async function main() {
       data: {
         username: "server",
         password: "password",
-        role: "ADMIN"
+        role: "ADMIN",
       },
     });
 
@@ -73,7 +72,7 @@ async function main() {
       data: {
         username: "frontoffice",
         password: "password",
-        role: "NON_ADMIN"
+        role: "NON_ADMIN",
       },
     });
   } catch (e) {
@@ -169,10 +168,9 @@ async function main() {
 
               support: {
                 connect: {
-                  id: admin.id
-                }
-              }
-              
+                  id: admin.id,
+                },
+              },
             },
           },
         },
@@ -232,39 +230,56 @@ async function main() {
   });
 
   const lendingData = await getLendingData();
-  lendingData.forEach(async (row) => {
-    const isId = await z
-      .string()
-      .regex(/^M\d+$/)
-      .safeParseAsync(row["patron_id"]);
-    if (isId.success) {
-      try {
-        await prisma.patron.update({
-          data: {
-            checkouts: {
-              create: {
-                itemBarcode: row["item_barcode"]
-                  ? String(row["item_barcode"])
-                  : "",
-                title: row["title"],
-                authors: row["creators"],
-                checked_out: row["checked_out"]
-                  ? new Date(row["checked_out"] + "T00:00:00.000Z")
-                  : new Date(),
-                checked_in: row["checked_in"]
-                  ? new Date(row["checked_in"] + "T00:00:00.000Z")
-                  : null,
-              },
-            },
-          },
-          where: {
-            id: parseInt(row["patron_id"].substring(1)),
-          },
-        });
-      } catch (e) {
-        console.log("Error inserting Lending for " + row["patron_id"]);
-      }
-    }
+
+  const lending = lendingData
+    .filter((row) => {
+      const isId = z
+        .string()
+        .regex(/^M\d+$/)
+        .safeParse(row["patron_id"]);
+      return isId.success;
+    })
+    .map((row) => {
+      return {
+        patronId: parseInt(row["patron_id"].substring(1)),
+        itemBarcode: row["item_barcode"] ? String(row["item_barcode"]) : "",
+        title: row["title"],
+        authors: row["creators"],
+        checked_out: row["checked_out"]
+          ? new Date(row["checked_out"] + "T00:00:00.000Z")
+          : new Date(),
+        checked_in: row["checked_in"]
+          ? new Date(row["checked_in"] + "T00:00:00.000Z")
+          : null,
+      };
+    });
+
+  const legitPatronIds = await prisma.patron
+    .findMany({
+      where: {
+        id: {
+          in: lending.map((r) => r.patronId),
+        },
+      },
+    })
+    .then((p) => {
+      return p.map((r) => r.id);
+    });
+
+  const filteredLending = lending.filter((r) => legitPatronIds.includes(r.patronId));
+
+  await prisma.checkout.createMany({
+    data: filteredLending.map((row) => {
+      return {
+        patronId: row.patronId,
+        itemBarcode: row.itemBarcode,
+        title: row.title,
+        authors: row.authors,
+        checked_out: row.checked_out,
+        checked_in: row.checked_in,
+      };
+    }),
+    skipDuplicates: true,
   });
 
   await prisma.$executeRaw`

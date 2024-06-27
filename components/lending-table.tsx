@@ -11,7 +11,7 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -26,13 +26,9 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  RotateCcw,
 } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { cronFetchLending } from "@/server/cron/lending";
-import { useRouter } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -79,14 +75,6 @@ export function LendingTable<TData, TValue>({
     }
   })
 
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  async function handleRefresh() {
-    await cronFetchLending();
-    startTransition(() => {
-      router.refresh();
-    });
-  }
 
   return (
     <div className={className}>
@@ -103,9 +91,6 @@ export function LendingTable<TData, TValue>({
             }
             className="max-w-sm"
           />
-          <Button onClick={handleRefresh} disabled={isPending}>
-            <RotateCcw className="h-5" />
-          </Button>
         </div>
 
         <div className="flex items-center space-x-2">

@@ -65,6 +65,8 @@ export async function cronFetchLending() {
     }
   });
 
+
+
   const checkinData = await getCheckinData();
   checkinData.forEach(async (row) => {
     const isId = await z
@@ -89,44 +91,62 @@ export async function cronFetchLending() {
     }
   });
 
-  const lendingData = await getLendingData();
   await prisma.checkout.deleteMany();
 
-  lendingData.forEach(async (row) => {
-    const isId = await z
-      .string()
-      .regex(/^M\d+$/)
-      .safeParseAsync(row["patron_id"]);
-    if (isId.success) {
-      try {
-        await prisma.patron.update({
-          data: {
-            checkouts: {
-              create: {
-                itemBarcode: row["item_barcode"] ? row["item_barcode"] : 0,
-                title: row["title"],
-                authors: row["creators"],
-                checked_out: row["checked_out"]
-                  ? new Date(row["checked_out"] + "T00:00:00.000Z")
-                  : new Date(),
-                checked_in: row["checked_in"]
-                  ? new Date(row["checked_in"] + "T00:00:00.000Z")
-                  : null,
-              },
-            },
-          },
-          where: {
-            id: parseInt(row["patron_id"].substring(1)),
-          },
-        });
-      } catch (e) {
-        console.log("Error inserting Lending for " + row["patron_id"]);
-      }
-    }
+  const lendingData = await getLendingData();
+
+  const lending = lendingData
+    .filter((row) => {
+      const isId = z
+        .string()
+        .regex(/^M\d+$/)
+        .safeParse(row["patron_id"]);
+      return isId.success;
+    })
+    .map((row) => {
+      return {
+        patronId: parseInt(row["patron_id"].substring(1)),
+        itemBarcode: row["item_barcode"] ? String(row["item_barcode"]) : "",
+        title: row["title"],
+        authors: row["creators"],
+        checked_out: row["checked_out"]
+          ? new Date(row["checked_out"] + "T00:00:00.000Z")
+          : new Date(),
+        checked_in: row["checked_in"]
+          ? new Date(row["checked_in"] + "T00:00:00.000Z")
+          : null,
+      };
+    });
+
+  const legitPatronIds = await prisma.patron
+    .findMany({
+      where: {
+        id: {
+          in: lending.map((r) => r.patronId),
+        },
+      },
+    })
+    .then((p) => {
+      return p.map((r) => r.id);
+    });
+
+  const filteredLending = lending.filter((r) =>
+    legitPatronIds.includes(r.patronId),
+  );
+
+  await prisma.checkout.createMany({
+    data: filteredLending.map((row) => {
+      return {
+        patronId: row.patronId,
+        itemBarcode: row.itemBarcode,
+        title: row.title,
+        authors: row.authors,
+        checked_out: row.checked_out,
+        checked_in: row.checked_in,
+      };
+    }),
   });
 
   revalidatePath("/lending");
   revalidatePath("/patrons", "layout");
-
-  return new Response("Lending Imported!");
 }
