@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "dev:migrate": "npx prisma migrate dev && next dev -- -p 3000",
+    "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "next lint"
