@@ -6,6 +6,9 @@ import { Clipboard } from "lucide-react";
 import { useToBlob, useToPng } from "@hugocxl/react-to-image";
 import Link from "next/link";
 
+import jbwan from "./jbwan.png";
+import Image from "next/image";
+
 const dateFormat: Intl.DateTimeFormatOptions = {
   year: "numeric",
   month: "2-digit",
@@ -36,7 +39,7 @@ export default function Receipt({
           ref={ref}
         >
           <div className="flex flex-col items-center text-xl font-bold py-4">
-            <div>Receipt</div>
+            <Image src={jbwan} alt="SIMPLYREAD" height={100}/>
           </div>
           <div className="font-bold">Contact Details:- </div>
           <div>Email: support@simplyread.in</div>

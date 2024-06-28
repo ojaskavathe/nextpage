@@ -69,6 +69,9 @@ export function LendingTable<TData, TValue>({
       pagination: {
         pageSize: pageSize
       },
+      columnVisibility: {
+        "barcode": false,
+      },
     },
     state: {
       globalFilter

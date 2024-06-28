@@ -19,17 +19,27 @@ export const columns: ColumnDef<CheckoutWithPatron>[] = [
   {
     header: "Patron",
     accessorFn: (row) => {
-      return row.patronId;
+      return sr_id(row.patronId);
     },
     cell: ({ cell }) => {
       const patronId = cell.getValue() as number;
       return (
         <Link href={`/patrons/${patronId}`}>
           <Button className="font-semibold text-sm" variant="outline">
-            {sr_id(cell.getValue() as number)}
+            {(cell.getValue() as number)}
           </Button>
         </Link>
       );
+    },
+  },
+  {
+    header: "barcode",
+    accessorFn: (row) => {
+      return row.itemBarcode;
+    },
+    cell: ({ cell }) => {
+      const itemBarcode = cell.getValue() as string;
+      return itemBarcode;
     },
   },
   {
