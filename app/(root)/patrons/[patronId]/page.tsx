@@ -6,7 +6,7 @@ import { fetchPatron } from "@/server/patron";
 import { columns_transactions } from "./columns-transactions";
 import { columns_lending } from "./columns-lending";
 import PatronUpdateForm from "./patron-update-form";
-import { fetchCheckouts } from "@/server/reports";
+import { fetchCheckout } from "@/server/reports";
 import { LendingTable } from "@/components/lending-table";
 
 export default async function PatronPage({
@@ -17,7 +17,7 @@ export default async function PatronPage({
   const id = parseInt(params.patronId);
   const patron = await fetchPatron(id);
 
-  const checkouts = await fetchCheckouts(id);
+  const checkouts = await fetchCheckout(id);
 
   return (
     <>

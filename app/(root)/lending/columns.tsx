@@ -6,8 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 
-import { sr_id } from "@/lib/utils";
-import { Checkout } from "@prisma/client";
+import { CheckoutWithPatron, sr_id } from "@/lib/utils";
 
 const dateFormat: Intl.DateTimeFormatOptions = {
   year: "numeric",
@@ -16,7 +15,7 @@ const dateFormat: Intl.DateTimeFormatOptions = {
   timeZone: "Asia/Kolkata",
 };
 
-export const columns: ColumnDef<Checkout>[] = [
+export const columns: ColumnDef<CheckoutWithPatron>[] = [
   {
     header: "Patron",
     accessorFn: (row) => {
@@ -31,6 +30,16 @@ export const columns: ColumnDef<Checkout>[] = [
           </Button>
         </Link>
       );
+    },
+  },
+  {
+    header: "Patron Name",
+    accessorFn: (row) => {
+      return row.patron.name;
+    },
+    cell: ({ cell }) => {
+      const patronName = cell.getValue() as string;
+      return patronName;
     },
   },
   {
