@@ -293,22 +293,21 @@ export const patronMiscLostSchema = z.object({
     errorMap: () => ({ message: 'Select the mode of transaction!' })
   }),
 
-  // optIntString, but with min(1)
+  // non zero numbers, but the default value is an empty string
   amount: z.preprocess(
     (intStr) => {
-      if (typeof intStr === 'number') return intStr;
-      if (!intStr || typeof intStr !== 'string') return 0
+      if (typeof intStr === "number") return intStr;
+      if (!intStr || typeof intStr !== "string") return null;
 
-      if (intStr === '') {
-        return 0;
-      } else if (/^\d+$/.test(intStr)) {
+      if (/^\d+$/.test(intStr)) {
         return parseInt(intStr);
       }
     },
-    z.union([
-      z.number().min(1, { message: "Mininum 1 DD required!" }),
-      z.literal('')
-    ])
+    z.union([z.number({
+      errorMap: () => ({
+        message: "Amount needs to be entered."
+      })
+    }).safe(), z.literal("")]),
   ),
 
   offer: optString,

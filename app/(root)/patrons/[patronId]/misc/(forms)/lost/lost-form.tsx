@@ -27,9 +27,12 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { patronMiscLostSchema } from "@/lib/schema";
-import { PatronWithSub } from "@/lib/utils";
+import { PatronWithSub, sr_id } from "@/lib/utils";
 
 import { AlertCircle } from "lucide-react";
+import { miscBookLost } from "@/server/patron";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function MiscLostForm({ patron }: { patron: PatronWithSub }) {
 
@@ -50,15 +53,17 @@ export default function MiscLostForm({ patron }: { patron: PatronWithSub }) {
   const adjustWatch = form.watch('adjust', '');
   const amountWatch = form.watch('amount', '');
 
-  const onSubmit = async (data: z.infer<typeof patronMiscLostSchema>) => {
-    console.log(data)
+  const {push} = useRouter();
 
-    // if (res.error == 0) {
-    //   router.push(`/patrons/${patron.id}`);
-    //   toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
-    // } else {
-    //   setErrorMessage(res.message)
-    // }
+  const onSubmit = async (data: z.infer<typeof patronMiscLostSchema>) => {
+    const res = await miscBookLost(data);
+
+    if (res.error == 0) {
+      push(`/patrons/${patron.id}`);
+      toast.success(`Patron ${sr_id(data.id)} paid for book lost!`);
+    } else {
+      setErrorMessage(res.message)
+    }
   }
 
   return (

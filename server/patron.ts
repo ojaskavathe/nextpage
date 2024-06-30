@@ -11,6 +11,7 @@ import {
   patronMiscAddonSchema,
   patronMiscClosureSchema,
   patronMiscDDSchema,
+  patronMiscLostSchema,
   patronMiscOtherSchema,
   patronMiscRefundSchema,
   patronRenewSchema,
@@ -256,17 +257,17 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
     const last = rest.length > 0 ? rest.join(" ") : "SR";
     await fetch(
       "https://api.libib.com/patrons?" +
-      new URLSearchParams({
-        first_name: first,
-        last_name: last,
-        email: input.email,
-        patron_id: sr_id(newPatron.id),
-        phone: input.phone,
-        address1: input.address || "",
-        city: "Pune",
-        country: "IN",
-        zip: input.pincode || "",
-      }),
+        new URLSearchParams({
+          first_name: first,
+          last_name: last,
+          email: input.email,
+          patron_id: sr_id(newPatron.id),
+          phone: input.phone,
+          address1: input.address || "",
+          city: "Pune",
+          country: "IN",
+          zip: input.pincode || "",
+        }),
       {
         method: "POST",
         headers: {
@@ -338,12 +339,12 @@ export async function renewPatron(
   const newExpiry = isPatronLate
     ? input.renewFromExpiry
       ? new Date(
-        new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration),
-      )
+          new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration),
+        )
       : new Date(today.setMonth(today.getMonth() + input.duration))
     : new Date(
-      new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration),
-    );
+        new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration),
+      );
 
   const readingFee = fee[input.plan - 1] * input.duration;
   const DDFee = (input.paidDD || 0) * DDFees;
@@ -462,14 +463,14 @@ export async function updatePatron(
     const last = rest.length > 0 ? rest.join(" ") : "SR";
     await fetch(
       "https://api.libib.com/patrons?" +
-      new URLSearchParams({
-        first_name: first,
-        last_name: last,
-        email: input.email,
-        phone: input.phone,
-        address1: input.address || "",
-        zip: input.pincode || "",
-      }),
+        new URLSearchParams({
+          first_name: first,
+          last_name: last,
+          email: input.email,
+          phone: input.phone,
+          address1: input.address || "",
+          zip: input.pincode || "",
+        }),
       {
         method: "POST",
         headers: {
@@ -926,6 +927,64 @@ export async function patronAddon(
   }
 }
 
+export async function miscBookLost(
+  input: z.infer<typeof patronMiscLostSchema>,
+) {
+  if (!patronMiscLostSchema.safeParse(input).success) {
+    return {
+      error: 1,
+      message: "Failed to validate Data.",
+    };
+  }
+
+  const patron = await fetchPatron(input.id);
+  if (!patron) {
+    return {
+      error: 2,
+      message: "Patron doesn't exist",
+    };
+  }
+
+  const support = await currentStaff();
+
+  const total = (input.amount || 0) + (input.adjust || 0);
+
+  try {
+    await prisma.transaction.create({
+      data: {
+        patronId: input.id,
+        mode: input.mode,
+        type: "BOOKLOST",
+        netPayable: total,
+
+        oldPlan: patron.subscription!.plan,
+        newPlan: patron.subscription!.plan,
+        oldExpiry: patron.subscription!.expiryDate,
+        newExpiry: patron.subscription!.expiryDate,
+
+        adjust: input.adjust || 0,
+        reason: input.reason,
+        offer: input.offer,
+        remarks: input.remarks,
+
+        supportId: support.id,
+      },
+    });
+
+    revalidatePath(`/patrons/${input.id}`, "layout");
+    revalidatePath("/expenses/summary");
+
+    return {
+      error: 0,
+      message: "u gucci",
+    };
+  } catch (e) {
+    return {
+      error: 5,
+      message: "[SERVER]: Something went wrong",
+    };
+  }
+}
 export async function miscOther(input: z.infer<typeof patronMiscOtherSchema>) {
   if (!patronMiscOtherSchema.safeParse(input).success) {
     return {
