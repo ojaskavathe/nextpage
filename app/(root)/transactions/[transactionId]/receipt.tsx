@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { TransactionWithPatron, sr_id } from "@/lib/utils";
-import { Clipboard } from "lucide-react";
+import { Clipboard, Pencil, User } from "lucide-react";
 import { useToBlob, useToPng } from "@hugocxl/react-to-image";
 import Link from "next/link";
 
@@ -39,7 +39,7 @@ export default function Receipt({
           ref={ref}
         >
           <div className="flex flex-col items-center text-xl font-bold py-4">
-            <Image src={jbwan} alt="SIMPLYREAD" height={100}/>
+            <Image src={jbwan} alt="SIMPLYREAD" height={100} />
           </div>
           <div className="font-bold">Contact Details:- </div>
           <div>Email: support@simplyread.in</div>
@@ -62,11 +62,16 @@ export default function Receipt({
             <div className="">: {transaction.patron.name}</div>
 
             <div className="font-bold">Reading Plan</div>
-            <div className="">: {transaction.newPlan} Book</div>
+            <div className="">
+              : {transaction.newPlan ? `${transaction.newPlan} Book` : ""}
+            </div>
 
             <div className="font-bold text-red-700">Plan Validity</div>
             <div className="font-bold text-red-700">
-              : {transaction.newExpiry?.toLocaleDateString("en-IN", dateFormat)}
+              :{" "}
+              {transaction.newExpiry
+                ? transaction.newExpiry.toLocaleDateString("en-IN", dateFormat)
+                : ""}
             </div>
 
             <div className="mt-4">Registration Fees</div>
@@ -112,10 +117,22 @@ export default function Receipt({
           </div>
         </div>
 
-        <div>
+        <div className="flex flex-col space-y-4">
           <Button onClick={convert} variant="secondary">
             <Clipboard size={16} />
           </Button>
+
+          <Link href={`/transactions/${transaction.id}/edit`}>
+            <Button variant="secondary">
+              <Pencil size={16} />
+            </Button>
+          </Link>
+
+          <Link href={`/patrons/${transaction.patronId}`}>
+            <Button variant="secondary">
+              <User size={16} />
+            </Button>
+          </Link>
         </div>
       </div>
     </>

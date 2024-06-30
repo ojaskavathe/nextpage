@@ -7,8 +7,38 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 
 import { dateFormat, sr_id, timeFormat, TransactionWithPatron } from "@/lib/utils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
 export const columns: ColumnDef<TransactionWithPatron>[] = [
+  {
+    id: "actions",
+    enableHiding: false,
+    size: 50,
+    cell: ({ row }) => {
+      const transaction = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <Link href={`/transactions/${transaction.id}`}>
+              <DropdownMenuItem>View</DropdownMenuItem>
+            </Link>
+            <Link href={`/transactions/${transaction.id}/edit`}>
+              <DropdownMenuItem>Edit</DropdownMenuItem>
+            </Link>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
   {
     header: "Date",
     accessorFn: (row) => {
@@ -26,6 +56,7 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
   },
   {
     header: "Patron",
+    size: 150,
     cell: ({ cell }) => {
       const patronId = cell.getValue() as number;
       return (
@@ -91,10 +122,12 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
   {
     accessorKey: "oldPlan",
     header: "Old Plan",
+    size: 50,
   },
   {
     accessorKey: "newPlan",
     header: "New Plan",
+    size: 50,
   },
   {
     accessorKey: "oldExpiry",
@@ -134,5 +167,6 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
   {
     accessorKey: "id",
     header: "ID",
+    size: 50,
   },
 ];

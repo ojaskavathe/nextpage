@@ -1,6 +1,5 @@
 import { fetchTransaction } from "@/server/transaction";
 import { z } from "zod";
-import Receipt from "./receipt";
 import { Separator } from "@/components/ui/separator";
 
 export default async function TransactionLayout({

@@ -181,63 +181,6 @@ async function main() {
     data: filteredTransactions
   })
 
-  // transactionData.forEach(async (row) => {
-  //   try {
-  //     await prisma.patron.update({
-  //       where: {
-  //         id: parseInt(row["Membership No"]),
-  //       },
-  //       data: {
-  //         transactions: {
-  //           create: {
-  //             createdAt: new Date(row["Time"]),
-  //             type: row["Transaction Type"],
-  //             mode: row["Payment Mode"],
-  //             netPayable: parseInt(row["Net Payable"]),
-  //             oldPlan: row["Last Membership Plan"]
-  //               ? parseInt(row["Last Membership Plan"])
-  //               : null,
-  //             newPlan: row["New Membership Plan"]
-  //               ? parseInt(row["New Membership Plan"])
-  //               : null,
-  //             oldExpiry: row["Last Expiry Date"]
-  //               ? new Date(row["Last Expiry Date"] + "T00:00:00.000+05:30")
-  //               : null,
-  //             newExpiry: row["New Expiry Date"]
-  //               ? new Date(row["New Expiry Date"] + "T00:00:00.000+05:30")
-  //               : null,
-  //             readingFees: row["Reading Fees"]
-  //               ? parseInt(row["Reading Fees"])
-  //               : 0,
-  //             deposit: row["Deposit"] ? parseInt(row["Deposit"]) : 0,
-  //             registration: row["Registration Fees"]
-  //               ? parseInt(row["Registration Fees"])
-  //               : 0,
-  //             DDFees: row["Door Delivery"] ? parseInt(row["Door Delivery"]) : 0,
-  //             discount: row["Discount"] ? parseInt(row["Discount"]) : 0,
-  //             pastDues: row["Past Due"] ? parseInt(row["Past Due"]) : 0,
-  //             adjust: row["Adjusted Amount"]
-  //               ? parseInt(row["Adjusted Amount"])
-  //               : 0,
-  //             reason: row["Reason for Adjustment"] || null,
-  //             offer: row["Special Offer"] || null,
-  //             attendedBy: row["Attended By"] || null,
-  //             remarks: row["Remarks"] || null,
-  //
-  //             support: {
-  //               connect: {
-  //                 id: admin.id,
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //     });
-  //   } catch (e) {
-  //     console.log("Error inserting Transaction for " + row["Membership No"]);
-  //   }
-  // });
-
   const checkoutData = await getCheckoutData();
   checkoutData.forEach(async (row) => {
     const isId = await z
@@ -329,16 +272,7 @@ async function main() {
   );
 
   await prisma.checkout.createMany({
-    data: filteredLending.map((row) => {
-      return {
-        patronId: row.patronId,
-        itemBarcode: row.itemBarcode,
-        title: row.title,
-        authors: row.authors,
-        checked_out: row.checked_out,
-        checked_in: row.checked_in,
-      };
-    }),
+    data: filteredLending,
     skipDuplicates: true,
   });
 

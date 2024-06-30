@@ -73,6 +73,9 @@ export const columns_transactions: ColumnDef<Transaction>[] = [
             <Link href={`/transactions/${transaction.id}`}>
               <DropdownMenuItem>View</DropdownMenuItem>
             </Link>
+            <Link href={`/transactions/${transaction.id}/edit`}>
+              <DropdownMenuItem>Edit</DropdownMenuItem>
+            </Link>
           </DropdownMenuContent>
         </DropdownMenu>
       );

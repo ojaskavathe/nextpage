@@ -389,3 +389,22 @@ export const cashReportSchema = z.object({
   // non zero numbers, but the default value is an empty string
   amount: z.number().gt(0),
 })
+
+export const transactionSchema = z.object({
+  id: z.number().min(0),
+  newPlan: z.nullable(z.number()),
+  newExpiry: z.nullable(z.date()),
+  type: z.nativeEnum($Enums.TransactionType),
+
+  registration: optSignedIntString,
+  deposit: optSignedIntString,
+  readingFees: optSignedIntString,
+  DDFees: optSignedIntString,
+  discount: optSignedIntString,
+  pastDues: optSignedIntString,
+
+  netPayable: optSignedIntString,
+  adjust: optSignedIntString,
+  mode: z.nativeEnum($Enums.TransactionMode),
+  offer: optString,
+})

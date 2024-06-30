@@ -1,17 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Prisma } from "@prisma/client";
 
-import { FootfallDialog } from "@/components/footfall-form";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -34,7 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 
 import { patronUpdateSchema } from "@/lib/schema";
-import { cn, PatronFull, sr_id } from "@/lib/utils";
+import { PatronFull, sr_id } from "@/lib/utils";
 import { updatePatron } from "@/server/patron";
 
 import { AlertCircle, CalendarIcon } from "lucide-react";

@@ -78,9 +78,9 @@ export function TransactionReportsTable<TData, TValue>({
       globalFilter
     },
     defaultColumn: {
-      size: 150,
+      size: 100,
       minSize: 10,
-      maxSize: 400,
+      maxSize: 300,
     }
   })
 
