@@ -30,7 +30,7 @@ import {
 } from "@/lib/utils";
 
 import { prisma } from "./db";
-import { currentStaff } from "./staff"
+import { currentStaff } from "./staff";
 
 export const fetchPatron = async (patronId: number) => {
   const isId = await z.number().safeParseAsync(patronId);
@@ -252,31 +252,33 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
       },
     });
 
-    const [first, ...rest] = input.name.split(' ');
-    const last = rest.length > 0 ? rest.join(' ') : 'SR';
+    const [first, ...rest] = input.name.split(" ");
+    const last = rest.length > 0 ? rest.join(" ") : "SR";
     await fetch(
-      "https://api.libib.com/patrons?" + new URLSearchParams({
+      "https://api.libib.com/patrons?" +
+      new URLSearchParams({
         first_name: first,
         last_name: last,
         email: input.email,
-        patron_id: sr_id( newPatron.id ),
+        patron_id: sr_id(newPatron.id),
         phone: input.phone,
-        address1: input.address || '',
-        city: 'Pune',
-        country: 'IN',
-        zip: input.pincode || '',
-      }), {
-        method: 'POST',
+        address1: input.address || "",
+        city: "Pune",
+        country: "IN",
+        zip: input.pincode || "",
+      }),
+      {
+        method: "POST",
         headers: {
-          'x-api-key': process.env.LIBIB_API_KEY || '',
-          'x-api-user': process.env.LIBIB_API_USER || '',
-        }
-      }
-    )
+          "x-api-key": process.env.LIBIB_API_KEY || "",
+          "x-api-user": process.env.LIBIB_API_USER || "",
+        },
+      },
+    );
 
     revalidatePath(`/patrons/${newPatron.id}`);
     revalidatePath(`/patrons/search`);
-    revalidatePath('/expenses/summary')
+    revalidatePath("/expenses/summary");
 
     return {
       data: newPatron,
@@ -406,7 +408,7 @@ export async function renewPatron(
 
     revalidatePath(`/patrons/${patron.id}`, "layout");
     revalidatePath(`/patrons/search`);
-    revalidatePath('/expenses/summary')
+    revalidatePath("/expenses/summary");
 
     return {
       error: 0,
@@ -435,34 +437,46 @@ export async function updatePatron(
     };
   }
 
-  const { id, ...props } = input;
+  const { id, expiry, ...props } = input;
 
   try {
-    await prisma.patron.update({
-      data: props,
-      where: {
-        id,
-      },
-    });
+    await prisma.$transaction([
+      prisma.patron.update({
+        data: props,
+        where: {
+          id,
+        },
+      }),
+      prisma.subscription.update({
+        data: {
+          expiryDate: expiry,
+        },
+        where: {
+          patronId: id,
+        },
+      }),
+    ]);
 
-    const [first, ...rest] = input.name.split(' ');
-    const last = rest.length > 0 ? rest.join(' ') : 'SR';
+    const [first, ...rest] = input.name.split(" ");
+    const last = rest.length > 0 ? rest.join(" ") : "SR";
     await fetch(
-      "https://api.libib.com/patrons?" + new URLSearchParams({
+      "https://api.libib.com/patrons?" +
+      new URLSearchParams({
         first_name: first,
         last_name: last,
         email: input.email,
         phone: input.phone,
-        address1: input.address || '',
-        zip: input.pincode || '',
-      }), {
-        method: 'POST',
+        address1: input.address || "",
+        zip: input.pincode || "",
+      }),
+      {
+        method: "POST",
         headers: {
-          'x-api-key': process.env.LIBIB_API_KEY || '',
-          'x-api-user': process.env.LIBIB_API_USER || '',
-        }
-      }
-    )
+          "x-api-key": process.env.LIBIB_API_KEY || "",
+          "x-api-user": process.env.LIBIB_API_USER || "",
+        },
+      },
+    );
     revalidatePath(`/patrons/${id}`, "layout");
     revalidatePath(`/patrons/search`);
 
@@ -540,8 +554,8 @@ export async function createFootfall(
               },
               support: {
                 connect: {
-                  id: support.id
-                }
+                  id: support.id,
+                },
               },
               createdAt: input.scheduledDate,
             },
@@ -567,8 +581,8 @@ export async function createFootfall(
         data: {
           patron: {
             connect: {
-              id: patron.id
-            }
+              id: patron.id,
+            },
           },
           type: input.type,
           offer: input.offer,
@@ -576,8 +590,8 @@ export async function createFootfall(
           isDD: false,
           support: {
             connect: {
-              id: support.id
-            }
+              id: support.id,
+            },
           },
         },
       });
@@ -656,7 +670,7 @@ export async function miscDD(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
-    revalidatePath('/expenses/summary')
+    revalidatePath("/expenses/summary");
 
     return {
       error: 0,
@@ -720,7 +734,7 @@ export async function miscRefund(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
-    revalidatePath('/expenses/summary')
+    revalidatePath("/expenses/summary");
 
     return {
       error: 0,
@@ -792,7 +806,7 @@ export async function miscClosure(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
-    revalidatePath('/expenses/summary')
+    revalidatePath("/expenses/summary");
 
     return {
       error: 0,
@@ -897,7 +911,7 @@ export async function patronAddon(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
-    revalidatePath('/expenses/summary')
+    revalidatePath("/expenses/summary");
 
     return {
       error: 0,
@@ -911,9 +925,7 @@ export async function patronAddon(
   }
 }
 
-export async function miscOther(
-  input: z.infer<typeof patronMiscOtherSchema>,
-) {
+export async function miscOther(input: z.infer<typeof patronMiscOtherSchema>) {
   if (!patronMiscOtherSchema.safeParse(input).success) {
     return {
       error: 1,
@@ -931,7 +943,7 @@ export async function miscOther(
 
   const support = await currentStaff();
 
-  const total = ( input.amount || 0 ) + ( input.adjust || 0 );
+  const total = (input.amount || 0) + (input.adjust || 0);
 
   try {
     await prisma.patron.update({
@@ -962,7 +974,7 @@ export async function miscOther(
     });
 
     revalidatePath(`/patrons/${input.id}`, "layout");
-    revalidatePath('/expenses/summary')
+    revalidatePath("/expenses/summary");
 
     return {
       error: 0,

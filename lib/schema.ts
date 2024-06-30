@@ -92,7 +92,7 @@ export const patronCreateSchema = z.object({
   name: z.string().min(1, { message: "Name required" }),
   email: z.string().email(),
   phone: z.string().regex(/^\d{8,10}$/, { message: "Invalid Phone" }),
-  altPhone: optPhoneString,
+  altPhone: z.string().regex(/^$|^\d{8,10}$/),
   address: optString,
   pincode: optString,
   whatsapp: z.boolean().default(true),
@@ -162,14 +162,15 @@ export const patronRenewSchema = z.object({
 
 export const patronUpdateSchema = z.object({
   id: z.number(),
+  expiry: z.date(),
   name: z.string().min(1),
   email: z.string().email(),
   phone: z.string().regex(/^\d{8,10}$/),
-  altPhone: optPhoneString,
+  altPhone: z.string().regex(/^$|^\d{8,10}$/),
   address: optString,
   pincode: optString,
   whatsapp: z.boolean().default(true),
-  remarks: optString,
+  remarks: z.string(),
 });
 
 export const footfallFormSchema = z.object({

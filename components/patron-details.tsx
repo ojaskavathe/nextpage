@@ -3,13 +3,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { cn, PatronWithSub, sr_id } from "@/lib/utils";
+import { cn, dateFormat, PatronWithSub, sr_id } from "@/lib/utils";
 
 import { FootfallDialog } from "./footfall-form";
 
 import {
   Bike,
   BookOpen,
+  CircleAlert,
   Fingerprint,
   Gauge,
   GitPullRequestCreateArrow,
@@ -50,15 +51,13 @@ export function PatronDetails({
             <div className="text-sm font-normal flex items-center">
               <Gauge className="w-4" />
               <span className="pl-2 font-semibold">
-                {patron.subscription?.closed 
-                ? (
+                {patron.subscription?.closed ? (
                   <span className="text-gray-500">CLOSED</span>
-                ) : patron.subscription?.expiryDate! >= new Date() 
-                    ? (
-                      <span className="">ACTIVE</span>
-                    ) : (
-                      <span className="text-red-500">EXPIRED</span>
-                    )}
+                ) : patron.subscription?.expiryDate! >= new Date() ? (
+                  <span className="">ACTIVE</span>
+                ) : (
+                  <span className="text-red-500">EXPIRED</span>
+                )}
               </span>
             </div>
             <div className="text-sm font-normal flex items-center">
@@ -80,11 +79,10 @@ export function PatronDetails({
               <TimerReset className="w-4" />
               <span className="pl-2">
                 <span className="font-semibold">{`Expires on: `}</span>
-                {patron.subscription?.expiryDate.toLocaleDateString("en-IN", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {patron.subscription?.expiryDate.toLocaleDateString(
+                  "en-IN",
+                  dateFormat,
+                )}
               </span>
             </div>
           </div>
@@ -101,11 +99,10 @@ export function PatronDetails({
               <span className="pl-2">
                 <span className="font-semibold">{`Last Issued: `}</span>
                 {patron.subscription?.lastIssued
-                  ? patron.subscription.lastIssued.toLocaleDateString("en-IN", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
+                  ? patron.subscription.lastIssued.toLocaleDateString(
+                    "en-IN",
+                    dateFormat,
+                  )
                   : "Not Found"}
               </span>
             </div>
@@ -116,7 +113,7 @@ export function PatronDetails({
                 {patron.subscription?.lastReturned
                   ? patron.subscription.lastReturned.toLocaleDateString(
                     "en-IN",
-                    { year: "numeric", month: "long", day: "numeric" },
+                    dateFormat,
                   )
                   : "Not Found"}
               </span>
@@ -125,7 +122,8 @@ export function PatronDetails({
               <Bike className="w-4" />
               <span className="pl-2">
                 <span className="font-semibold">Free Delivery: </span>
-                {`${patron.subscription?.freeDD || 0}`} / {`${patron.subscription?.monthlyDD || 0}`}
+                {`${patron.subscription?.freeDD || 0}`} /{" "}
+                {`${patron.subscription?.monthlyDD || 0}`}
               </span>
             </div>
             <div className="text-sm font-normal flex items-center">
@@ -137,6 +135,17 @@ export function PatronDetails({
             </div>
           </div>
         </div>
+        {!!patron.remarks && (
+          <div className="my-2 p-2 border border-gray-200 rounded-sm">
+            <div className="text-sm font-normal flex items-center">
+              <CircleAlert className="w-4" />
+              <span className="pl-2">
+                <span className="font-semibold">Remarks: </span>
+                {patron.remarks}
+              </span>
+            </div>
+          </div>
+        )}
         {active_addons.map((addon) => (
           <div
             key={addon.id}

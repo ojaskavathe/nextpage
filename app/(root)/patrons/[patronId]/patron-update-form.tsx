@@ -11,17 +11,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Prisma } from "@prisma/client";
 
 import { FootfallDialog } from "@/components/footfall-form";
-import {
-  Button,
-  buttonVariants
-} from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import {
   Form,
@@ -29,7 +26,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,37 +34,40 @@ import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 
 import { patronUpdateSchema } from "@/lib/schema";
-import {
-  PatronFull,
-  sr_id
-} from "@/lib/utils";
+import { cn, PatronFull, sr_id } from "@/lib/utils";
 import { updatePatron } from "@/server/patron";
 
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CalendarIcon } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
-export default function PatronUpdateForm({ 
+export default function PatronUpdateForm({
   patron,
-  className 
-}: { 
-  patron: PatronFull 
-  className?: string
+  className,
+}: {
+  patron: PatronFull;
+  className?: string;
 }) {
-
   const [errorMessage, setErrorMessage] = useState("");
 
   const form = useForm<z.infer<typeof patronUpdateSchema>>({
     resolver: zodResolver(patronUpdateSchema),
     defaultValues: {
       id: patron.id,
+      expiry: patron.subscription!.expiryDate,
       name: patron.name,
       email: patron.email,
       phone: patron.phone,
-      altPhone: patron.altPhone || '',
-      address: patron.address || '',
-      pincode: patron.pincode || '',
+      altPhone: patron.altPhone || "",
+      address: patron.address || "",
+      pincode: patron.pincode || "",
       whatsapp: patron.whatsapp,
-      remarks: patron.remarks || '',
-    }
+      remarks: patron.remarks || "",
+    },
   });
 
   const onSubmit = async (data: z.infer<typeof patronUpdateSchema>) => {
@@ -81,19 +81,15 @@ export default function PatronUpdateForm({
         toast.success(`Patron ${sr_id(data.id)} updated successfully!`);
         form.reset(data);
       } else {
-        setErrorMessage(res.message)
+        setErrorMessage(res.message);
       }
     }
-  }
+  };
 
   return (
     <div className={className}>
-
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="max-w-2xl"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-2xl">
           <Card>
             <CardHeader>
               <CardTitle>Patron Details - {sr_id(patron.id)}</CardTitle>
@@ -108,10 +104,42 @@ export default function PatronUpdateForm({
                   </div>
                 </div>
                 <div className="basis-1/2">
-                  <Label>Expires on:</Label>
-                  <div className="py-2 px-3 border rounded-md text-sm bg-secondary">
-                    {patron.subscription?.expiryDate.toLocaleDateString("en-IN", { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="expiry"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormLabel>Expiry:</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className="h-auto w-full py-2 px-3 text-sm"
+                              >
+                                {field.value.toLocaleDateString("en-IN", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                })}
+                                <CalendarIcon className="ml-auto h-3 w-3 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              defaultMonth={field.value}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
               <div className="flex space-x-4 mt-2">
@@ -169,8 +197,11 @@ export default function PatronUpdateForm({
                         <Input
                           onChange={(e) => {
                             // only allow integers
-                            if (e.target.value === '' || /^\d*$/.test(e.target.value)) {
-                              onChange(e.target.value)
+                            if (
+                              e.target.value === "" ||
+                              /^\d*$/.test(e.target.value)
+                            ) {
+                              onChange(e.target.value);
                             }
                           }}
                           {...fieldProps}
@@ -196,7 +227,13 @@ export default function PatronUpdateForm({
                           onPressedChange={field.onChange}
                           className="flex items-center justify-center"
                         >
-                          <Image src="/whatsapp.svg" height={20} width={20} alt="Whatsapp" className="mr-0 md:mr-2" />
+                          <Image
+                            src="/whatsapp.svg"
+                            height={20}
+                            width={20}
+                            alt="Whatsapp"
+                            className="mr-0 md:mr-2"
+                          />
                           <span className="hidden md:inline">Whatsapp</span>
                         </Toggle>
                       </FormControl>
@@ -215,8 +252,11 @@ export default function PatronUpdateForm({
                       <Input
                         onChange={(e) => {
                           // only allow integers
-                          if (e.target.value === '' || /^\d*$/.test(e.target.value)) {
-                            onChange(e.target.value)
+                          if (
+                            e.target.value === "" ||
+                            /^\d*$/.test(e.target.value)
+                          ) {
+                            onChange(e.target.value);
                           }
                         }}
                         {...fieldProps}
@@ -253,7 +293,11 @@ export default function PatronUpdateForm({
                   <FormItem className="mt-4">
                     <FormLabel>Pincode</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="411048" inputMode="numeric" />
+                      <Input
+                        {...field}
+                        placeholder="411048"
+                        inputMode="numeric"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -262,7 +306,11 @@ export default function PatronUpdateForm({
               <div className="mt-4">
                 <Label>Joining Date:</Label>
                 <div className="mt-2 py-2 px-3 border rounded-md text-sm bg-secondary">
-                  {patron.joiningDate.toLocaleDateString("en-IN", { year: 'numeric', month: 'long', day: 'numeric' })}
+                  {patron.joiningDate.toLocaleDateString("en-IN", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
                 </div>
               </div>
               <FormField
@@ -280,19 +328,23 @@ export default function PatronUpdateForm({
               />
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="mt-2 w-full" disabled={form.formState.isSubmitting}>Save</Button>
+              <Button
+                type="submit"
+                className="mt-2 w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                Save
+              </Button>
             </CardFooter>
           </Card>
         </form>
-        {errorMessage &&
+        {errorMessage && (
           <div className="flex text-red-500 mt-4">
             <AlertCircle className="mr-1 w-5" />
-            <p className="font-semibold">
-              {errorMessage}
-            </p>
-          </div>}
+            <p className="font-semibold">{errorMessage}</p>
+          </div>
+        )}
       </Form>
-
     </div>
-  )
+  );
 }
