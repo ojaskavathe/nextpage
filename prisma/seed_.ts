@@ -81,104 +81,162 @@ async function main() {
 
   // seeding patrons
   const patronData = await getPatronData();
-  patronData.forEach(async (row) => {
-    // based on duration
+
+  const patrons = patronData.map((row) => {
+    return {
+      id: parseInt(row["Membership Number"]),
+      name: row["Name"],
+      email: row["Email"],
+      phone: row["Mobile"],
+      altPhone: row["Alternate Number"] || undefined,
+      address: row["Address"] || undefined,
+      joiningDate: new Date(row["Joining Date"] + "T00:00:00.000+05:30"),
+      whatsapp: row["whats'app contact"] == "yes" ? true : false,
+      deposit: parseInt(row["Security Deposit"]),
+      deposit_sr: row["SD with"] == "SR" ? true : false,
+      pincode: row["Pincode"] || undefined,
+      remarks: row["Additional Remarks"] || undefined,
+    };
+  });
+
+  const subscriptions = patronData.map((row) => {
     const freeDD = parseInt(row["Free DD / Month"]);
     const freeHoliday = parseInt(row["Free Subsciption Holiday"]);
+    return {
+      patronId: parseInt(row["Membership Number"]),
+      plan: parseInt(row["Plan"]),
+      expiryDate: new Date(row["Expiry Date"] + "T00:00:00.000+05:30"),
+      monthlyDD: freeDD,
+      freeDD: freeDD,
+      freeHoliday: freeHoliday,
+    };
+  });
 
-    const whatsapp = row["whats'app contact"] == "yes" ? true : false;
+  await prisma.patron.createMany({
+    data: patrons,
+  });
 
-    const deposit_sr = row["SD with"] == "SR" ? true : false;
-
-    try {
-      await prisma.patron.create({
-        data: {
-          id: parseInt(row["Membership Number"]),
-          name: row["Name"],
-          email: row["Email"],
-          phone: row["Mobile"],
-          altPhone: row["Alternate Number"] || undefined,
-          address: row["Address"] || undefined,
-          joiningDate: new Date(row["Joining Date"] + "T00:00:00.000Z"),
-          whatsapp,
-          deposit: parseInt(row["Security Deposit"]),
-          deposit_sr,
-          pincode: row["Pincode"] || undefined,
-          remarks: row["Additional Remarks"] || undefined,
-          subscription: {
-            create: {
-              plan: parseInt(row["Plan"]),
-              expiryDate: new Date(row["Expiry Date"] + "T00:00:00.000Z"),
-              monthlyDD: freeDD,
-              freeDD: freeDD,
-              freeHoliday: freeHoliday,
-            },
-          },
-        },
-      });
-    } catch (e) {
-      console.log("Error inserting Patron: " + row["Membership Number"]);
-    }
+  await prisma.subscription.createMany({
+    data: subscriptions,
   });
 
   // seeding transactions
   const transactionData = await getTransactionData();
-  transactionData.forEach(async (row) => {
-    try {
-      await prisma.patron.update({
-        where: {
-          id: parseInt(row["Membership No"]),
-        },
-        data: {
-          transactions: {
-            create: {
-              createdAt: new Date(row["Time"]),
-              type: row["Transaction Type"],
-              mode: row["Payment Mode"],
-              netPayable: parseInt(row["Net Payable"]),
-              oldPlan: row["Last Membership Plan"]
-                ? parseInt(row["Last Membership Plan"])
-                : null,
-              newPlan: row["New Membership Plan"]
-                ? parseInt(row["New Membership Plan"])
-                : null,
-              oldExpiry: row["Last Expiry Date"]
-                ? new Date(row["Last Expiry Date"] + "T00:00:00.000Z")
-                : null,
-              newExpiry: row["New Expiry Date"]
-                ? new Date(row["New Expiry Date"] + "T00:00:00.000Z")
-                : null,
-              readingFees: row["Reading Fees"]
-                ? parseInt(row["Reading Fees"])
-                : 0,
-              deposit: row["Deposit"] ? parseInt(row["Deposit"]) : 0,
-              registration: row["Registration Fees"]
-                ? parseInt(row["Registration Fees"])
-                : 0,
-              DDFees: row["Door Delivery"] ? parseInt(row["Door Delivery"]) : 0,
-              discount: row["Discount"] ? parseInt(row["Discount"]) : 0,
-              pastDues: row["Past Due"] ? parseInt(row["Past Due"]) : 0,
-              adjust: row["Adjusted Amount"]
-                ? parseInt(row["Adjusted Amount"])
-                : 0,
-              reason: row["Reason for Adjustment"] || null,
-              offer: row["Special Offer"] || null,
-              attendedBy: row["Attended By"] || null,
-              remarks: row["Remarks"] || null,
 
-              support: {
-                connect: {
-                  id: admin.id,
-                },
-              },
-            },
-          },
-        },
-      });
-    } catch (e) {
-      console.log("Error inserting Transaction for " + row["Membership No"]);
-    }
+  const transactions = transactionData.map((row) => {
+    return {
+      patronId: parseInt(row["Membership No"]),
+
+      createdAt: new Date(row["Time"]),
+      type: row["Transaction Type"],
+      mode: row["Payment Mode"],
+      netPayable: parseInt(row["Net Payable"]),
+      oldPlan: row["Last Membership Plan"]
+        ? parseInt(row["Last Membership Plan"])
+        : null,
+      newPlan: row["New Membership Plan"]
+        ? parseInt(row["New Membership Plan"])
+        : null,
+      oldExpiry: row["Last Expiry Date"]
+        ? new Date(row["Last Expiry Date"] + "T00:00:00.000+05:30")
+        : null,
+      newExpiry: row["New Expiry Date"]
+        ? new Date(row["New Expiry Date"] + "T00:00:00.000+05:30")
+        : null,
+      readingFees: row["Reading Fees"] ? parseInt(row["Reading Fees"]) : 0,
+      deposit: row["Deposit"] ? parseInt(row["Deposit"]) : 0,
+      registration: row["Registration Fees"]
+        ? parseInt(row["Registration Fees"])
+        : 0,
+      DDFees: row["Door Delivery"] ? parseInt(row["Door Delivery"]) : 0,
+      discount: row["Discount"] ? parseInt(row["Discount"]) : 0,
+      pastDues: row["Past Due"] ? parseInt(row["Past Due"]) : 0,
+      adjust: row["Adjusted Amount"] ? parseInt(row["Adjusted Amount"]) : 0,
+      reason: row["Reason for Adjustment"] || null,
+      offer: row["Special Offer"] || null,
+      attendedBy: row["Attended By"] || null,
+      remarks: row["Remarks"] || null,
+
+      supportId: admin.id,
+    };
   });
+
+  const legitPatronIdsForTransactions = await prisma.patron
+    .findMany({
+      where: {
+        id: {
+          in: transactions.map((r) => r.patronId),
+        },
+      },
+    })
+    .then((p) => {
+      return p.map((r) => r.id);
+    });
+
+  const filteredTransactions = transactions.filter((r) =>
+    legitPatronIdsForTransactions.includes(r.patronId),
+  );
+
+  await prisma.transaction.createMany({
+    data: filteredTransactions
+  })
+
+  // transactionData.forEach(async (row) => {
+  //   try {
+  //     await prisma.patron.update({
+  //       where: {
+  //         id: parseInt(row["Membership No"]),
+  //       },
+  //       data: {
+  //         transactions: {
+  //           create: {
+  //             createdAt: new Date(row["Time"]),
+  //             type: row["Transaction Type"],
+  //             mode: row["Payment Mode"],
+  //             netPayable: parseInt(row["Net Payable"]),
+  //             oldPlan: row["Last Membership Plan"]
+  //               ? parseInt(row["Last Membership Plan"])
+  //               : null,
+  //             newPlan: row["New Membership Plan"]
+  //               ? parseInt(row["New Membership Plan"])
+  //               : null,
+  //             oldExpiry: row["Last Expiry Date"]
+  //               ? new Date(row["Last Expiry Date"] + "T00:00:00.000+05:30")
+  //               : null,
+  //             newExpiry: row["New Expiry Date"]
+  //               ? new Date(row["New Expiry Date"] + "T00:00:00.000+05:30")
+  //               : null,
+  //             readingFees: row["Reading Fees"]
+  //               ? parseInt(row["Reading Fees"])
+  //               : 0,
+  //             deposit: row["Deposit"] ? parseInt(row["Deposit"]) : 0,
+  //             registration: row["Registration Fees"]
+  //               ? parseInt(row["Registration Fees"])
+  //               : 0,
+  //             DDFees: row["Door Delivery"] ? parseInt(row["Door Delivery"]) : 0,
+  //             discount: row["Discount"] ? parseInt(row["Discount"]) : 0,
+  //             pastDues: row["Past Due"] ? parseInt(row["Past Due"]) : 0,
+  //             adjust: row["Adjusted Amount"]
+  //               ? parseInt(row["Adjusted Amount"])
+  //               : 0,
+  //             reason: row["Reason for Adjustment"] || null,
+  //             offer: row["Special Offer"] || null,
+  //             attendedBy: row["Attended By"] || null,
+  //             remarks: row["Remarks"] || null,
+  //
+  //             support: {
+  //               connect: {
+  //                 id: admin.id,
+  //               },
+  //             },
+  //           },
+  //         },
+  //       },
+  //     });
+  //   } catch (e) {
+  //     console.log("Error inserting Transaction for " + row["Membership No"]);
+  //   }
+  // });
 
   const checkoutData = await getCheckoutData();
   checkoutData.forEach(async (row) => {
@@ -192,7 +250,7 @@ async function main() {
           data: {
             booksInHand: parseInt(row["COUNTA of checked_out"]),
             lastIssued: row["MAX of checked_out"]
-              ? new Date(row["MAX of checked_out"] + "T00:00:00.000Z")
+              ? new Date(row["MAX of checked_out"] + "T00:00:00.000+05:30")
               : null,
           },
           where: {
@@ -216,7 +274,7 @@ async function main() {
         await prisma.subscription.update({
           data: {
             lastReturned: row["MAX of checked_in"]
-              ? new Date(row["MAX of checked_in"] + "T00:00:00.000Z")
+              ? new Date(row["MAX of checked_in"] + "T00:00:00.000+05:30")
               : null,
           },
           where: {
@@ -246,10 +304,10 @@ async function main() {
         title: row["title"],
         authors: row["creators"],
         checked_out: row["checked_out"]
-          ? new Date(row["checked_out"] + "T00:00:00.000Z")
+          ? new Date(row["checked_out"] + "T00:00:00.000+05:30")
           : new Date(),
         checked_in: row["checked_in"]
-          ? new Date(row["checked_in"] + "T00:00:00.000Z")
+          ? new Date(row["checked_in"] + "T00:00:00.000+05:30")
           : null,
       };
     });
@@ -266,7 +324,9 @@ async function main() {
       return p.map((r) => r.id);
     });
 
-  const filteredLending = lending.filter((r) => legitPatronIds.includes(r.patronId));
+  const filteredLending = lending.filter((r) =>
+    legitPatronIds.includes(r.patronId),
+  );
 
   await prisma.checkout.createMany({
     data: filteredLending.map((row) => {

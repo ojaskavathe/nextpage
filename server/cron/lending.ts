@@ -52,7 +52,7 @@ export async function cronFetchLending() {
           data: {
             booksInHand: parseInt(row["COUNTA of checked_out"]),
             lastIssued: row["MAX of checked_out"]
-              ? new Date(row["MAX of checked_out"] + "T00:00:00.000Z")
+              ? new Date(row["MAX of checked_out"] + "T00:00:00.000+05:30")
               : null,
           },
           where: {
@@ -78,7 +78,7 @@ export async function cronFetchLending() {
         await prisma.subscription.update({
           data: {
             lastReturned: row["MAX of checked_in"]
-              ? new Date(row["MAX of checked_in"] + "T00:00:00.000Z")
+              ? new Date(row["MAX of checked_in"] + "T00:00:00.000+05:30")
               : null,
           },
           where: {
@@ -110,10 +110,10 @@ export async function cronFetchLending() {
         title: row["title"],
         authors: row["creators"],
         checked_out: row["checked_out"]
-          ? new Date(row["checked_out"] + "T00:00:00.000Z")
+          ? new Date(row["checked_out"] + "T00:00:00.000+05:30")
           : new Date(),
         checked_in: row["checked_in"]
-          ? new Date(row["checked_in"] + "T00:00:00.000Z")
+          ? new Date(row["checked_in"] + "T00:00:00.000+05:30")
           : null,
       };
     });
