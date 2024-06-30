@@ -437,7 +437,7 @@ export async function updatePatron(
     };
   }
 
-  const { id, expiry, ...props } = input;
+  const { id, plan, expiry, ...props } = input;
 
   try {
     await prisma.$transaction([
@@ -449,6 +449,7 @@ export async function updatePatron(
       }),
       prisma.subscription.update({
         data: {
+          plan: plan,
           expiryDate: expiry,
         },
         where: {

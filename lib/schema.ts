@@ -162,6 +162,7 @@ export const patronRenewSchema = z.object({
 
 export const patronUpdateSchema = z.object({
   id: z.number(),
+  plan: z.number().min(1).max(6),
   expiry: z.date(),
   name: z.string().min(1),
   email: z.string().email(),

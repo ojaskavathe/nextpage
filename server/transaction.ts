@@ -66,7 +66,6 @@ export const editTransaction = async (
       message: "u gucci",
     };
   } catch (e) {
-    console.log(e)
     return {
       error: 4,
       message: "Server Error",

@@ -31,7 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 
 import { patronUpdateSchema } from "@/lib/schema";
-import { PatronFull, sr_id } from "@/lib/utils";
+import { dateFormat, PatronFull, plans, sr_id } from "@/lib/utils";
 import { updatePatron } from "@/server/patron";
 
 import { AlertCircle, CalendarIcon } from "lucide-react";
@@ -41,6 +41,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function PatronUpdateForm({
   patron,
@@ -55,6 +62,7 @@ export default function PatronUpdateForm({
     resolver: zodResolver(patronUpdateSchema),
     defaultValues: {
       id: patron.id,
+      plan: patron.subscription!.plan,
       expiry: patron.subscription!.expiryDate,
       name: patron.name,
       email: patron.email,
@@ -72,6 +80,7 @@ export default function PatronUpdateForm({
     if (lenDirtyFields == 0) {
       toast.warning("Edit some values first!");
     } else {
+      console.log(data);
       const res = await updatePatron(data);
 
       if (res.error == 0) {
@@ -95,10 +104,35 @@ export default function PatronUpdateForm({
             <CardContent>
               <div className="flex space-x-4">
                 <div className="basis-1/2">
-                  <Label>Plan:</Label>
-                  <div className="py-2 px-3 border rounded-md text-sm bg-secondary">
-                    {patron.subscription?.plan} Book
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="plan"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormLabel>Plan</FormLabel>
+                        <Select
+                          onValueChange={(value: string) => {
+                            field.onChange(parseInt(value));
+                          }}
+                          defaultValue={`${patron.subscription!.plan}`}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-auto w-full py-2 px-3 text-sm font-medium">
+                              <SelectValue placeholder="Select a plan" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {plans.map((i) => (
+                              <SelectItem value={`${i}`} key={i}>
+                                {i} Book
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 <div className="basis-1/2">
                   <FormField
@@ -114,11 +148,7 @@ export default function PatronUpdateForm({
                                 variant="outline"
                                 className="h-auto w-full py-2 px-3 text-sm"
                               >
-                                {field.value.toLocaleDateString("en-IN", {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                })}
+                                {field.value.toLocaleDateString("en-IN", dateFormat)}
                                 <CalendarIcon className="ml-auto h-3 w-3 opacity-50" />
                               </Button>
                             </FormControl>
