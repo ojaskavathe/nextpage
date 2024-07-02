@@ -42,7 +42,7 @@ interface DataTableProps<TData, TValue> {
   className?: string
 }
 
-export function TransactionReportsTable<TData, TValue>({
+export function PatronReportsTable<TData, TValue>({
   columns,
   data,
   pageSize = 4,
@@ -89,7 +89,7 @@ export function TransactionReportsTable<TData, TValue>({
       <div className="flex items-center justify-between py-2">
         <div className="flex space-x-4 items-center">
           <div className="hidden md:block font-semibold text-xl">
-            Transactions
+            Patrons
           </div>
           <Input
             placeholder="Filter"
@@ -99,7 +99,7 @@ export function TransactionReportsTable<TData, TValue>({
             }
             className="max-w-sm"
           />
-          <Link href="/api/export/transactions" className={buttonVariants({ variant: "default" })}>
+          <Link href="/api/export/patrons" className={buttonVariants({ variant: "default" })}>
             <FileDown className="h-5" />
           </Link>
         </div>

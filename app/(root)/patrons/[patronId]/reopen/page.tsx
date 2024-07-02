@@ -3,15 +3,19 @@ import { DataTable } from "@/components/transactions/transaction-data-table";
 
 import { fetchPatron } from "@/server/patron";
 
+import ReopenForm from "./reopen-form";
 import { columns_transactions } from "../columns-transactions";
-import RenewForm from "./renew-form";
 import { redirect } from "next/navigation";
 
-export default async function PatronRenew({ params }: { params: { patronId: string } }) {
+export default async function PatronReopen({
+  params,
+}: {
+  params: { patronId: string };
+}) {
   const patron = await fetchPatron(parseInt(params.patronId));
 
-  if (patron?.subscription!.closed) {
-    redirect(`/patrons/${patron?.id}/reopen`)
+  if (!patron?.subscription!.closed) {
+    redirect(`/patrons/${patron?.id}/renew`)
   }
 
   return (
@@ -22,9 +26,10 @@ export default async function PatronRenew({ params }: { params: { patronId: stri
           columns={columns_transactions}
           data={patron!.transactions}
           patronId={patron!.id}
-          className="flex-grow" />
+          className="flex-grow"
+        />
       </div>
-      <RenewForm patron={patron!} />
+      <ReopenForm patron={patron!} />
     </>
-  )
+  );
 }

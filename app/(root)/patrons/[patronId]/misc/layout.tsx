@@ -11,6 +11,8 @@ import {
 import { fetchPatron } from "@/server/patron";
 
 import { MiscNav } from "./misc-nav";
+import { redirect } from "next/navigation";
+import { toast } from "sonner";
 
 export default async function PatronRenew({ params, children }: { params: { patronId: string }, children: React.ReactNode }) {
 
@@ -42,6 +44,10 @@ export default async function PatronRenew({ params, children }: { params: { patr
       href: `/patrons/${params.patronId}/misc/other`,
     },
   ]
+
+  if (patron?.subscription!.closed) {
+    redirect(`/patrons/${patron?.id}/reopen`)
+  }
 
   return (
     <>

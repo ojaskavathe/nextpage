@@ -65,9 +65,11 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 export function FootfallDialog({
   patron,
+  disabled,
   className,
 }: {
   patron: PatronWithSub;
+  disabled: boolean;
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -79,7 +81,11 @@ export function FootfallDialog({
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className={cn(className, "w-full")} variant="default">
+          <Button
+            disabled={disabled}
+            className={cn(className, "w-full")}
+            variant="default"
+          >
             Footfall
           </Button>
         </DialogTrigger>
@@ -104,7 +110,11 @@ export function FootfallDialog({
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button className={cn(className, "w-full")} variant="default">
+        <Button
+          disabled={disabled}
+          className={cn(className, "w-full")}
+          variant="default"
+        >
           Footfall
         </Button>
       </DrawerTrigger>
@@ -178,7 +188,7 @@ function FootfallForm({
   function copyLink() {
     if (deliveryDetails.current) {
       updateClipboard(deliveryDetails.current?.innerText);
-      toast.success("Delivery Details Copied!")
+      toast.success("Delivery Details Copied!");
     }
   }
 
@@ -331,7 +341,12 @@ function FootfallForm({
             <div className="basis-1/2 m-4 mb-0 md:m-0">
               <div className="text-md rounded-lg p-3 border border-slate-300 [overflow-wrap:anywhere]">
                 <div className="mb-2">
-                  <Button onClick={copyLink} type="button" className="w-full" variant="secondary">
+                  <Button
+                    onClick={copyLink}
+                    type="button"
+                    className="w-full"
+                    variant="secondary"
+                  >
                     <ClipboardCopy className="w-5" />
                   </Button>
                 </div>

@@ -1,4 +1,4 @@
-import { PrismaClient, Support } from "@prisma/client";
+import { $Enums, PrismaClient, Support } from "@prisma/client";
 
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { JWT } from "google-auth-library";
@@ -10,7 +10,11 @@ const serviceAccountAuth = new JWT({
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 
-if (!process.env.PATRON_DOC_ID || !process.env.CHECKOUT_DOC_ID) {
+if (
+  !process.env.PATRON_DOC_ID ||
+  !process.env.CHECKOUT_DOC_ID ||
+  !process.env.FOOTFALL_DOC_ID
+) {
   process.exit(1);
 }
 
@@ -26,7 +30,19 @@ const getPatronData = async () => {
 };
 const getTransactionData = async () => {
   await patronDoc.loadInfo();
-  const sheet = patronDoc.sheetsById[1489557575];
+  const sheet = patronDoc.sheetsById[1620484657];
+  const rows = await sheet.getRows();
+  return rows.map((row) => row.toObject());
+};
+
+const footfallDoc = new GoogleSpreadsheet(
+  process.env.FOOTFALL_DOC_ID,
+  serviceAccountAuth,
+);
+const getFootfallData = async () => {
+  await footfallDoc.loadInfo();
+  const sheet = footfallDoc.sheetsById[1275728019];
+  await sheet.loadHeaderRow(4);
   const rows = await sheet.getRows();
   return rows.map((row) => row.toObject());
 };
@@ -91,7 +107,7 @@ async function main() {
       altPhone: row["Alternate Number"] || undefined,
       address: row["Address"] || undefined,
       joiningDate: new Date(row["Joining Date"] + "T00:00:00.000+05:30"),
-      whatsapp: row["whats'app contact"] == "yes" ? true : false,
+      whatsapp: row["whats'app contact"].toLowerCase() == "yes" ? true : false,
       deposit: parseInt(row["Security Deposit"]),
       deposit_sr: row["SD with"] == "SR" ? true : false,
       pincode: row["Pincode"] || undefined,
@@ -102,13 +118,20 @@ async function main() {
   const subscriptions = patronData.map((row) => {
     const freeDD = parseInt(row["Free DD / Month"]);
     const freeHoliday = parseInt(row["Free Subsciption Holiday"]);
+    const closed = row["Status"] == "CLOSED";
+    const closedDate = closed
+      ? new Date(row["Closure Date"] + "T00:00:00.000+05:30")
+      : null;
+
     return {
       patronId: parseInt(row["Membership Number"]),
       plan: parseInt(row["Plan"]),
       expiryDate: new Date(row["Expiry Date"] + "T00:00:00.000+05:30"),
       monthlyDD: freeDD,
-      freeDD: freeDD,
-      freeHoliday: freeHoliday,
+      freeDD,
+      freeHoliday,
+      closed,
+      closedDate,
     };
   });
 
@@ -148,7 +171,7 @@ async function main() {
       registration: row["Registration Fees"]
         ? parseInt(row["Registration Fees"])
         : 0,
-      DDFees: row["Door Delivery"] ? parseInt(row["Door Delivery"]) : 0,
+      DDFees: row["DD Charges"] ? parseInt(row["DD Charges"]) : 0,
       discount: row["Discount"] ? parseInt(row["Discount"]) : 0,
       pastDues: row["Past Due"] ? parseInt(row["Past Due"]) : 0,
       adjust: row["Adjusted Amount"] ? parseInt(row["Adjusted Amount"]) : 0,
@@ -178,8 +201,46 @@ async function main() {
   );
 
   await prisma.transaction.createMany({
-    data: filteredTransactions
-  })
+    data: filteredTransactions,
+  });
+
+  // seeding footfall
+  const footfallData = await getFootfallData();
+
+  const footfall = footfallData.map((row) => {
+    return {
+      patronId: parseInt(row["Membership No"].substring(1)),
+
+      createdAt: new Date(row["Time"]),
+      type: $Enums.FootfallType.BOTH,
+      isDD: row["Footfall Type"] == "DD" ? true : false,
+
+      offer: row["Special Offer"] || null,
+      remarks: row["Members Comments"] || null,
+
+      supportId: admin.id,
+    };
+  });
+
+  const legitPatronIdsForFootfall = await prisma.patron
+    .findMany({
+      where: {
+        id: {
+          in: footfall.map((r) => r.patronId),
+        },
+      },
+    })
+    .then((p) => {
+      return p.map((r) => r.id);
+    });
+
+  const filteredFootfall = footfall.filter((r) =>
+    legitPatronIdsForFootfall.includes(r.patronId),
+  );
+
+  await prisma.footfall.createMany({
+    data: filteredFootfall,
+  });
 
   const checkoutData = await getCheckoutData();
   checkoutData.forEach(async (row) => {

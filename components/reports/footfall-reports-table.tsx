@@ -2,14 +2,16 @@
 
 import {
   ColumnDef,
+  FilterFn,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable
 } from "@tanstack/react-table";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -25,8 +27,12 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  FileDown
 } from "lucide-react";
+import { useState } from "react";
+import { Input } from "../ui/input";
+import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -43,26 +49,59 @@ export function FootfallReportsTable<TData, TValue>({
   className
 }: DataTableProps<TData, TValue>) {
 
+  const [globalFilter, setGlobalFilter] = useState("")
+
+  const globalFilterFn: FilterFn<TData> = (row, columnId, filterValue: string) => {
+    const search = filterValue.toLowerCase();
+  
+    let value = row.getValue(columnId) as string;
+    if (typeof value === 'number') value = String(value);
+  
+    return value?.toLowerCase().includes(search);
+  };
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn,
     initialState: {
       pagination: {
         pageSize: pageSize
       },
+    },
+    state: {
+      globalFilter
+    },
+    defaultColumn: {
+      size: 100,
+      minSize: 10,
+      maxSize: 300,
     }
   })
 
   return (
     <div>
       <div className="flex items-center justify-between py-2">
-        <div className="flex space-x-2">
-          <div className="font-semibold text-xl">
+        <div className="flex space-x-4 items-center">
+          <div className="hidden md:block font-semibold text-xl">
             Footfall
           </div>
+          <Input
+            placeholder="Filter"
+            value={globalFilter ?? ""}
+            onChange={(event) =>
+              setGlobalFilter(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <Link href="/api/export/footfall" className={buttonVariants({ variant: "default" })}>
+            <FileDown className="h-5" />
+          </Link>
         </div>
 
         <div className="flex items-center space-x-2">

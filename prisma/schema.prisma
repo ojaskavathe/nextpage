@@ -57,8 +57,10 @@ model Subscription {
   lastIssued    DateTime?
   lastReturned  DateTime?
   booksInHand   Int               @default(0)
-  closed        Boolean           @default(false)
   offer         String?
+
+  closed        Boolean           @default(false)
+  closedDate    DateTime?
 
   monthlyDD     Int               @default(0)
   paidDD        Int               @default(0)

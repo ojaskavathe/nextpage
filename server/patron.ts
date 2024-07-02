@@ -15,6 +15,7 @@ import {
   patronMiscOtherSchema,
   patronMiscRefundSchema,
   patronRenewSchema,
+  patronReopenSchema,
   patronUpdateSchema,
 } from "@/lib/schema";
 import {
@@ -165,6 +166,7 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
   const total =
     readingFee +
     registrationFees +
+    DDFee +
     refundableDeposit -
     discount -
     (input.adjust || 0);
@@ -295,6 +297,113 @@ export async function createPatron(input: z.infer<typeof patronCreateSchema>) {
   }
 }
 
+export async function reopenPatron(
+  input: z.infer<typeof patronReopenSchema>,
+): Promise<{
+  error: number;
+  message: string;
+}> {
+  const validity = patronReopenSchema.safeParse(input);
+
+  if (!validity.success) {
+    return {
+      error: 1,
+      message: "Form couldn't be validated",
+    };
+  }
+
+  const patron = await fetchPatron(input.id);
+  if (!patron) {
+    return {
+      error: 2,
+      message: "Patron doesn't exist",
+    };
+  }
+
+  const today = new Date();
+  const exp = new Date(
+    new Date(today).setMonth(today.getMonth() + input.duration),
+  );
+
+  const readingFee = fee[input.plan - 1] * input.duration;
+  const DDFee = (input.paidDD || 0) * DDFees;
+
+  const index = durations.indexOf(input.duration);
+  const freeDD = freeDDs[index];
+  const freeHoliday = holidays[index];
+  const discount = readingFee * discounts[index];
+
+  const total =
+    readingFee +
+    registrationFees +
+    DDFee +
+    refundableDeposit -
+    discount -
+    (input.adjust || 0);
+
+  const support = await currentStaff();
+
+  try {
+    await prisma.patron.update({
+      data: {
+        subscription: {
+          update: {
+            plan: input.plan,
+            expiryDate: exp,
+            monthlyDD: freeDD,
+            freeDD: freeDD,
+            paidDD: input.paidDD || 0,
+            freeHoliday: freeHoliday,
+            offer: input.offer,
+            closed: false,
+            closedDate: null,
+          },
+        },
+        transactions: {
+          create: [
+            {
+              type: $Enums.TransactionType.RENEWAL,
+              mode: input.mode,
+
+              readingFees: readingFee,
+              DDFees: DDFee,
+              discount: discount,
+              adjust: input.adjust || 0,
+              reason: input.reason || null,
+              offer: input.offer || null,
+              remarks: input.remarks || null,
+
+              netPayable: total,
+
+              newPlan: input.plan,
+              newExpiry: exp,
+
+              supportId: support.id,
+            },
+          ],
+        },
+      },
+      where: {
+        id: input.id,
+      },
+    });
+
+    revalidatePath(`/patrons/${patron.id}`, "layout");
+    revalidatePath(`/patrons/search`);
+    revalidatePath("/expenses/summary");
+
+    return {
+      error: 0,
+      message: "u gucci",
+    };
+  } catch (e) {
+    return {
+      error: 5,
+      message: "[SERVER]: Something went wrong",
+    };
+  }
+}
+
 export async function renewPatron(
   input: z.infer<typeof patronRenewSchema>,
 ): Promise<{
@@ -354,7 +463,7 @@ export async function renewPatron(
   const freeHoliday = holidays[index];
   const discount = readingFee * discounts[index];
 
-  const total = readingFee + pastDues - discount - (input.adjust || 0);
+  const total = readingFee + pastDues + DDFee - discount - (input.adjust || 0);
 
   const totalPaidDDs = patron.subscription!.paidDD + (input.paidDD || 0);
 
@@ -780,6 +889,7 @@ export async function miscClosure(
         subscription: {
           update: {
             closed: true,
+            closedDate: new Date(),
           },
         },
         transactions: {

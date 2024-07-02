@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { FootfallWithPatron, dateFormat, sr_id, timeFormat } from "@/lib/utils";
-import { Patron } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
@@ -49,8 +48,10 @@ export const columns: ColumnDef<FootfallWithPatron>[] = [
     header: "Type",
   },
   {
-    accessorKey: "isDD",
     header: "DD?",
+    accessorFn: (row) => {
+      return row.isDD ? "yes" : "";
+    },
   },
   {
     accessorKey: "offer",

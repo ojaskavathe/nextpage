@@ -2,6 +2,24 @@
 
 import { prisma } from "./db";
 
+export const fetchPatrons = async () => {
+  try {
+    return await prisma.patron.findMany({
+      include: {
+        subscription: true,
+        addons: true,
+      },
+      orderBy: {
+        subscription: {
+          expiryDate: "desc"
+        },
+      },
+    });
+  } catch (e) {
+    return null;
+  }
+};
+
 export const fetchTransactions = async () => {
   try {
     return await prisma.transaction.findMany({

@@ -70,7 +70,7 @@ const adjustRefine = (val: any, ctx: z.RefinementCtx) => {
   if (val.adjust === 0 && !!val.reason) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: `No adjustment to provide reason for: adjust: ${val.adjust}, reason: ${val.reason}`,
+      message: `No adjustment to provide reason for.`,
       path: ['reason']
     })
   }
@@ -111,22 +111,7 @@ export const patronCreateSchema = z.object({
   reason: optString,
   offer: optString,
 })
-  .superRefine((val, ctx) => {
-    if (val.adjust != 0 && !val.reason) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Specify the reason for adjustment.',
-        path: ['reason']
-      })
-    }
-    if (val.adjust == 0 && val.reason) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'No adjustment to provide reason for.',
-        path: ['adjust']
-      })
-    }
-  });
+  .superRefine(adjustRefine);
 
 export const patronRenewSchema = z.object({
   id: z.number().min(0),
@@ -143,22 +128,22 @@ export const patronRenewSchema = z.object({
 
   renewFromExpiry: z.boolean().default(false)
 })
-  .superRefine((val, ctx) => {
-    if (val.adjust !== 0 && !val.reason) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Specify the reason for adjustment.',
-        path: ['reason']
-      })
-    }
-    if (val.adjust === 0 && !!val.reason) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `No adjustment to provide reason for: adjust: ${val.adjust}, reason: ${val.reason}`,
-        path: ['reason']
-      })
-    }
-  });
+  .superRefine(adjustRefine);
+
+export const patronReopenSchema = z.object({
+  id: z.number().min(0),
+  plan: z.number().min(1).max(6),
+  duration: z.number().refine((val) => durations.includes(val), {
+    message: "Duration can only be 1, 3, 6 or 12 months"
+  }),
+  paidDD: optIntString,
+  mode: z.nativeEnum($Enums.TransactionMode),
+  adjust: optSignedIntString,
+  reason: optString,
+  offer: optString,
+  remarks: optString,
+})
+  .superRefine(adjustRefine);
 
 export const patronUpdateSchema = z.object({
   id: z.number(),

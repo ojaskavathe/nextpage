@@ -69,7 +69,7 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
   const isAddonValid = addonExpiry <= planExpiry;
   const validAddonDurations = addonDurations.filter((dur) => {
     const exp = new Date(new Date().setMonth(today.getMonth() + dur));
-    return exp <= planExpiry
+    return exp <= planExpiry;
   });
 
   let numDays = 0;
@@ -164,11 +164,17 @@ export default function MiscAddonForm({ patron }: { patron: PatronWithSub }) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {validAddonDurations.map((i) => (
-                        <SelectItem value={`${i}`} key={i}>
-                          {i} Months
-                        </SelectItem>
-                      ))}
+                      {validAddonDurations.length > 0 ? (
+                        validAddonDurations.map((i) => (
+                          <SelectItem value={`${i}`} key={i}>
+                            {i} Months
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-1 py-3 text-sm font-normal opacity-65">
+                          Patron expires soon
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

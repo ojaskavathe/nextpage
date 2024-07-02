@@ -1,5 +1,3 @@
-import { TransactionReportsTable } from "@/components/reports/transactions-reports-table";
-
 import { fetchFootfall } from "@/server/reports";
 import { columns } from "./columns";
 import { FootfallReportsTable } from "@/components/reports/footfall-reports-table";

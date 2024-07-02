@@ -100,9 +100,9 @@ export function PatronDetails({
                 <span className="font-semibold">{`Last Issued: `}</span>
                 {patron.subscription?.lastIssued
                   ? patron.subscription.lastIssued.toLocaleDateString(
-                    "en-IN",
-                    dateFormat,
-                  )
+                      "en-IN",
+                      dateFormat,
+                    )
                   : "Not Found"}
               </span>
             </div>
@@ -112,9 +112,9 @@ export function PatronDetails({
                 <span className="font-semibold">{`Last Returned: `}</span>
                 {patron.subscription?.lastReturned
                   ? patron.subscription.lastReturned.toLocaleDateString(
-                    "en-IN",
-                    dateFormat,
-                  )
+                      "en-IN",
+                      dateFormat,
+                    )
                   : "Not Found"}
               </span>
             </div>
@@ -135,6 +135,20 @@ export function PatronDetails({
             </div>
           </div>
         </div>
+        {!!patron.subscription!.closed && (
+          <div className="my-2 p-2 border border-gray-200 rounded-sm">
+            <div className="text-sm font-normal flex items-center">
+              <CircleAlert className="w-4" />
+              <span className="pl-2">
+                <span className="font-semibold">Closing Date: </span>
+                {patron.subscription?.closedDate!.toLocaleDateString(
+                  "en-IN",
+                  dateFormat,
+                )}
+              </span>
+            </div>
+          </div>
+        )}
         {!!patron.remarks && (
           <div className="my-2 p-2 border border-gray-200 rounded-sm">
             <div className="text-sm font-normal flex items-center">
@@ -174,14 +188,17 @@ export function PatronDetails({
 
         {!readOnly && (
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-8">
-            <Link href={`/patrons/${patron.id}/renew`} className="basis-1/3">
+            <Link
+              href={`/patrons/${patron.id}/${patron.subscription!.closed ? "reopen" : "renew"}`}
+              className="basis-1/3"
+            >
               <Button variant="default" className="w-full">
-                Renew
+                {patron.subscription!.closed ? "Reopen" : "Renew"}
               </Button>
             </Link>
-            <FootfallDialog className="basis-1/3" patron={patron} />
-            <Link href={`/patrons/${patron.id}/misc`} className="basis-1/3">
-              <Button variant="default" className="w-full">
+            <FootfallDialog disabled={patron.subscription!.closed} className="basis-1/3" patron={patron} />
+            <Link href={`/patrons/${patron.id}/misc`} aria-disabled={patron.subscription!.closed} className="basis-1/3">
+              <Button variant="default" disabled={patron.subscription!.closed} className="w-full">
                 Misc
               </Button>
             </Link>
