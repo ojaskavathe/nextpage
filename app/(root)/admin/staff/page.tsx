@@ -1,10 +1,10 @@
 import { columns } from "./columns";
 import { DataTable } from "@/components/table";
-import { fetchSupport } from "@/server/staff";
+import { fetchSupports } from "@/server/staff";
 
 export default async function AdminStaff() {
 
-  const support = await fetchSupport();
+  const support = await fetchSupports();
 
   return (
     <>

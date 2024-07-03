@@ -40,7 +40,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { footfallFormSchema, supportCreateSchema } from "@/lib/schema";
+import { supportCreateSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 
 import { AlertCircle, Download, Upload } from "lucide-react";
