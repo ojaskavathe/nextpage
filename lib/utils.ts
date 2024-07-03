@@ -15,7 +15,7 @@ export type TransactionWithSupport = Prisma.TransactionGetPayload<{
   include: { patron: true; support: true };
 }>;
 export type FootfallWithPatron = Prisma.FootfallGetPayload<{
-  include: { patron: true };
+  include: { patron: true, support: true };
 }>;
 export type CheckoutWithPatron = Prisma.CheckoutGetPayload<{
   include: { patron: true };

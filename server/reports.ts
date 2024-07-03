@@ -40,6 +40,7 @@ export const fetchFootfall = async () => {
     return await prisma.footfall.findMany({
       include: {
         patron: true,
+        support: true,
       },
       orderBy: {
         createdAt: "desc",

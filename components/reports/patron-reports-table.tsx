@@ -79,7 +79,7 @@ export function PatronReportsTable<TData, TValue>({
     },
     defaultColumn: {
       size: 100,
-      minSize: 10,
+      minSize: 30,
       maxSize: 300,
     }
   })

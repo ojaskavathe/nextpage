@@ -103,7 +103,7 @@ export function PatronDetails({
                       "en-IN",
                       dateFormat,
                     )
-                  : "Not Found"}
+                  : "Unavailable"}
               </span>
             </div>
             <div className="text-sm font-normal flex items-center">
@@ -115,7 +115,7 @@ export function PatronDetails({
                       "en-IN",
                       dateFormat,
                     )
-                  : "Not Found"}
+                  : "Unavailable"}
               </span>
             </div>
             <div className="text-sm font-normal flex items-center">
@@ -141,10 +141,12 @@ export function PatronDetails({
               <CircleAlert className="w-4" />
               <span className="pl-2">
                 <span className="font-semibold">Closing Date: </span>
-                {patron.subscription?.closedDate!.toLocaleDateString(
-                  "en-IN",
-                  dateFormat,
-                )}
+                {patron.subscription?.closedDate
+                  ? patron.subscription.closedDate.toLocaleDateString(
+                      "en-IN",
+                      dateFormat,
+                    )
+                  : "Unavailable"}
               </span>
             </div>
           </div>
@@ -176,11 +178,7 @@ export function PatronDetails({
               <TimerReset className="w-4" />
               <span className="pl-2">
                 <span className="font-semibold">{`Addon Expiry: `}</span>
-                {addon.expiryDate.toLocaleDateString("en-IN", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {addon.expiryDate.toLocaleDateString("en-IN", dateFormat)}
               </span>
             </div>
           </div>
@@ -196,9 +194,21 @@ export function PatronDetails({
                 {patron.subscription!.closed ? "Reopen" : "Renew"}
               </Button>
             </Link>
-            <FootfallDialog disabled={patron.subscription!.closed} className="basis-1/3" patron={patron} />
-            <Link href={`/patrons/${patron.id}/misc`} aria-disabled={patron.subscription!.closed} className="basis-1/3">
-              <Button variant="default" disabled={patron.subscription!.closed} className="w-full">
+            <FootfallDialog
+              disabled={patron.subscription!.closed}
+              className="basis-1/3"
+              patron={patron}
+            />
+            <Link
+              href={`/patrons/${patron.id}/misc`}
+              aria-disabled={patron.subscription!.closed}
+              className="basis-1/3"
+            >
+              <Button
+                variant="default"
+                disabled={patron.subscription!.closed}
+                className="w-full"
+              >
                 Misc
               </Button>
             </Link>

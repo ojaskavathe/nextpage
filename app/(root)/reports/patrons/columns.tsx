@@ -21,14 +21,14 @@ export const columns: ColumnDef<PatronWithSub>[] = [
         </Link>
       );
     },
-    size: 70,
+    size: 130,
   },
   {
     header: "Patron Name",
     accessorFn: (row) => {
       return row.name;
     },
-    size: 100,
+    size: 150,
   },
   {
     header: " Joining Date",
@@ -37,7 +37,6 @@ export const columns: ColumnDef<PatronWithSub>[] = [
       return date.toLocaleString("en-IN", dateFormat);
     },
     sortingFn: "datetime",
-    size: 70,
   },
   {
     header: "Expiry Date",
@@ -46,29 +45,26 @@ export const columns: ColumnDef<PatronWithSub>[] = [
       return date.toLocaleString("en-IN", dateFormat);
     },
     sortingFn: "datetime",
-    size: 70,
   },
   {
     header: "Plan",
     accessorFn: (row) => {
       return row.subscription!.plan;
     },
-    size: 30,
+    size: 50,
   },
   {
     accessorKey: "phone",
     header: "Phone",
-    size: 70,
   },
   {
     accessorKey: "altPhone",
     header: "Alternate Phone",
-    size: 70,
   },
   {
     accessorKey: "email",
     header: "Email",
-    size: 150,
+    size: 250,
   },
   {
     header: "Status",
@@ -80,11 +76,12 @@ export const columns: ColumnDef<PatronWithSub>[] = [
       }
       return "EXPIRED";
     },
-    size: 50,
   },
   {
-    accessorKey: "whatsapp",
     header: "Whatsapp",
-    size: 70,
+    accessorFn: (row) => {
+      const whatsapp: boolean = row.whatsapp;
+      return whatsapp ? "Yes" : "No"
+    },
   },
 ];

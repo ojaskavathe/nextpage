@@ -61,4 +61,20 @@ export const columns: ColumnDef<FootfallWithPatron>[] = [
     accessorKey: "remarks",
     header: "Remarks",
   },
+  {
+    header: "Staff",
+    accessorFn: (row) => {
+      return row.support.username;
+    },
+    cell: (row) => {
+      const support = row.getValue() as string;
+      return (
+        <Link href={`/admin/staff/${support}`}>
+          <Button className="font-semibold text-sm" variant="outline">
+            {support}
+          </Button>
+        </Link>
+      );
+    },
+  },
 ];
