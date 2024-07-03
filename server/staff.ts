@@ -5,7 +5,7 @@ import { prisma } from "./db";
 import { supportCreateSchema, supportUpdateSchema } from "@/lib/schema";
 import { Support } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { auth, update } from "@/auth";
+import { auth, signOut, update } from "@/auth";
 
 export const currentStaff = async () => {
   const session = await auth();
@@ -144,6 +144,84 @@ export const updateSupport = async (
       error: 5,
       message: "[SERVER]: Something went wrong",
     };
+  }
+};
+
+export const deleteSupport = async (supportId: string) => {
+  const support = await prisma.support.findFirst({
+    where: {
+      id: supportId,
+    },
+  });
+
+  if (!support) {
+    return {
+      error: 1,
+      message: "No support found with ID.",
+    };
+  }
+
+  const current = await currentStaff();
+
+  try {
+    const legacy = await fetchSupport("legacy");
+    if (!legacy) {
+      return {
+        data: null,
+        error: 1,
+        message: "[SERVER]: Legacy staff not found",
+      };
+    }
+
+    await prisma.transaction.updateMany({
+      where: {
+        supportId: supportId,
+      },
+      data: {
+        supportId: legacy.id,
+      },
+    });
+
+    await prisma.footfall.updateMany({
+      where: {
+        supportId: supportId,
+      },
+      data: {
+        supportId: legacy.id,
+      },
+    });
+
+    await prisma.expense.updateMany({
+      where: {
+        supportId: supportId,
+      },
+      data: {
+        supportId: legacy.id,
+      },
+    });
+
+    await prisma.cashReport.updateMany({
+      where: {
+        supportId: supportId,
+      },
+      data: {
+        supportId: legacy.id,
+      },
+    });
+
+    await prisma.support.delete({
+      where: {
+        id: supportId,
+      },
+    });
+
+    if (current.id === supportId) {
+      signOut();
+    }
+
+    revalidatePath("/admin/staff", "layout");
+  } catch (e) {
+    return null;
   }
 };
 

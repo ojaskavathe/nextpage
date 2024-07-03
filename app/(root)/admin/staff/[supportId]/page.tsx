@@ -4,7 +4,6 @@ import SupportForm from "./supportForm";
 export default async function SupportPage({
   params,
 }: {
-  children: React.ReactNode;
   params: { supportId: string };
 }) {
   const support = await fetchSupport(params.supportId);
