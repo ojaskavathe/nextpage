@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { cronFetchLending } from "@/server/cron/lending";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 export default function RefreshLending() {
@@ -16,7 +16,12 @@ export default function RefreshLending() {
     })
   }
 
+  const didMount = useRef(false);
   useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      return
+    }
     if(isPending) return;
     setOpen(false)
     toast.success("Lending and Checkout Updated!")
