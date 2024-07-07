@@ -25,6 +25,7 @@ export const fetchTransactions = async () => {
     return await prisma.transaction.findMany({
       include: {
         patron: true,
+        support: true,
       },
       orderBy: {
         createdAt: "desc",

@@ -18,8 +18,10 @@ const dateFormat: Intl.DateTimeFormatOptions = {
 
 export default function Receipt({
   transaction,
+  admin,
 }: {
-  transaction: TransactionWithPatron;
+  transaction: TransactionWithPatron,
+  admin: boolean,
 }) {
   const [_, convert, ref] = useToBlob<HTMLDivElement>({
     onSuccess: (data) => {
@@ -126,11 +128,13 @@ export default function Receipt({
             <Clipboard size={16} />
           </Button>
 
-          <Link href={`/transactions/${transaction.id}/edit`}>
-            <Button variant="secondary">
-              <Pencil size={16} />
-            </Button>
-          </Link>
+          {admin &&
+            <Link href={`/transactions/${transaction.id}/edit`}>
+              <Button variant="secondary">
+                <Pencil size={16} />
+              </Button>
+            </Link>
+          }
 
           <Link href={`/patrons/${transaction.patronId}`}>
             <Button variant="secondary">

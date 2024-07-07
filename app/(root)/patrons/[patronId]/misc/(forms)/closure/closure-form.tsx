@@ -87,6 +87,7 @@ export default function MiscClosureForm({ patron }: { patron: PatronWithSub }) {
               <FormField
                 control={form.control}
                 name="depositRefund"
+                disabled={!patron.deposit}
                 render={({ field }) => (
                   <FormItem className="sm:basis-1/3 flex flex-col items-center justify-center">
                     <FormControl>

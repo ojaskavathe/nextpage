@@ -33,8 +33,10 @@ import {
 import { useState } from "react";
 import { Input } from "../ui/input";
 import Link from "next/link";
+import { TransactionDropdown } from "../transactions/transactions-dropdown";
 
 interface DataTableProps<TData, TValue> {
+  admin: boolean,
   columns: ColumnDef<TData, TValue>[]
   data: TData[],
   pageSize?: number,
@@ -43,6 +45,7 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function TransactionReportsTable<TData, TValue>({
+  admin,
   columns,
   data,
   pageSize = 4,
@@ -53,10 +56,10 @@ export function TransactionReportsTable<TData, TValue>({
 
   const globalFilterFn: FilterFn<TData> = (row, columnId, filterValue: string) => {
     const search = filterValue.toLowerCase();
-  
+
     let value = row.getValue(columnId) as string;
     if (typeof value === 'number') value = String(value);
-  
+
     return value?.toLowerCase().includes(search);
   };
 
@@ -150,6 +153,7 @@ export function TransactionReportsTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
+                <TableHead style={{width: "50px"}}></TableHead>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id} style={{
@@ -174,6 +178,9 @@ export function TransactionReportsTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
+                  <TableCell>
+                    <TransactionDropdown transactionId={row.getValue("id")} admin={admin} />
+                  </TableCell>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
