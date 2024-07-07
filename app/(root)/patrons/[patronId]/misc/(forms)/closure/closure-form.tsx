@@ -182,7 +182,7 @@ export default function MiscClosureForm({ patron }: { patron: PatronWithSub }) {
         <Button
           type="submit"
           className="mt-6 w-full"
-          disabled={form.formState.isSubmitting || !patron.deposit}
+          disabled={form.formState.isSubmitting}
         >
           Submit
         </Button>

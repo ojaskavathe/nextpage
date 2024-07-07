@@ -121,7 +121,7 @@ export default function MiscRefundForm({ patron }: { patron: PatronWithSub }) {
         <Button
           type="submit"
           className="mt-6 w-full"
-          disabled={form.formState.isSubmitting}
+          disabled={form.formState.isSubmitting || !patron.deposit}
         >
           Submit
         </Button>
