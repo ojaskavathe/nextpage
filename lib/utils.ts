@@ -53,7 +53,7 @@ export const timeFormat: Intl.DateTimeFormatOptions = {
 };
 
 export const plans = [1, 2, 3, 4, 5, 6];
-export const durations = [1, 3, 6, 12];
+export const durations = [1, 2, 3, 6, 12];
 export const addonDurations = [1, 2, 3, 4];
 
 export const freeDDs = [0, 0, 2, 4];

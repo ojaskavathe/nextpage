@@ -108,7 +108,7 @@ export const patronCreateSchema = z.object({
 
   plan: z.number().min(1).max(6),
   duration: z.number().refine((val) => durations.includes(val), {
-    message: "Duration can only be 1, 3, 6 or 12 months"
+    message: "Duration can only be 1, 2, 3, 6 or 12 months"
   }),
   paidDD: optIntString,
 
@@ -124,7 +124,7 @@ export const patronRenewSchema = z.object({
   id: z.number().min(0),
   plan: z.number().min(1).max(6),
   duration: z.number().refine((val) => durations.includes(val), {
-    message: "Duration can only be 1, 3, 6 or 12 months"
+    message: "Duration can only be 1, 2, 3, 6 or 12 months"
   }),
   paidDD: optIntString,
   mode: z.nativeEnum($Enums.TransactionMode),
@@ -141,7 +141,7 @@ export const patronReopenSchema = z.object({
   id: z.number().min(0),
   plan: z.number().min(1).max(6),
   duration: z.number().refine((val) => durations.includes(val), {
-    message: "Duration can only be 1, 3, 6 or 12 months"
+    message: "Duration can only be 1, 2, 3, 6 or 12 months"
   }),
   paidDD: optIntString,
   mode: z.nativeEnum($Enums.TransactionMode),
