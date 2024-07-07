@@ -1001,6 +1001,7 @@ export async function patronAddon(
           create: {
             mode: input.mode,
             type: "ADDON",
+            readingFees: addonFees,
             netPayable: addonFees + (input.adjust || 0),
 
             adjust: input.adjust || 0,
@@ -1008,10 +1009,8 @@ export async function patronAddon(
             offer: input.offer,
             remarks: input.remarks,
 
-            oldPlan: patron.subscription!.plan,
-            newPlan: patron.subscription!.plan,
-            oldExpiry: patron.subscription!.expiryDate,
-            newExpiry: patron.subscription!.expiryDate,
+            newPlan: input.plan,
+            newExpiry: addonExpiry,
 
             supportId: support.id,
           },

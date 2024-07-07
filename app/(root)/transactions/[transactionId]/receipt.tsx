@@ -61,12 +61,16 @@ export default function Receipt({
             <div className="font-bold">Name</div>
             <div className="">: {transaction.patron.name}</div>
 
-            <div className="font-bold">Reading Plan</div>
+            <div className="font-bold">
+              {transaction.type == "ADDON" ? "Addon Plan" : "Reading Plan"}
+            </div>
             <div className="">
               : {transaction.newPlan ? `${transaction.newPlan} Book` : ""}
             </div>
 
-            <div className="font-bold text-red-700">Plan Validity</div>
+            <div className="font-bold text-red-700">
+              {transaction.type == "ADDON" ? "Addon Validity" : "Plan Validity"}
+            </div>
             <div className="font-bold text-red-700">
               :{" "}
               {transaction.newExpiry
