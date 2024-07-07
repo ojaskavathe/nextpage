@@ -56,7 +56,7 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
   },
   {
     header: "Patron",
-    size: 150,
+    size: 120,
     cell: ({ cell }) => {
       const patronId = cell.getValue() as number;
       return (
@@ -73,6 +73,7 @@ export const columns: ColumnDef<TransactionWithPatron>[] = [
   },
   {
     header: "Patron Name",
+    size: 150,
     accessorFn: (row) => {
       return row.patron.name;
     },

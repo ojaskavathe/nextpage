@@ -375,6 +375,7 @@ export const expenseSchema = z.object({
   ),
 
   remarks: optString,
+  createdAt: z.date(),
 })
 
 export const cashReportSchema = z.object({

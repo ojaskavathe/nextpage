@@ -54,7 +54,7 @@ export function PatronDetails({
                 {patron.subscription?.closed ? (
                   <span className="text-gray-500">CLOSED</span>
                 ) : patron.subscription?.expiryDate! >= new Date() ? (
-                  <span className="">ACTIVE</span>
+                  <span className="text-blue-500">ACTIVE</span>
                 ) : (
                   <span className="text-red-500">EXPIRED</span>
                 )}
@@ -79,10 +79,12 @@ export function PatronDetails({
               <TimerReset className="w-4" />
               <span className="pl-2">
                 <span className="font-semibold">{`Expires on: `}</span>
-                {patron.subscription?.expiryDate.toLocaleDateString(
-                  "en-IN",
-                  dateFormat,
-                )}
+                <span className={`${patron.subscription!.expiryDate < today && "text-red-500 font-semibold"}`}>
+                  {patron.subscription?.expiryDate.toLocaleDateString(
+                    "en-IN",
+                    dateFormat,
+                  )}
+                </span>
               </span>
             </div>
           </div>

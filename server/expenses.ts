@@ -73,6 +73,7 @@ export async function createExpense(input: z.infer<typeof expenseSchema>) {
           },
         },
         remarks: input.remarks,
+        createdAt: input.createdAt,
       },
     });
 

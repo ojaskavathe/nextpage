@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 
 import { expenseSchema } from "@/lib/schema";
 import { useRouter } from "next/navigation";
-import { AlertCircle, CircleMinus } from "lucide-react";
+import { AlertCircle, CalendarIcon, CircleMinus } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -31,18 +31,27 @@ import {
 import { $Enums, ExpenseCategory } from "@prisma/client";
 import { addCategory, createExpense, removeCategory } from "@/server/expenses";
 import { toast } from "sonner";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function ExpenseForm({
   categories,
   role,
   className,
 }: {
-  categories: ExpenseCategory[],
-  role: $Enums.Role,
-  className: string,
+  categories: ExpenseCategory[];
+  role: $Enums.Role;
+  className: string;
 }) {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
+
+  const today = new Date();
 
   const form = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
@@ -50,12 +59,13 @@ export default function ExpenseForm({
       category: "",
       amount: "",
       remarks: "",
+      createdAt: today,
     },
   });
 
   const [isPending, startTransition] = useTransition();
   async function handleAdd() {
-    if ( !newCat ) return;
+    if (!newCat) return;
     await addCategory(newCat);
 
     startTransition(() => {
@@ -74,10 +84,10 @@ export default function ExpenseForm({
     const res = await createExpense(data);
 
     if (res.error == 0) {
-      router.refresh()
+      router.refresh();
       toast.success(`Expense Added!`);
     } else {
-      setErrorMessage(res.message)
+      setErrorMessage(res.message);
     }
   };
 
@@ -113,7 +123,7 @@ export default function ExpenseForm({
                         <SelectItem value={`${i.name}`} key={i.name}>
                           {i.name}
                         </SelectItem>
-                        {role == $Enums.Role.ADMIN &&
+                        {role == $Enums.Role.ADMIN && (
                           <Button
                             size="sm"
                             variant="secondary"
@@ -122,10 +132,10 @@ export default function ExpenseForm({
                           >
                             <CircleMinus className="h-full" />
                           </Button>
-                        }
+                        )}
                       </div>
                     ))}
-                    {role == $Enums.Role.ADMIN && 
+                    {role == $Enums.Role.ADMIN && (
                       <div className="mt-2 p-1 flex space-x-2 items-center justify-between max-w-[--radix-select-trigger-width]">
                         <Input
                           className="h-8 w-full"
@@ -143,7 +153,7 @@ export default function ExpenseForm({
                           +
                         </Button>
                       </div>
-                    }
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -177,19 +187,63 @@ export default function ExpenseForm({
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="remarks"
-          render={({ field }) => (
-            <FormItem className="mt-4">
-              <FormLabel>Remarks</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="Special Comment" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="mt-4 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <FormField
+            control={form.control}
+            name="remarks"
+            render={({ field }) => (
+              <FormItem className="w-full basis-1/2">
+                <FormLabel>Remarks</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Special Comment" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="createdAt"
+            render={({ field }) => (
+              <FormItem className="w-full basis-1/2">
+                <FormLabel>Scheduled for:</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        {field.value ? (
+                          field.value.toLocaleDateString("en-IN", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <Button
           type="submit"
           className="mt-6 w-full"

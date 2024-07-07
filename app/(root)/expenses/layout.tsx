@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { InnerNav } from "@/components/nav-inner";
 import { Separator } from "@/components/ui/separator";
 import { Metadata } from "next";
@@ -13,7 +14,7 @@ const expensesNavItems = [
     href: "/expenses/add",
   },
   {
-    title: "Report",
+    title: "Petty Cash",
     href: "/expenses/report",
   },
   {
@@ -23,6 +24,12 @@ const expensesNavItems = [
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+
+  if (session?.user?.role != "ADMIN") {
+    expensesNavItems.pop();
+  }
+
   return (
     <div className="space-y-6 pb-16">
       <div className="space-y-0.5">

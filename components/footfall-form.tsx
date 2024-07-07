@@ -173,6 +173,7 @@ function FootfallForm({
     },
   });
   const isDD = form.watch("isDD");
+  const items = form.watch("numBooks");
   const message = form.watch("message");
 
   useEffect(() => {
@@ -353,13 +354,15 @@ function FootfallForm({
                 <div ref={deliveryDetails}>
                   {sr_id(patron.id)} / {patron.name} <br />
                   {patron.address} <br />
+                  <br />
                   <span className="font-bold">Phone:</span> {patron.phone}{" "}
                   {!!patron.altPhone && `/ ${patron.altPhone}`} <br />
-                  Pickup Items: <br />
+                  <span className="font-bold">Pickeup Items:</span> {items}
+                  <br />
                   {!!message && (
                     <div>
                       <br />
-                      Remarks: <br />
+                      <span className="font-bold">Remarks:</span> <br />
                       {message}
                     </div>
                   )}
@@ -526,7 +529,7 @@ function FootfallDelivery({
           name="numBooks"
           render={({ field: { onChange, ...fieldProps } }) => (
             <FormItem className="basis-1/3">
-              <FormLabel>Books:</FormLabel>
+              <FormLabel>Items:</FormLabel>
               <FormControl>
                 <Input
                   onChange={(e) => {
