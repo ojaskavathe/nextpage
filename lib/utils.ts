@@ -56,9 +56,9 @@ export const plans = [1, 2, 3, 4, 5, 6];
 export const durations = [1, 2, 3, 6, 12];
 export const addonDurations = [1, 2, 3, 4];
 
-export const freeDDs = [0, 0, 2, 4];
-export const holidays = [0, 0, 1, 2];
-export const discounts = [0, 0.05, 0.1, 0.2];
+export const freeDDs = [0, 0, 0, 2, 4];
+export const holidays = [0, 0, 0, 1, 2];
+export const discounts = [0, 0, 0.05, 0.1, 0.2];
 
 export const fee = [300, 400, 500, 600, 700, 800];
 export const addonFee = 100;
