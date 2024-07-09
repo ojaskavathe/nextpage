@@ -35,9 +35,9 @@ export default function Receipt({
 
   return (
     <>
-      <div className="flex space-x-4 my-4">
+      <div className="flex flex-col-reverse md:flex-row space-y-4 md:space-y-0 md:space-x-4 my-4">
         <div
-          className="bg-white border border-black p-4 w-[400px] text-sm"
+          className="bg-white border border-black px-4 w-full sm:w-[400px] text-sm"
           ref={ref}
         >
           <div className="flex flex-col items-center text-xl font-bold py-4">
@@ -123,7 +123,7 @@ export default function Receipt({
           </div>
         </div>
 
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-row md:flex-col space-x-4 md:space-x-0 md:space-y-4 pb-4">
           <Button onClick={convert} variant="secondary">
             <Clipboard size={16} />
           </Button>
