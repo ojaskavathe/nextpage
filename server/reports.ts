@@ -1,6 +1,6 @@
 "use server";
 
-import { followupType } from "@/lib/utils";
+import { followupType, PatronWithSub } from "@/lib/utils";
 import { prisma } from "./db";
 
 export const fetchPatrons = async () => {
@@ -83,17 +83,15 @@ export const fetchCheckouts = async () => {
   }
 };
 
-export const fetchFollowup = async (
-  type: followupType,
-) => {
+export const fetchFollowup = async (type: followupType) => {
   const today = new Date();
   const monthAgo = new Date(new Date().setDate(today.getDate() - 30));
   const monthAhead = new Date(new Date().setDate(today.getDate() + 30));
 
   try {
     switch (type) {
-      case "ACTIVE":
-        return await prisma.patron.findMany({
+      case "ACTIVE": {
+        const data = await prisma.patron.findMany({
           where: {
             subscription: {
               expiryDate: {
@@ -110,12 +108,16 @@ export const fetchFollowup = async (
           },
           orderBy: {
             subscription: {
-              expiryDate: "desc",
+              expiryDate: "asc",
             },
           },
         });
-      case "GETTING":
-        return await prisma.patron.findMany({
+        return data.map((d) => {
+          return { ...d, type };
+        });
+      }
+      case "GETTING": {
+        const data = await prisma.patron.findMany({
           where: {
             subscription: {
               expiryDate: {
@@ -134,8 +136,12 @@ export const fetchFollowup = async (
             },
           },
         });
-      case "EXPIRED":
-        return await prisma.patron.findMany({
+        return data.map((d) => {
+          return { ...d, type };
+        });
+      }
+      case "EXPIRED": {
+        const data = await prisma.patron.findMany({
           where: {
             subscription: {
               expiryDate: {
@@ -154,8 +160,12 @@ export const fetchFollowup = async (
             },
           },
         });
+        return data.map((d) => {
+          return { ...d, type };
+        });
+      }
       case "DORMANT":
-        return await prisma.patron.findMany({
+        const data = await prisma.patron.findMany({
           where: {
             subscription: {
               expiryDate: {
@@ -176,10 +186,20 @@ export const fetchFollowup = async (
             },
           },
         });
-      default:
-        return [];
+        return data.map((d) => {
+          return { ...d, type };
+        });
+      default: {
+        const data: PatronWithSub[] = [];
+        return data.map((d) => {
+          return { ...d, type };
+        });
+      }
     }
   } catch (e) {
-    return [];
+    const data: PatronWithSub[] = [];
+    return data.map((d) => {
+      return { ...d, type };
+    });
   }
 };

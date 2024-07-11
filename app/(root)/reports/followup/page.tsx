@@ -1,4 +1,4 @@
-import { FollowupTable } from "./followup-reports-table";
+import { FollowupTable } from "./followup-table";
 
 export default async function FootfallReport() {
 

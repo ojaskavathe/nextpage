@@ -51,7 +51,7 @@ export function FollowupTable({
   className?: string;
 }) {
   const [followup, setFollowup] = useState<followupType>(followups[0]);
-  const [data, setData] = useState<PatronWithSub[]>([]);
+  const [data, setData] = useState<(PatronWithSub & {type: followupType})[]>([]);
 
   useEffect(() => {
     fetchFollowup(followup).then((d) => setData(d));
@@ -59,7 +59,7 @@ export function FollowupTable({
 
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const globalFilterFn: FilterFn<PatronWithSub> = (
+  const globalFilterFn: FilterFn<(PatronWithSub & {type: followupType})> = (
     row,
     columnId,
     filterValue: string,
@@ -187,9 +187,9 @@ export function FollowupTable({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}

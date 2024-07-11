@@ -53,7 +53,7 @@ export const timeFormat: Intl.DateTimeFormatOptions = {
 };
 
 export const followups = ["GETTING", "EXPIRED", "DORMANT", "ACTIVE"] as const;
-export type followupType = typeof followups[number];
+export type followupType = (typeof followups)[number];
 
 export const plans = [1, 2, 3, 4, 5, 6];
 export const durations = [1, 2, 3, 6, 12];
@@ -84,3 +84,51 @@ export async function wait(time: number = 1000) {
 
 export const objectMap = (obj: any, fn: any) =>
   Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)]));
+
+export const followupMessage = (patron: PatronWithSub, type: followupType) => {
+  switch (type) {
+    case "GETTING":
+      return `Dear ${patron.name} (${sr_id(patron.id)}),
+
+Your *SimplyRead Library* subscription is *getting expired* on  *${patron.subscription!.expiryDate.toLocaleDateString("en-IN", dateFormat)}*. Kindly renew the same at the earliest.* 🙏🙏🙏
+
+You can now check subscription plans at https://simplyread.in/plans/ and renew your subscription from home by paying through *Gpay, PhonePay, PayTM* on *9527971342* or *UPI* on *simplyread@upi*.
+
+Feel free to contact us for any clarification you may need.
+
+Team SimplyRead`;
+
+    case "EXPIRED":
+      return `Dear ${patron.name} (${sr_id(patron.id)}),
+
+Your *SimplyRead Library* subscription has *expired* on *${patron.subscription!.expiryDate.toLocaleDateString("en-IN", dateFormat)}*. Kind request to renew the same at the earliest. 🙏🙏🙏 
+
+You can now check subscription plans at https://simplyread.in/plans/ and renew your subscription from home by paying through *Gpay, PhonePay, PayTM* on *9527971342* or *UPI* on *simplyread@upi.* 
+
+Feel free to contact us for any clarification you may need. 
+
+Team SimplyRead`;
+
+    case "DORMANT":
+      return `Dear ${patron.name} (${sr_id(patron.id)}),
+
+Your *SimplyRead Library* subscription is *expired* since *${patron.subscription!.expiryDate.toLocaleDateString("en-IN", dateFormat)}* and you are currently holding library books with you since *${patron.subscription!.lastIssued!.toLocaleDateString("en-IN", dateFormat)}* . Kind request to *exchange the books* and *renew subscription* at the earliest. 
+
+You can now check subscription plans at https://simplyread.in/plans/ and renew your subscription from home by paying through Gpay, PhonePay, PayTM on 9527971342 or UPI on simplyread@upi. 
+
+Feel free to contact us for any clarification you may need. *Look Forward for your urgent response.* 🙏🙏🙏  
+
+Team SimplyRead`;
+
+    case "ACTIVE":
+      return `Dear ${patron.name} (${sr_id(patron.id)}),
+
+This message is just to bring to your kind attention that you have *not exchanged* any Books/Magazines since *${patron.subscription!.lastIssued!.toLocaleDateString("en-IN", dateFormat)}*. 
+
+Kind request for books exchange at the earliest. In case, you have *finished reading* and are *unable to visit our library* soon, please use our *home delivery service.* 
+
+Thank you very much in advance🙏🏻
+
+Team SimplyRead`;
+  }
+};
