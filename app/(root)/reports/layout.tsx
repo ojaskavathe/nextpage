@@ -20,6 +20,10 @@ const reportsNavItems = [
     title: "Patrons",
     href: "/reports/patrons",
   },
+  {
+    title: "Followup",
+    href: "/reports/followup",
+  },
 ]
 
 export default function ReportsLayout({ children }: { children: React.ReactNode }) {

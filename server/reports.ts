@@ -1,5 +1,6 @@
 "use server";
 
+import { followupType } from "@/lib/utils";
 import { prisma } from "./db";
 
 export const fetchPatrons = async () => {
@@ -11,7 +12,7 @@ export const fetchPatrons = async () => {
       },
       orderBy: {
         subscription: {
-          expiryDate: "desc"
+          expiryDate: "desc",
         },
       },
     });
@@ -77,6 +78,107 @@ export const fetchCheckouts = async () => {
         patron: true,
       },
     });
+  } catch (e) {
+    return [];
+  }
+};
+
+export const fetchFollowup = async (
+  type: followupType,
+) => {
+  const today = new Date();
+  const monthAgo = new Date(new Date().setDate(today.getDate() - 30));
+  const monthAhead = new Date(new Date().setDate(today.getDate() + 30));
+
+  try {
+    switch (type) {
+      case "ACTIVE":
+        return await prisma.patron.findMany({
+          where: {
+            subscription: {
+              expiryDate: {
+                gt: today,
+              },
+              lastIssued: {
+                lt: monthAgo,
+              },
+            },
+          },
+          include: {
+            subscription: true,
+            addons: true,
+          },
+          orderBy: {
+            subscription: {
+              expiryDate: "desc",
+            },
+          },
+        });
+      case "GETTING":
+        return await prisma.patron.findMany({
+          where: {
+            subscription: {
+              expiryDate: {
+                gt: today,
+                lt: monthAhead,
+              },
+            },
+          },
+          include: {
+            subscription: true,
+            addons: true,
+          },
+          orderBy: {
+            subscription: {
+              expiryDate: "desc",
+            },
+          },
+        });
+      case "EXPIRED":
+        return await prisma.patron.findMany({
+          where: {
+            subscription: {
+              expiryDate: {
+                gt: monthAgo,
+                lt: today,
+              },
+            },
+          },
+          include: {
+            subscription: true,
+            addons: true,
+          },
+          orderBy: {
+            subscription: {
+              expiryDate: "desc",
+            },
+          },
+        });
+      case "DORMANT":
+        return await prisma.patron.findMany({
+          where: {
+            subscription: {
+              expiryDate: {
+                lt: today,
+              },
+              booksInHand: {
+                gt: 0,
+              },
+            },
+          },
+          include: {
+            subscription: true,
+            addons: true,
+          },
+          orderBy: {
+            subscription: {
+              expiryDate: "desc",
+            },
+          },
+        });
+      default:
+        return [];
+    }
   } catch (e) {
     return [];
   }
