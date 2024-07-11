@@ -26,8 +26,10 @@ const expensesNavItems = [
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
 
+  let expenseNav = expensesNavItems;
+
   if (session?.user?.role != "ADMIN") {
-    expensesNavItems.pop();
+    expenseNav = expensesNavItems.slice(0, 2);
   }
 
   return (
@@ -40,7 +42,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
       <div className="flex flex-col">
         <aside className="mb-4 flex space-x-4">
-          <InnerNav navItems={expensesNavItems} />
+          <InnerNav navItems={expenseNav} />
         </aside>
         <Separator className="my-0" />
         <div className="mt-4 flex-1">{children}</div>
