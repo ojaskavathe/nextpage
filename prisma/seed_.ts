@@ -243,51 +243,67 @@ async function main() {
   });
 
   const checkoutData = await getCheckoutData();
-  checkoutData.forEach(async (row) => {
-    const isId = await z
+  const checkout = checkoutData.filter((row) => {
+    const isId = z
       .string()
       .regex(/^M\d+$/)
-      .safeParseAsync(row["patron_id"]);
-    if (isId.success) {
-      try {
-        await prisma.subscription.update({
-          data: {
-            booksInHand: parseInt(row["COUNTA of checked_out"]),
-            lastIssued: row["MAX of checked_out"]
-              ? new Date(row["MAX of checked_out"] + "T00:00:00.000+05:30")
-              : null,
-          },
-          where: {
-            patronId: parseInt(row["patron_id"].substring(1)),
-          },
-        });
-      } catch (e) {
-        console.log("Error inserting Checkout for " + row["patron_id"]);
-      }
+      .safeParse(row["patron_id"]);
+    return isId.success;
+  });
+
+  await prisma.subscription.updateMany({
+    where: {
+      patronId: {
+        notIn: checkout.map((row: any) =>
+          parseInt(row["patron_id"].substring(1)),
+        ),
+      },
+    },
+    data: {
+      booksInHand: 0,
+    },
+  });
+
+  checkout.forEach(async (row) => {
+    try {
+      await prisma.subscription.update({
+        data: {
+          booksInHand: parseInt(row["COUNTA of checked_out"]),
+          lastIssued: row["MAX of checked_out"]
+            ? new Date(row["MAX of checked_out"] + "T00:00:00.000+05:30")
+            : null,
+        },
+        where: {
+          patronId: parseInt(row["patron_id"].substring(1)),
+        },
+      });
+    } catch (e) {
+      console.log("Error inserting Checkout for " + row["patron_id"]);
     }
   });
 
   const checkinData = await getCheckinData();
-  checkinData.forEach(async (row) => {
-    const isId = await z
+  const checkin = checkinData.filter((row) => {
+    const isId = z
       .string()
       .regex(/^M\d+$/)
-      .safeParseAsync(row["patron_id"]);
-    if (isId.success) {
-      try {
-        await prisma.subscription.update({
-          data: {
-            lastReturned: row["MAX of checked_in"]
-              ? new Date(row["MAX of checked_in"] + "T00:00:00.000+05:30")
-              : null,
-          },
-          where: {
-            patronId: parseInt(row["patron_id"].substring(1)),
-          },
-        });
-      } catch (e) {
-        console.log("Error inserting Checkin for " + row["patron_id"]);
-      }
+      .safeParse(row["patron_id"]);
+    return isId.success;
+  });
+  checkin.forEach(async (row) => {
+    try {
+      await prisma.subscription.update({
+        data: {
+          lastReturned: row["MAX of checked_in"]
+            ? new Date(row["MAX of checked_in"] + "T00:00:00.000+05:30")
+            : null,
+        },
+        where: {
+          patronId: parseInt(row["patron_id"].substring(1)),
+        },
+      });
+    } catch (e) {
+      console.log("Error inserting Checkin for " + row["patron_id"]);
     }
   });
 
