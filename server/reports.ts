@@ -100,6 +100,7 @@ export const fetchFollowup = async (type: followupType) => {
               lastIssued: {
                 lt: monthAgo,
               },
+              closed: false,
             },
           },
           include: {
@@ -124,6 +125,7 @@ export const fetchFollowup = async (type: followupType) => {
                 gt: today,
                 lt: monthAhead,
               },
+              closed: false,
             },
           },
           include: {
@@ -148,6 +150,7 @@ export const fetchFollowup = async (type: followupType) => {
                 gt: monthAgo,
                 lt: today,
               },
+              closed: false,
             },
           },
           include: {
@@ -169,11 +172,12 @@ export const fetchFollowup = async (type: followupType) => {
           where: {
             subscription: {
               expiryDate: {
-                lt: today,
+                lt: monthAgo,
               },
               booksInHand: {
                 gt: 0,
               },
+              closed: false,
             },
           },
           include: {
