@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import { InnerNav } from "@/components/nav-inner";
 import { Separator } from "@/components/ui/separator";
 import { Metadata } from "next";
@@ -24,13 +23,7 @@ const expensesNavItems = [
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
-
   let expenseNav = expensesNavItems;
-
-  if (session?.user?.role != "ADMIN") {
-    expenseNav = expensesNavItems.slice(0, 2);
-  }
 
   return (
     <div className="space-y-6 pb-16">
