@@ -86,7 +86,7 @@ export const fetchCheckouts = async () => {
 export const fetchFollowup = async (type: followupType) => {
   const today = new Date();
   const monthAgo = new Date(new Date().setDate(today.getDate() - 30));
-  const monthAhead = new Date(new Date().setDate(today.getDate() + 30));
+  const tenDaysAhead = new Date(new Date().setDate(today.getDate() + 10));
 
   try {
     switch (type) {
@@ -123,7 +123,7 @@ export const fetchFollowup = async (type: followupType) => {
             subscription: {
               expiryDate: {
                 gt: today,
-                lt: monthAhead,
+                lt: tenDaysAhead,
               },
               closed: false,
             },
@@ -134,7 +134,7 @@ export const fetchFollowup = async (type: followupType) => {
           },
           orderBy: {
             subscription: {
-              expiryDate: "desc",
+              expiryDate: "asc",
             },
           },
         });
@@ -149,6 +149,9 @@ export const fetchFollowup = async (type: followupType) => {
               expiryDate: {
                 gt: monthAgo,
                 lt: today,
+              },
+              booksInHand: {
+                gt: 0
               },
               closed: false,
             },
