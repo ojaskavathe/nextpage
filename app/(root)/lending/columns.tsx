@@ -19,14 +19,14 @@ export const columns: ColumnDef<CheckoutWithPatron>[] = [
   {
     header: "Patron",
     accessorFn: (row) => {
-      return sr_id(row.patronId);
+      return row.patronId;
     },
     cell: ({ cell }) => {
       const patronId = cell.getValue() as number;
       return (
         <Link href={`/patrons/${patronId}`}>
           <Button className="font-semibold text-sm" variant="outline">
-            {(cell.getValue() as number)}
+            {sr_id(patronId)}
           </Button>
         </Link>
       );
