@@ -26,8 +26,12 @@ const nextConfig = {
         source: '/expenses',
         destination: '/expenses/add',
         permanent: true
-      }
-
+      },
+      {
+        source: '/summary',
+        destination: '/summary/financial',
+        permanent: true
+      },
     ]
   }
 }

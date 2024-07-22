@@ -45,41 +45,54 @@ export function Nav({ userId, role }: NavProps) {
     href: string;
     icon: LucideIcon;
     variant: "default" | "ghost";
+    auth: boolean;
   }[] = [
-    {
-      title: "Patrons",
-      href: "/patrons",
-      icon: Users,
-      variant: pathName.startsWith("/patrons") ? "default" : "ghost",
-    },
-    {
-      title: "Library",
-      href: "/library",
-      icon: Library,
-      variant: pathName.startsWith("/library") ? "default" : "ghost",
-    },
-    {
-      title: "Lending",
-      href: "/lending",
-      icon: ArrowLeftRight,
-      variant: pathName.startsWith("/lending") ? "default" : "ghost",
-    },
-    {
-      title: "Reports",
-      href: "/reports",
-      icon: FileSpreadsheet,
-      variant: pathName.startsWith("/reports") ? "default" : "ghost",
-    },
-    {
-      title: "Expenses",
-      href: "/expenses",
-      icon: HandCoins,
-      variant: pathName.startsWith("/expenses") ? "default" : "ghost",
-    },
-  ];
+      {
+        title: "Patrons",
+        href: "/patrons",
+        icon: Users,
+        variant: pathName.startsWith("/patrons") ? "default" : "ghost",
+        auth: false,
+      },
+      {
+        title: "Library",
+        href: "/library",
+        icon: Library,
+        variant: pathName.startsWith("/library") ? "default" : "ghost",
+        auth: false,
+      },
+      {
+        title: "Lending",
+        href: "/lending",
+        icon: ArrowLeftRight,
+        variant: pathName.startsWith("/lending") ? "default" : "ghost",
+        auth: false,
+      },
+      {
+        title: "Reports",
+        href: "/reports",
+        icon: FileSpreadsheet,
+        variant: pathName.startsWith("/reports") ? "default" : "ghost",
+        auth: false,
+      },
+      {
+        title: "Expenses",
+        href: "/expenses",
+        icon: HandCoins,
+        variant: pathName.startsWith("/expenses") ? "default" : "ghost",
+        auth: false,
+      },
+      {
+        title: "Summary",
+        href: "/summary",
+        icon: HandCoins,
+        variant: pathName.startsWith("/summary") ? "default" : "ghost",
+        auth: true,
+      },
+    ];
 
   const [collaped, setCollapsed] = useState(true);
-  const height = 310;
+  const height = 360;
 
   return (
     <>
@@ -146,22 +159,26 @@ export function Nav({ userId, role }: NavProps) {
           </div>
           <Separator className="mt-4" />
           <nav className="grid gap-1 w-full mt-4">
-            {routes.map((route, index) => (
-              <Link
-                key={index}
-                href={route.href}
-                className={cn(
-                  buttonVariants({ variant: route.variant, size: "lg" }),
-                  route.variant === "default" &&
-                    "dark:bg-muted dark:text-white",
-                  "justify-start",
-                )}
-                onClick={() => setCollapsed(true)}
-              >
-                <route.icon className="mr-2 h-4 w-4" />
-                {route.title}
-              </Link>
-            ))}
+            {routes.map(
+              (route, index) =>
+                (!route.auth || (route.auth && role == "ADMIN")) && (
+                  <Link
+                    key={index}
+                    href={route.href}
+                    className={cn(
+                      route.auth && role !== "ADMIN" && "hidden",
+                      buttonVariants({ variant: route.variant, size: "lg" }),
+                      route.variant === "default" &&
+                      "dark:bg-muted dark:text-white",
+                      "justify-start",
+                    )}
+                    onClick={() => setCollapsed(true)}
+                  >
+                    <route.icon className="mr-2 h-4 w-4" />
+                    {route.title}
+                  </Link>
+                ),
+            )}
             {role == "ADMIN" && (
               <Link
                 href={"/admin"}
@@ -220,20 +237,24 @@ export function Nav({ userId, role }: NavProps) {
         </DropdownMenu>
         <Separator />
         <nav className="grid gap-1">
-          {routes.map((route, index) => (
-            <Link
-              key={index}
-              href={route.href}
-              className={cn(
-                buttonVariants({ variant: route.variant, size: "sm" }),
-                route.variant === "default" && "dark:bg-muted dark:text-white",
-                "justify-start",
-              )}
-            >
-              <route.icon className="mr-2 h-4 w-4" />
-              {route.title}
-            </Link>
-          ))}
+          {routes.map(
+            (route, index) =>
+              (!route.auth || (route.auth && role == "ADMIN")) && (
+                <Link
+                  key={index}
+                  href={route.href}
+                  className={cn(
+                    buttonVariants({ variant: route.variant, size: "sm" }),
+                    route.variant === "default" &&
+                    "dark:bg-muted dark:text-white",
+                    "justify-start",
+                  )}
+                >
+                  <route.icon className="mr-2 h-4 w-4" />
+                  {route.title}
+                </Link>
+              ),
+          )}
         </nav>
         {role == "ADMIN" && (
           <Link href="/admin" className="mt-auto">

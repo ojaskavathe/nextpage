@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { cn, followups, followupType, PatronWithSub } from "@/lib/utils";
+import { cn, followups, T_Followup, PatronWithSub } from "@/lib/utils";
 
 import {
   ChevronLeft,
@@ -50,8 +50,8 @@ export function FollowupTable({
   patronId?: number;
   className?: string;
 }) {
-  const [followup, setFollowup] = useState<followupType>(followups[0]);
-  const [data, setData] = useState<(PatronWithSub & {type: followupType})[]>([]);
+  const [followup, setFollowup] = useState<T_Followup>(followups[0]);
+  const [data, setData] = useState<(PatronWithSub & {type: T_Followup})[]>([]);
 
   useEffect(() => {
     fetchFollowup(followup).then((d) => setData(d));
@@ -59,7 +59,7 @@ export function FollowupTable({
 
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const globalFilterFn: FilterFn<(PatronWithSub & {type: followupType})> = (
+  const globalFilterFn: FilterFn<(PatronWithSub & {type: T_Followup})> = (
     row,
     columnId,
     filterValue: string,
@@ -112,7 +112,7 @@ export function FollowupTable({
           />
           <Select
             value={followup}
-            onValueChange={(value: followupType) => {
+            onValueChange={(value: T_Followup) => {
               setFollowup(value);
             }}
           >

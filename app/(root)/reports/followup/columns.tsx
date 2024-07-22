@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import {
   PatronWithSub,
   dateFormat,
-  followupType,
+  T_Followup,
   followupMessage,
   sr_id,
 } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-export const columns: ColumnDef<PatronWithSub & {type: followupType}>[] = [
+export const columns: ColumnDef<PatronWithSub & {type: T_Followup}>[] = [
   {
     header: "Patron",
     accessorFn: (row) => {
@@ -60,7 +60,7 @@ export const columns: ColumnDef<PatronWithSub & {type: followupType}>[] = [
     header: "Mobile",
     accessorFn: (row) => row,
     cell: (row) => {
-      const patron = row.getValue() as PatronWithSub & {type: followupType};
+      const patron = row.getValue() as PatronWithSub & {type: T_Followup};
       const message = followupMessage(patron, patron.type);
       return (
         <div className="w-36 flex space-x-4 items-center justify-between">
@@ -96,7 +96,7 @@ export const columns: ColumnDef<PatronWithSub & {type: followupType}>[] = [
     header: "Alternate Mobile",
     accessorFn: (row) => row,
     cell: (row) => {
-      const patron = row.getValue() as PatronWithSub & {type: followupType};
+      const patron = row.getValue() as PatronWithSub & {type: T_Followup};
       const message = followupMessage(patron, patron.type);
       return (
         <>

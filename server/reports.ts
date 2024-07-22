@@ -1,6 +1,6 @@
 "use server";
 
-import { followupType, PatronWithSub } from "@/lib/utils";
+import { T_Followup, PatronWithSub } from "@/lib/utils";
 import { prisma } from "./db";
 
 export const fetchPatrons = async () => {
@@ -83,7 +83,7 @@ export const fetchCheckouts = async () => {
   }
 };
 
-export const fetchFollowup = async (type: followupType) => {
+export const fetchFollowup = async (type: T_Followup) => {
   const today = new Date();
   const monthAgo = new Date(new Date().setDate(today.getDate() - 30));
   const tenDaysAhead = new Date(new Date().setDate(today.getDate() + 10));

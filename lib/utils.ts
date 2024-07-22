@@ -53,7 +53,9 @@ export const timeFormat: Intl.DateTimeFormatOptions = {
 };
 
 export const followups = ["GETTING", "EXPIRED", "DORMANT", "ACTIVE"] as const;
-export type followupType = (typeof followups)[number];
+export type T_Followup = (typeof followups)[number];
+
+export type T_SummaryCount = { createdAt: Date, sum: number };
 
 export const plans = [1, 2, 3, 4, 5, 6];
 export const durations = [1, 2, 3, 6, 12];
@@ -85,7 +87,7 @@ export async function wait(time: number = 1000) {
 export const objectMap = (obj: any, fn: any) =>
   Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)]));
 
-export const followupMessage = (patron: PatronWithSub, type: followupType) => {
+export const followupMessage = (patron: PatronWithSub, type: T_Followup) => {
   switch (type) {
     case "GETTING":
       return `Dear ${patron.name} (${sr_id(patron.id)}),
