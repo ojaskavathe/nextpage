@@ -16,7 +16,7 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import {
   Form,
@@ -24,7 +24,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +33,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 
@@ -47,18 +47,13 @@ import {
   holidays,
   PatronFull,
   plans,
-  sr_id
+  sr_id,
 } from "@/lib/utils";
 import { renewPatron } from "@/server/patron";
 
-import {
-  AlertCircle,
-  CalendarMinus,
-  CalendarPlus
-} from "lucide-react";
+import { AlertCircle, CalendarMinus, CalendarPlus } from "lucide-react";
 
 export default function RenewForm({ patron }: { patron: PatronFull }) {
-
   const router = useRouter();
 
   const [plan, setPlan] = useState(0);
@@ -72,46 +67,46 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
   const oldExpiry = patron.subscription!.expiryDate;
 
   let numDays = 0;
-  const isPatronLate = (patron.subscription!.booksInHand > 0) && (oldExpiry < today);
+  const isPatronLate =
+    patron.subscription!.booksInHand > 0 && oldExpiry < today;
   if (isPatronLate) {
     numDays = Math.floor(
-      (today.valueOf() - oldExpiry.valueOf())
-      / (1000 * 60 * 60 * 24)
+      (today.valueOf() - oldExpiry.valueOf()) / (1000 * 60 * 60 * 24),
     );
   }
 
   const lateFees = fromExpiry
     ? 0
     : plan
-      ? Math.floor(fee[plan - 1] * numDays / 30)
+      ? Math.floor((fee[plan - 1] * numDays) / 30)
       : 0;
   const newExpiry = isPatronLate
     ? fromExpiry
       ? new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + duration))
       : new Date(today.setMonth(today.getMonth() + duration))
-    : new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + duration))
+    : new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + duration));
 
   const readingFee = fee[plan - 1] * duration;
 
   const index = durations.indexOf(duration);
-  const freeDD = freeDDs[index];
-  const freeHoliday = holidays[index];
-  const discount = readingFee * discounts[index];
+  const freeDD = index != -1 ? freeDDs[index] : 0;
+  const freeHoliday = index != -1 ? holidays[index] : 0;
+  const discount = index != -1 ? readingFee * discounts[index] : 0;
 
   const form = useForm<z.infer<typeof patronRenewSchema>>({
     resolver: zodResolver(patronRenewSchema),
     defaultValues: {
       id: patron.id,
-      paidDD: '',
-      adjust: '',
-      reason: '',
-      offer: '',
-      remarks: '',
+      paidDD: "",
+      adjust: "",
+      reason: "",
+      offer: "",
+      remarks: "",
       renewFromExpiry: false,
-    }
-  })
+    },
+  });
 
-  const adjustWatch = form.watch('adjust', '');
+  const adjustWatch = form.watch("adjust", "");
 
   const onSubmit = async (data: z.infer<typeof patronRenewSchema>) => {
     const res = await renewPatron(data);
@@ -120,9 +115,9 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
       router.push(`/patrons/${data.id}`);
       toast.success(`Patron ${sr_id(data.id)} renewed successfully!`);
     } else {
-      setErrorMessage(res.message)
+      setErrorMessage(res.message);
     }
-  }
+  };
 
   return (
     <Card className="mt-8 xl:w-2/3">
@@ -131,9 +126,7 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
               <FormField
                 control={form.control}
@@ -148,13 +141,15 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
                       }}
                     >
                       <FormControl>
-                        <SelectTrigger >
+                        <SelectTrigger>
                           <SelectValue placeholder="Select a plan" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {plans.map(i => (
-                          <SelectItem value={`${i}`} key={i}>{i} Book</SelectItem>
+                        {plans.map((i) => (
+                          <SelectItem value={`${i}`} key={i}>
+                            {i} Book
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -171,19 +166,23 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
                     <Select
                       onValueChange={(value: string) => {
                         setDuration(parseInt(value));
-                        field.onChange(parseInt(value))
+                        field.onChange(parseInt(value));
                       }}
                     >
                       <FormControl>
-                        <SelectTrigger >
+                        <SelectTrigger>
                           <SelectValue placeholder="Select a duration" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {durations.map(i => (
-                          <SelectItem value={`${i}`} key={i}>{i} Months</SelectItem>
+                        {durations.map((i) => (
+                          <SelectItem value={`${i}`} key={i}>
+                            {i} Months
+                          </SelectItem>
                         ))}
-
+                        {oldExpiry < today && (
+                          <SelectItem value={`0`}>Till Expiry</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -200,9 +199,12 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
                       <Input
                         onChange={(e) => {
                           // only allow integers
-                          if (e.target.value === '' || /^\d*$/.test(e.target.value)) {
-                            setPaidDD(parseInt(e.target.value))
-                            onChange(e.target.value)
+                          if (
+                            e.target.value === "" ||
+                            /^\d*$/.test(e.target.value)
+                          ) {
+                            setPaidDD(parseInt(e.target.value));
+                            onChange(e.target.value);
                           }
                         }}
                         {...fieldProps}
@@ -217,10 +219,8 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
               />
             </div>
 
-            <TransactionDetails
-              form={form}
-            />
-            
+            <TransactionDetails form={form} />
+
             <FormField
               control={form.control}
               name="remarks"
@@ -241,51 +241,64 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
                   {lateFees}
                 </div>
               </div>
-              {!!plan && <FormField
-                control={form.control}
-                name="renewFromExpiry"
-                render={({ field }) => (
-                  <FormItem className="mt-12 flex flex-col items-center justify-center">
-                    <FormControl>
-                      <Toggle
-                        variant="outline"
-                        aria-label="Toggle late"
-                        defaultPressed={field.value}
-                        onPressedChange={(e) => {
-                          field.onChange(e.valueOf());
-                          setFromExpiry(e.valueOf());
-                        }}
-                        className="flex items-center justify-center space-x-2"
-                        disabled={!isPatronLate}
-                      >
-                        {field.value ? <CalendarPlus className="w-4" /> : <CalendarMinus className="w-4" />}
-                        <span className="hidden md:inline">Renew From {field.value ? "Today" : "Expiry"}</span>
-                      </Toggle>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />}
+              {!!plan && (
+                <FormField
+                  control={form.control}
+                  name="renewFromExpiry"
+                  render={({ field }) => (
+                    <FormItem className="mt-12 flex flex-col items-center justify-center">
+                      <FormControl>
+                        <Toggle
+                          variant="outline"
+                          aria-label="Toggle late"
+                          defaultPressed={field.value}
+                          onPressedChange={(e) => {
+                            field.onChange(e.valueOf());
+                            setFromExpiry(e.valueOf());
+                          }}
+                          className="flex items-center justify-center space-x-2"
+                          disabled={!isPatronLate}
+                        >
+                          {field.value ? (
+                            <CalendarPlus className="w-4" />
+                          ) : (
+                            <CalendarMinus className="w-4" />
+                          )}
+                          <span className="hidden md:inline">
+                            Renew From {field.value ? "Today" : "Expiry"}
+                          </span>
+                        </Toggle>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
             <Card className="mt-8">
               <CardHeader>
                 <CardTitle>Payment Details</CardTitle>
-                {(!plan || !duration) &&
-                  <CardDescription>Enter Plan and Duration first!</CardDescription>}
+                {(!plan || !duration) && (
+                  <CardDescription>
+                    Enter Plan and Duration first!
+                  </CardDescription>
+                )}
               </CardHeader>
-              {!!plan && !!duration &&
+              {!!plan && duration >= 0 && (
                 <>
                   <CardContent>
                     <div>
                       <div className="flex items-center justify-between mb-4">
                         <span>New Expiry:</span>
-                        <span>{newExpiry.toLocaleDateString("en-IN", {
-                          day: 'numeric',
-                          month: "long",
-                          year: 'numeric',
-                        })}</span>
+                        <span>
+                          {newExpiry.toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </span>
                       </div>
-                      {!!freeDD &&
+                      {!!freeDD && (
                         <div className="mb-8">
                           <div className="flex items-center justify-between">
                             <span>Free DD:</span>
@@ -295,45 +308,55 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
                             <span>Free Subsciption Holidays:</span>
                             <span>{freeHoliday}</span>
                           </div>
-                        </div>}
+                        </div>
+                      )}
                       <div className="flex items-center justify-between">
                         <span>Reading Fees:</span>
                         <span>₹{readingFee}</span>
                       </div>
-                      {!!paidDD &&
+                      {!!paidDD && (
                         <div className="flex items-center justify-between">
                           <span>DD Fees:</span>
                           <span>₹{paidDD * DDFees}</span>
-                        </div>}
+                        </div>
+                      )}
                       <div className="flex items-center justify-between">
                         <span>Discount:</span>
-                        <span>- ₹{readingFee * discounts[index]}</span>
+                        <span>- ₹{discount}</span>
                       </div>
-                      {!!lateFees &&
+                      {!!lateFees && (
                         <div className="flex items-center justify-between">
                           <span>Past Dues:</span>
                           <span>{`₹${lateFees}`}</span>
-                        </div>}
-                      {!!adjustWatch && adjustWatch.toString() !== '-' &&
+                        </div>
+                      )}
+                      {!!adjustWatch && adjustWatch.toString() !== "-" && (
                         <div className="flex items-center justify-between">
                           <span>Adjustment:</span>
-                          <span>{adjustWatch < 0 ? `- ₹${-adjustWatch}` : `₹${adjustWatch}`}</span>
-                        </div>}
+                          <span>
+                            {adjustWatch < 0
+                              ? `- ₹${-adjustWatch}`
+                              : `₹${adjustWatch}`}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                   <CardFooter>
                     <div className="w-full font-bold flex items-center justify-between">
                       <span>Total:</span>
-                      <span>₹{
-                        readingFee -
-                        discount +
-                        lateFees +
-                        (paidDD ? (paidDD * DDFees) : 0) -
-                        (adjustWatch!.toString() !== '-' ? -adjustWatch! : 0)
-                      }</span>
+                      <span>
+                        ₹
+                        {readingFee -
+                          discount +
+                          lateFees +
+                          (paidDD ? paidDD * DDFees : 0) -
+                          (adjustWatch!.toString() !== "-" ? -adjustWatch! : 0)}
+                      </span>
                     </div>
                   </CardFooter>
-                </>}
+                </>
+              )}
             </Card>
             <Button
               type="submit"
@@ -343,15 +366,14 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
               Renew
             </Button>
           </form>
-          {errorMessage &&
+          {errorMessage && (
             <div className="flex text-red-500 mt-4">
               <AlertCircle className="mr-1 w-5" />
-              <p className="font-semibold">
-                {errorMessage}
-              </p>
-            </div>}
+              <p className="font-semibold">{errorMessage}</p>
+            </div>
+          )}
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

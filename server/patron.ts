@@ -459,9 +459,9 @@ export async function renewPatron(
   const DDFee = (input.paidDD || 0) * DDFees;
 
   const index = durations.indexOf(input.duration);
-  const freeDD = freeDDs[index];
-  const freeHoliday = holidays[index];
-  const discount = readingFee * discounts[index];
+  const freeDD = index != -1 ? freeDDs[index] : 0;
+  const freeHoliday = index != -1 ? holidays[index] : 0;
+  const discount = index != -1 ? readingFee * discounts[index] : 0;
 
   const total = readingFee + pastDues + DDFee - discount - (input.adjust || 0);
 
