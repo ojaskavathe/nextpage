@@ -22,4 +22,6 @@ export async function GET(req: Request) {
 
   await cronFetchLending();
   await cronRefreshFreeDD();
+
+  return new NextResponse("Lending and DD Refreshed", { status: 200 });
 }

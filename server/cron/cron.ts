@@ -18,7 +18,6 @@ export const cronRefreshFreeDD = async () => {
       !patron.subscription!.closed &&
       expiryDate.getDate() == today.getDate() // the day-of-month is the same as expiry
     ) {
-      console.log("HEHEHEHEHEHEHE: " + patron.id);
       await prisma.subscription.update({
         data: {
           freeDD: patron.subscription!.monthlyDD,
@@ -31,5 +30,4 @@ export const cronRefreshFreeDD = async () => {
   });
 
   revalidatePath("/patrons", "layout");
-  return new Response("FreeDD Refreshed!");
 };

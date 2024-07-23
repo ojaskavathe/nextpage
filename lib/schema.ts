@@ -123,7 +123,7 @@ export const patronCreateSchema = z.object({
 export const patronRenewSchema = z.object({
   id: z.number().min(0),
   plan: z.number().min(1).max(6),
-  duration: z.number().refine((val) => durations.includes(val), {
+  duration: z.number().refine((val) => durations.includes(val) || val === 0, {
     message: "Duration can only be 1, 2, 3, 6 or 12 months"
   }),
   paidDD: optIntString,
