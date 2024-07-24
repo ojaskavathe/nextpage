@@ -40,7 +40,7 @@ export default function MiscClosureForm({ patron }: { patron: PatronWithSub }) {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [depositRefund, setDepositRefund] = useState(true);
+  const [depositRefund, setDepositRefund] = useState(patron.deposit !== 0);
 
   const form = useForm<z.infer<typeof patronMiscClosureSchema>>({
     resolver: zodResolver(patronMiscClosureSchema),
@@ -76,7 +76,7 @@ export default function MiscClosureForm({ patron }: { patron: PatronWithSub }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} onError={(data) => {console.log(data)}}>
         <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
           <div className="basis-1/2 space-y-2">
             <Label>Deposit:</Label>
@@ -87,25 +87,21 @@ export default function MiscClosureForm({ patron }: { patron: PatronWithSub }) {
               <FormField
                 control={form.control}
                 name="depositRefund"
-                disabled={!patron.deposit}
                 render={({ field }) => (
                   <FormItem className="sm:basis-1/3 flex flex-col items-center justify-center">
                     <FormControl>
                       <Toggle
                         variant="outline"
                         aria-label="Toggle deposit"
+                        disabled={!patron.deposit}
                         defaultPressed={field.value}
                         onPressedChange={(e) => {
-                          field.onChange(e.valueOf());
+                          field.onChange(e);
                           setDepositRefund(e.valueOf());
                         }}
                         className="w-full flex items-center justify-center space-x-2"
                       >
-                        {field.value ? (
-                          <BookKey className="w-4" />
-                        ) : (
-                          <BookKey className="w-4" />
-                        )}
+                        <BookKey className="w-4" />
                         <span className="hidden md:inline">Deposit</span>
                       </Toggle>
                     </FormControl>
