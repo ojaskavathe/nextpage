@@ -56,19 +56,19 @@ import { AlertCircle, CalendarMinus, CalendarPlus } from "lucide-react";
 export default function RenewForm({ patron }: { patron: PatronFull }) {
   const router = useRouter();
 
+  const today = new Date();
+  const oldExpiry = patron.subscription!.expiryDate;
+  const isPatronLate =
+    patron.subscription!.booksInHand > 0 && oldExpiry < today;
+
   const [plan, setPlan] = useState(0);
   const [duration, setDuration] = useState(0);
   const [paidDD, setPaidDD] = useState(0);
-  const [fromExpiry, setFromExpiry] = useState(false);
+  const [fromExpiry, setFromExpiry] = useState(!isPatronLate);
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const today = new Date();
-  const oldExpiry = patron.subscription!.expiryDate;
-
   let numDays = 0;
-  const isPatronLate =
-    patron.subscription!.booksInHand > 0 && oldExpiry < today;
   if (isPatronLate) {
     numDays = Math.floor(
       (today.valueOf() - oldExpiry.valueOf()) / (1000 * 60 * 60 * 24),
@@ -80,10 +80,8 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
     : plan
       ? Math.floor((fee[plan - 1] * numDays) / 30)
       : 0;
-  const newExpiry = isPatronLate
-    ? fromExpiry
-      ? new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + duration))
-      : new Date(today.setMonth(today.getMonth() + duration))
+  const newExpiry = fromExpiry
+    ? new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + duration))
     : new Date(today.setMonth(today.getMonth() + duration))
 
   const readingFee = fee[plan - 1] * duration;
@@ -102,7 +100,7 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
       reason: "",
       offer: "",
       remarks: "",
-      renewFromExpiry: false,
+      renewFromExpiry: !isPatronLate,
     },
   });
 
@@ -236,7 +234,7 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
             />
             <div className="flex items-center space-x-4">
               <div className="mt-4 flex-grow">
-                <Label>Past Dues:</Label>
+                <Label>Past Dues (Renewing from {fromExpiry ? 'Expiry' : 'Today'}):</Label>
                 <div className="mt-2 py-2 px-3 border rounded-md text-sm bg-secondary">
                   {lateFees}
                 </div>
@@ -257,7 +255,6 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
                             setFromExpiry(e.valueOf());
                           }}
                           className="flex items-center justify-center space-x-2"
-                          disabled={!isPatronLate}
                         >
                           {field.value ? (
                             <CalendarPlus className="w-4" />

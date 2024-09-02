@@ -445,13 +445,10 @@ export async function renewPatron(
     ? 0
     : Math.floor((fee[input.plan - 1] * numDays) / 30);
 
-  const newExpiry = isPatronLate
-    ? input.renewFromExpiry
-      ? new Date(
-          new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration),
-        )
-      : new Date(today.setMonth(today.getMonth() + input.duration))
-    : new Date(today.setMonth(today.getMonth() + input.duration))
+  const newExpiry = input.renewFromExpiry
+    ? new Date(
+        new Date(oldExpiry).setMonth(oldExpiry.getMonth() + input.duration))
+    : new Date(today.setMonth(today.getMonth() + input.duration));
 
   const readingFee = fee[input.plan - 1] * input.duration;
   const DDFee = (input.paidDD || 0) * DDFees;
