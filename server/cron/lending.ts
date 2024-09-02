@@ -3,8 +3,8 @@
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { JWT } from "google-auth-library";
 import { z } from "zod";
-import { prisma } from "@/server/db";
 import { revalidatePath } from "next/cache";
+import { PrismaClient } from "@prisma/client";
 
 const serviceAccountAuth = new JWT({
   email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -39,7 +39,8 @@ const getLendingData = async () => {
   return rows.map((row) => row.toObject());
 };
 
-export async function cronFetchLending() {
+export async function cronFetchLending(prisma: PrismaClient) {
+
   const checkoutData = await getCheckoutData();
   const checkout = checkoutData
     .filter((row) => {
@@ -199,6 +200,7 @@ export async function cronFetchLending() {
       };
     }),
   });
+
 
   revalidatePath("/lending");
   revalidatePath("/patrons", "layout");

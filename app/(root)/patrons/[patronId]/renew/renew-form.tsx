@@ -84,7 +84,7 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
     ? fromExpiry
       ? new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + duration))
       : new Date(today.setMonth(today.getMonth() + duration))
-    : new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + duration));
+    : new Date(today.setMonth(today.getMonth() + duration))
 
   const readingFee = fee[plan - 1] * duration;
 

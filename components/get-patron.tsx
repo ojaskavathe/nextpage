@@ -70,6 +70,7 @@ export default function GetPatron({ queryPatron }: { queryPatron?: PatronWithSub
       <div className='basis-1/2'>
         <Input
           name="patron"
+          type="search"
           placeholder="ID / Name / Email"
           spellCheck="false"
           onChange={(e) => { setSearchString(e.target.value) }}

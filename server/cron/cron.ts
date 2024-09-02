@@ -1,33 +1,20 @@
 "use server";
 
-import { prisma } from "@/server/db";
+import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { cronFetchLending } from "./lending";
+import { cronRefreshFreeDD } from "./DD";
 
-export const cronRefreshFreeDD = async () => {
-  const today = new Date();
-
-  const patrons = await prisma.patron.findMany({
-    include: {
-      subscription: true,
-    },
+export const cronRefresh = async () => {
+  const prisma = new PrismaClient({
+    datasourceUrl: process.env.DIRECT_DATABASE_URL,
+    log:
+      process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
 
-  patrons.forEach(async (patron) => {
-    const expiryDate = patron.subscription!.expiryDate;
-    if (
-      !patron.subscription!.closed &&
-      expiryDate.getDate() == today.getDate() // the day-of-month is the same as expiry
-    ) {
-      await prisma.subscription.update({
-        data: {
-          freeDD: patron.subscription!.monthlyDD,
-        },
-        where: {
-          patronId: patron.id,
-        },
-      });
-    }
-  });
+  await cronFetchLending(prisma);
+  await cronRefreshFreeDD(prisma);
 
+  prisma.$disconnect();
   revalidatePath("/patrons", "layout");
 };

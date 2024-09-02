@@ -1,5 +1,4 @@
-import { cronRefreshFreeDD } from "@/server/cron/cron";
-import { cronFetchLending } from "@/server/cron/lending";
+import { cronRefresh } from "@/server/cron/cron";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
@@ -20,8 +19,7 @@ export async function GET(req: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  await cronFetchLending();
-  await cronRefreshFreeDD();
+  await cronRefresh();
 
   return new NextResponse("Lending and DD Refreshed", { status: 200 });
 }

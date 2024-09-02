@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { cronFetchLending } from "@/server/cron/lending";
+import { cronRefresh } from "@/server/cron/cron";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -12,7 +12,7 @@ export default function RefreshLending() {
   const [isPending, startTransition] = useTransition();
   function handleAction() {
     startTransition(async () => {
-      await cronFetchLending();
+      await cronRefresh();
     })
   }
 
