@@ -82,7 +82,6 @@ export default function TransactionForm({
   const { push } = useRouter();
 
   const onSubmit = async (data: z.infer<typeof transactionSchema>) => {
-    console.log(data);
     const res = await editTransaction(data);
 
     if (res.error) setErrorMessage(res.message);

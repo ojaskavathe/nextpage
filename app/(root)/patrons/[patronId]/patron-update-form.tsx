@@ -80,7 +80,6 @@ export default function PatronUpdateForm({
     if (lenDirtyFields == 0) {
       toast.warning("Edit some values first!");
     } else {
-      console.log(data);
       const res = await updatePatron(data);
 
       if (res.error == 0) {

@@ -36,7 +36,6 @@ export const fetchYearlyCollection = async () => {
       FROM "Transaction"
       GROUP BY date_trunc('year', "createdAt")
       ORDER BY date_trunc('year', "createdAt") DESC`
-      console.log(yearly)
     return yearly;
   } catch (e) {
     return null;
