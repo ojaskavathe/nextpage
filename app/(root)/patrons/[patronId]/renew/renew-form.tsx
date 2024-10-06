@@ -75,10 +75,11 @@ export default function RenewForm({ patron }: { patron: PatronFull }) {
     );
   }
 
+  const oldPlan = patron.subscription!.plan;
   const lateFees = fromExpiry
     ? 0
     : plan
-      ? Math.floor((fee[plan - 1] * numDays) / 30)
+      ? Math.floor((fee[oldPlan - 1] * numDays) / 30)
       : 0;
   const newExpiry = fromExpiry
     ? new Date(new Date(oldExpiry).setMonth(oldExpiry.getMonth() + duration))

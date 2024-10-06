@@ -443,7 +443,7 @@ export async function renewPatron(
 
   const pastDues = input.renewFromExpiry
     ? 0
-    : Math.floor((fee[input.plan - 1] * numDays) / 30);
+    : Math.floor((fee[oldPlan - 1] * numDays) / 30);
 
   const newExpiry = input.renewFromExpiry
     ? new Date(
