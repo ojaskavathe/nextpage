@@ -44,3 +44,6 @@ cron.sh
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# nix
+.direnv/
